@@ -1,0 +1,1121 @@
+\begin{thebibliography}{}
+
+\bibitem [\protect \citeauthoryear {%
+Benko%
+, H\"{a}rdle%
+\BCBL {}\ \BBA {} Kneip%
+}{%
+Benko%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2009}}%
+}]{%
+benko09}
+\APACinsertmetastar {%
+benko09}%
+\begin{APACrefauthors}%
+Benko, M.%
+, H\"{a}rdle, W.%
+\BCBL {}\ \BBA {} Kneip, A.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2009}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Common functional principal components} {Common
+  functional principal components}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{The Annals of Statistics}{37}{}{1--34}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Bishop%
+}{%
+Bishop%
+}{%
+{\protect \APACyear {1999}}%
+}]{%
+bishop99}
+\APACinsertmetastar {%
+bishop99}%
+\begin{APACrefauthors}%
+Bishop, C\BPBI M.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1999}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Variational Pincipal Components} {Variational pincipal
+  components}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Proceedings of the Ninth International Conference on
+  Artificial Neural Networks.} {Proceedings of the ninth international
+  conference on artificial neural networks.}
+\newblock
+\APACaddressPublisher{}{Institute of Electrical and Electronics Engineers}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Bishop%
+}{%
+Bishop%
+}{%
+{\protect \APACyear {2006}}%
+}]{%
+bishop06}
+\APACinsertmetastar {%
+bishop06}%
+\begin{APACrefauthors}%
+Bishop, C\BPBI M.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYear{2006}.
+\newblock
+\APACrefbtitle {{Pattern Recognition and Machine Learning}} {{Pattern
+  Recognition and Machine Learning}}.
+\newblock
+\APACaddressPublisher{New York}{Springer}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Blei%
+, Kucukelbir%
+\BCBL {}\ \BBA {} McAuliffe%
+}{%
+Blei%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2017}}%
+}]{%
+blei17}
+\APACinsertmetastar {%
+blei17}%
+\begin{APACrefauthors}%
+Blei, D\BPBI M.%
+, Kucukelbir, A.%
+\BCBL {}\ \BBA {} McAuliffe, J\BPBI D.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2017}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Variational inference: {A} review for statisticians}
+  {Variational inference: {A} review for statisticians}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Journal of the {American} Statistical
+  Association}{112}{}{859--877}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Di%
+, Crainiceanu%
+, Caffo%
+\BCBL {}\ \BBA {} Punjabi%
+}{%
+Di%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2009}}%
+}]{%
+di09}
+\APACinsertmetastar {%
+di09}%
+\begin{APACrefauthors}%
+Di, C\BPBI Z.%
+, Crainiceanu, C\BPBI M.%
+, Caffo, B\BPBI S.%
+\BCBL {}\ \BBA {} Punjabi, N\BPBI M.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2009}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Multilevel functional principal component analysis}
+  {Multilevel functional principal component analysis}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{The Annals of Applied Statistics}{3}{}{458--488}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Durb\'{a}n%
+, Harezlak%
+, Wand%
+\BCBL {}\ \BBA {} Carroll%
+}{%
+Durb\'{a}n%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2005}}%
+}]{%
+durban05}
+\APACinsertmetastar {%
+durban05}%
+\begin{APACrefauthors}%
+Durb\'{a}n, M.%
+, Harezlak, J.%
+, Wand, M\BPBI P.%
+\BCBL {}\ \BBA {} Carroll, R\BPBI J.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2005}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Simple fitting of subject specific curves for
+  longitudinal data} {Simple fitting of subject specific curves for
+  longitudinal data}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Statistics in Medicine}{24}{}{1153--1167}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Faes%
+, Ormerod%
+\BCBL {}\ \BBA {} Wand%
+}{%
+Faes%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2011}}%
+}]{%
+faes11}
+\APACinsertmetastar {%
+faes11}%
+\begin{APACrefauthors}%
+Faes, C.%
+, Ormerod, J\BPBI T.%
+\BCBL {}\ \BBA {} Wand, M\BPBI P.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2011}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Variational {Bayesian} inference for parametric and
+  nonparametric regression with missing data} {Variational {Bayesian} inference
+  for parametric and nonparametric regression with missing data}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Journal of the American Statistical
+  Association}{106}{}{959--971}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Gelman%
+}{%
+Gelman%
+}{%
+{\protect \APACyear {2006}}%
+}]{%
+gelman06}
+\APACinsertmetastar {%
+gelman06}%
+\begin{APACrefauthors}%
+Gelman, A.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2006}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Prior distributions for variance parameters in
+  hierarchical models (comment on article by {B}rowne and {D}raper)} {Prior
+  distributions for variance parameters in hierarchical models (comment on
+  article by {B}rowne and {D}raper)}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Bayesian Analysis}{1}{}{515--534}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Gentle%
+}{%
+Gentle%
+}{%
+{\protect \APACyear {2007}}%
+}]{%
+gentle07}
+\APACinsertmetastar {%
+gentle07}%
+\begin{APACrefauthors}%
+Gentle, J\BPBI E.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYear{2007}.
+\newblock
+\APACrefbtitle {{Matrix Algebra}} {{Matrix Algebra}}.
+\newblock
+\APACaddressPublisher{New York}{Springer}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Giraldo%
+, Delicado%
+\BCBL {}\ \BBA {} Mateu%
+}{%
+Giraldo%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2010}}%
+}]{%
+giraldo10}
+\APACinsertmetastar {%
+giraldo10}%
+\begin{APACrefauthors}%
+Giraldo, R.%
+, Delicado, P.%
+\BCBL {}\ \BBA {} Mateu, J.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2010}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Continuous time-varying kriging for spatial prediction
+  of functional data: {An} environmental application} {Continuous time-varying
+  kriging for spatial prediction of functional data: {An} environmental
+  application}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Journal of agricultural, biological, and environmental
+  statistics}{15}{}{66--82}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Goldsmith%
+, Greven%
+\BCBL {}\ \BBA {} Crainiceanu%
+}{%
+Goldsmith%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2013}}%
+}]{%
+goldsmith13}
+\APACinsertmetastar {%
+goldsmith13}%
+\begin{APACrefauthors}%
+Goldsmith, J.%
+, Greven, S.%
+\BCBL {}\ \BBA {} Crainiceanu, C.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2013}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Corrected confidence bands for functional data using
+  principal components} {Corrected confidence bands for functional data using
+  principal components}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Biometrics}{69}{}{41--51}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Goldsmith%
+, Zippunnikov%
+\BCBL {}\ \BBA {} Schrack%
+}{%
+Goldsmith%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2015}}%
+}]{%
+Goldsmith15}
+\APACinsertmetastar {%
+Goldsmith15}%
+\begin{APACrefauthors}%
+Goldsmith, J.%
+, Zippunnikov, V.%
+\BCBL {}\ \BBA {} Schrack, J.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2015}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Generalized multilevel function-on-scalar regression and
+  principal component analysis} {Generalized multilevel function-on-scalar
+  regression and principal component analysis}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Biometrics}{71}{}{344--353}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Jaakkola%
+\ \BBA {} Jordan%
+}{%
+Jaakkola%
+\ \BBA {} Jordan%
+}{%
+{\protect \APACyear {2000}}%
+}]{%
+jaakkola00}
+\APACinsertmetastar {%
+jaakkola00}%
+\begin{APACrefauthors}%
+Jaakkola, T\BPBI S.%
+\BCBT {}\ \BBA {} Jordan, M\BPBI I.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2000}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Bayesian parameter estimation via variational methods}
+  {Bayesian parameter estimation via variational methods}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Statistics and Computing}{10}{}{25--37}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Knowles%
+\ \BBA {} Minka%
+}{%
+Knowles%
+\ \BBA {} Minka%
+}{%
+{\protect \APACyear {2011}}%
+}]{%
+knowles11}
+\APACinsertmetastar {%
+knowles11}%
+\begin{APACrefauthors}%
+Knowles, D\BPBI A.%
+\BCBT {}\ \BBA {} Minka, T.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2011}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Non-conjugate variational message passing for
+  multinomial and binary regression} {Non-conjugate variational message passing
+  for multinomial and binary regression}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Advances in Neural Information Processing Systems}
+  {Advances in neural information processing systems}\ (\BPGS\ 1701--1709).
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Lee%
+\ \BBA {} Wand%
+}{%
+Lee%
+\ \BBA {} Wand%
+}{%
+{\protect \APACyear {2016}}%
+}]{%
+lee16}
+\APACinsertmetastar {%
+lee16}%
+\begin{APACrefauthors}%
+Lee, C\BPBI Y\BPBI Y.%
+\BCBT {}\ \BBA {} Wand, M\BPBI P.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2016}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Streamlined mean field variational {Bayes} for
+  longitudinal and multilevel data analysis.} {Streamlined mean field
+  variational {Bayes} for longitudinal and multilevel data analysis.}{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Biometrical Journal}{58}{}{868--895}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Luts%
+\ \BBA {} Wand%
+}{%
+Luts%
+\ \BBA {} Wand%
+}{%
+{\protect \APACyear {2015}}%
+}]{%
+luts15}
+\APACinsertmetastar {%
+luts15}%
+\begin{APACrefauthors}%
+Luts, J.%
+\BCBT {}\ \BBA {} Wand, M\BPBI P.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2015}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Variational inference for count response semiparametric
+  regression.} {Variational inference for count response semiparametric
+  regression.}{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Bayesian Analysis}{10}{}{991--1023}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Maestrini%
+\ \BBA {} Wand%
+}{%
+Maestrini%
+\ \BBA {} Wand%
+}{%
+{\protect \APACyear {2018}}%
+}]{%
+maestrini18}
+\APACinsertmetastar {%
+maestrini18}%
+\begin{APACrefauthors}%
+Maestrini, L.%
+\BCBT {}\ \BBA {} Wand, M\BPBI P.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2018}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Variational message passing for skew $t$ regression}
+  {Variational message passing for skew $t$ regression}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Stat}{7}{}{e196}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Maestrini%
+\ \BBA {} Wand%
+}{%
+Maestrini%
+\ \BBA {} Wand%
+}{%
+{\protect \APACyear {2020}}%
+}]{%
+maestrini20}
+\APACinsertmetastar {%
+maestrini20}%
+\begin{APACrefauthors}%
+Maestrini, L.%
+\BCBT {}\ \BBA {} Wand, M\BPBI P.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2020}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {The {Inverse G-Wishart} distribution and variational
+  message passing} {The {Inverse G-Wishart} distribution and variational
+  message passing}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{arXiv e-prints}{}{}{arXiv:2005.09876}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{McLean}%
+\ \BBA {} Wand%
+}{%
+{McLean}%
+\ \BBA {} Wand%
+}{%
+{\protect \APACyear {2019}}%
+}]{%
+mclean19}
+\APACinsertmetastar {%
+mclean19}%
+\begin{APACrefauthors}%
+{McLean}, M\BPBI W.%
+\BCBT {}\ \BBA {} Wand, M\BPBI P.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2019}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Variational message passing for elaborate response
+  regression models} {Variational message passing for elaborate response
+  regression models}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Bayesian Analysis}{14}{}{371--398}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Menictas%
+\ \BBA {} Wand%
+}{%
+Menictas%
+\ \BBA {} Wand%
+}{%
+{\protect \APACyear {2013}}%
+}]{%
+menictas13}
+\APACinsertmetastar {%
+menictas13}%
+\begin{APACrefauthors}%
+Menictas, M.%
+\BCBT {}\ \BBA {} Wand, M\BPBI P.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2013}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Variational inference for marginal longitudinal
+  semiparametric regression} {Variational inference for marginal longitudinal
+  semiparametric regression}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Stat}{2}{}{61--71}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Minka%
+}{%
+Minka%
+}{%
+{\protect \APACyear {2005}}%
+}]{%
+minka05}
+\APACinsertmetastar {%
+minka05}%
+\begin{APACrefauthors}%
+Minka, T.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2005}{}{}.
+\newblock
+\APACrefbtitle {Divergence measures and message passing} {Divergence measures
+  and message passing}\ \APACbVolEdTR{}{\BTR{}}.
+\newblock
+\APACaddressInstitution{Cambridge, UK}{Microsoft Research Ltd.}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Monahan%
+\ \BBA {} Stefanski%
+}{%
+Monahan%
+\ \BBA {} Stefanski%
+}{%
+{\protect \APACyear {1992}}%
+}]{%
+monahan92}
+\APACinsertmetastar {%
+monahan92}%
+\begin{APACrefauthors}%
+Monahan, J\BPBI F.%
+\BCBT {}\ \BBA {} Stefanski, L\BPBI A.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1992}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Normal scale mixture approximations to ${F}^* (z)$ and
+  computation of the logistic-normal integral} {Normal scale mixture
+  approximations to ${F}^* (z)$ and computation of the logistic-normal
+  integral}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {{Handbook of the Logistic Distribution}} {{Handbook of
+  the Logistic Distribution}}\ (\BPGS\ 529--540).
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Nolan%
+, Menictas%
+\BCBL {}\ \BBA {} Wand%
+}{%
+Nolan%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2020}}%
+}]{%
+nolanmw20}
+\APACinsertmetastar {%
+nolanmw20}%
+\begin{APACrefauthors}%
+Nolan, T\BPBI H.%
+, Menictas, M.%
+\BCBL {}\ \BBA {} Wand, M\BPBI P.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2020}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Streamlined computing for variational inference with
+  higher level random effects} {Streamlined computing for variational inference
+  with higher level random effects}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Journal of Machine Learning Research}{21}{}{1--62}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Nolan%
+\ \BBA {} Wand%
+}{%
+Nolan%
+\ \BBA {} Wand%
+}{%
+{\protect \APACyear {2017}}%
+}]{%
+nolan17}
+\APACinsertmetastar {%
+nolan17}%
+\begin{APACrefauthors}%
+Nolan, T\BPBI H.%
+\BCBT {}\ \BBA {} Wand, M\BPBI P.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2017}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Accurate logistic variational message passing:
+  {A}lgebraic and numerical details} {Accurate logistic variational message
+  passing: {A}lgebraic and numerical details}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Stat}{6}{}{102--112}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Nolan%
+\ \BBA {} Wand%
+}{%
+Nolan%
+\ \BBA {} Wand%
+}{%
+{\protect \APACyear {2020}}%
+}]{%
+nolan19}
+\APACinsertmetastar {%
+nolan19}%
+\begin{APACrefauthors}%
+Nolan, T\BPBI H.%
+\BCBT {}\ \BBA {} Wand, M\BPBI P.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2020}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Streamlined Solutions to Multilevel Sparse Matrix
+  Problems} {Streamlined solutions to multilevel sparse matrix
+  problems}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{ANZIAM Journal}{62}{}{18--41}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Ormerod%
+\ \BBA {} Wand%
+}{%
+Ormerod%
+\ \BBA {} Wand%
+}{%
+{\protect \APACyear {2010}}%
+}]{%
+ormerod10}
+\APACinsertmetastar {%
+ormerod10}%
+\begin{APACrefauthors}%
+Ormerod, J\BPBI T.%
+\BCBT {}\ \BBA {} Wand, M\BPBI P.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2010}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Explaining variational approximations} {Explaining
+  variational approximations}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{The {American} Statistician}{64}{}{140--153}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Parisi%
+}{%
+Parisi%
+}{%
+{\protect \APACyear {1988}}%
+}]{%
+parisi88}
+\APACinsertmetastar {%
+parisi88}%
+\begin{APACrefauthors}%
+Parisi, G.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYear{1988}.
+\newblock
+\APACrefbtitle {{Statistical Field Theory}} {{Statistical Field Theory}}.
+\newblock
+\APACaddressPublisher{Redwood City, CA}{Addison-Wesley}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Ramsay%
+\ \BBA {} Silverman%
+}{%
+Ramsay%
+\ \BBA {} Silverman%
+}{%
+{\protect \APACyear {2005}}%
+}]{%
+ramsay05}
+\APACinsertmetastar {%
+ramsay05}%
+\begin{APACrefauthors}%
+Ramsay, J\BPBI O.%
+\BCBT {}\ \BBA {} Silverman, B\BPBI W.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYear{2005}.
+\newblock
+\APACrefbtitle {{Functional Data Analysis}} {{Functional Data Analysis}}.
+\newblock
+\APACaddressPublisher{New York}{Springer}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{\textsf{R} Core Team}%
+}{%
+{\textsf{R} Core Team}%
+}{%
+{\protect \APACyear {2020}}%
+}]{%
+r20}
+\APACinsertmetastar {%
+r20}%
+\begin{APACrefauthors}%
+{\textsf{R} Core Team}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2020}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {\textsf{R}: A Language and Environment for Statistical
+  Computing} {\textsf{R}: A language and environment for statistical
+  computing}{\BBCQ}\ [\bibcomputersoftwaremanual].
+\newblock
+\APACaddressPublisher{Vienna, Austria}{}.
+\newblock
+\begin{APACrefURL} \url{https://www.R-project.org/} \end{APACrefURL}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Rohde%
+\ \BBA {} Wand%
+}{%
+Rohde%
+\ \BBA {} Wand%
+}{%
+{\protect \APACyear {2016}}%
+}]{%
+rohde16}
+\APACinsertmetastar {%
+rohde16}%
+\begin{APACrefauthors}%
+Rohde, D.%
+\BCBT {}\ \BBA {} Wand, M\BPBI P.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2016}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Semiparametric mean field variational {B}ayes: {G}eneral
+  principles and numerical issues} {Semiparametric mean field variational
+  {B}ayes: {G}eneral principles and numerical issues}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Journal of Machine Learning Research}{17}{}{1--47}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Ruppert%
+, Wand%
+\BCBL {}\ \BBA {} Carroll%
+}{%
+Ruppert%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2003}}%
+}]{%
+ruppert03}
+\APACinsertmetastar {%
+ruppert03}%
+\begin{APACrefauthors}%
+Ruppert, D.%
+, Wand, M\BPBI P.%
+\BCBL {}\ \BBA {} Carroll, R\BPBI J.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYear{2003}.
+\newblock
+\APACrefbtitle {{Semiparametric Regression}} {{Semiparametric Regression}}.
+\newblock
+\APACaddressPublisher{}{Cambridge University Press}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Ruppert%
+, Wand%
+\BCBL {}\ \BBA {} Carroll%
+}{%
+Ruppert%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2009}}%
+}]{%
+ruppert09}
+\APACinsertmetastar {%
+ruppert09}%
+\begin{APACrefauthors}%
+Ruppert, D.%
+, Wand, M\BPBI P.%
+\BCBL {}\ \BBA {} Carroll, R\BPBI J.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2009}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Semiparametric regression during 2003--2007}
+  {Semiparametric regression during 2003--2007}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Electronic Journal of Statistics}{3}{}{1193--1256}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Silverman%
+}{%
+Silverman%
+}{%
+{\protect \APACyear {1995}}%
+}]{%
+silverman95}
+\APACinsertmetastar {%
+silverman95}%
+\begin{APACrefauthors}%
+Silverman, B\BPBI W.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1995}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Incorporating parametric effects into functional
+  principal components analysis} {Incorporating parametric effects into
+  functional principal components analysis}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Journal of the Royal Statistical Society: Series B
+  (Methodological)}{57}{}{673--689}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{Stan Development Team}%
+}{%
+{Stan Development Team}%
+}{%
+{\protect \APACyear {2020}}%
+}]{%
+rstan20}
+\APACinsertmetastar {%
+rstan20}%
+\begin{APACrefauthors}%
+{Stan Development Team}.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2020}{}{}.
+\newblock
+\APACrefbtitle {\textsf{RStan}: the \textsf{R} interface to \textsf{Stan}.}
+  {\textsf{RStan}: the \textsf{R} interface to \textsf{Stan}.}
+\newblock
+\begin{APACrefURL} \url{http://mc-stan.org/} \end{APACrefURL}
+\newblock
+\APACrefnote{\textsf{R} package version 2.21.2}
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Suarez%
+\ \BBA {} Ghosal%
+}{%
+Suarez%
+\ \BBA {} Ghosal%
+}{%
+{\protect \APACyear {2017}}%
+}]{%
+suarez17}
+\APACinsertmetastar {%
+suarez17}%
+\begin{APACrefauthors}%
+Suarez, A\BPBI J.%
+\BCBT {}\ \BBA {} Ghosal, S.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2017}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Bayesian estimation of principal components for
+  functional data} {Bayesian estimation of principal components for functional
+  data}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Bayesian Analysis}{12}{}{311--333}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Tipping%
+\ \BBA {} Bishop%
+}{%
+Tipping%
+\ \BBA {} Bishop%
+}{%
+{\protect \APACyear {1999}}%
+}]{%
+tipping99}
+\APACinsertmetastar {%
+tipping99}%
+\begin{APACrefauthors}%
+Tipping, M\BPBI E.%
+\BCBT {}\ \BBA {} Bishop, C\BPBI M.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{1999}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Probabilistic principal component analysis}
+  {Probabilistic principal component analysis}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Journal of the Royal Statistical Society, Series
+  B}{3}{}{611--622}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+{van der Linde}%
+}{%
+{van der Linde}%
+}{%
+{\protect \APACyear {2008}}%
+}]{%
+vanderlinde08}
+\APACinsertmetastar {%
+vanderlinde08}%
+\begin{APACrefauthors}%
+{van der Linde}, A.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2008}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Variational {B}ayesian functional {PCA}} {Variational
+  {B}ayesian functional {PCA}}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Computational Statistics and Data
+  Analysis}{53}{}{517--533}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Wand%
+}{%
+Wand%
+}{%
+{\protect \APACyear {2017}}%
+}]{%
+wand17}
+\APACinsertmetastar {%
+wand17}%
+\begin{APACrefauthors}%
+Wand, M\BPBI P.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2017}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Fast approximate inference for arbitrarily large
+  semiparametric regression models via message passing (with discussion)} {Fast
+  approximate inference for arbitrarily large semiparametric regression models
+  via message passing (with discussion)}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Journal of the {American} Statistical
+  Association}{112}{}{137--168}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Wand%
+\ \BBA {} Ormerod%
+}{%
+Wand%
+\ \BBA {} Ormerod%
+}{%
+{\protect \APACyear {2008}}%
+}]{%
+wand08}
+\APACinsertmetastar {%
+wand08}%
+\begin{APACrefauthors}%
+Wand, M\BPBI P.%
+\BCBT {}\ \BBA {} Ormerod, J\BPBI T.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2008}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {On semiparametric regression with {O'Sullivan} penalized
+  splines} {On semiparametric regression with {O'Sullivan} penalized
+  splines}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{{Australian} \& {New Zealand} Journal of
+  Statistics}{50}{}{179--198}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Wang%
+, Chiou%
+\BCBL {}\ \BBA {} M\"{u}ller%
+}{%
+Wang%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2016}}%
+}]{%
+wang16}
+\APACinsertmetastar {%
+wang16}%
+\begin{APACrefauthors}%
+Wang, J\BPBI L.%
+, Chiou, J\BPBI M.%
+\BCBL {}\ \BBA {} M\"{u}ller, H\BPBI G.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2016}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Functional data analysis} {Functional data
+  analysis}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Annual Review of Statistics and Its
+  Applications}{3}{}{257--295}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Winn%
+\ \BBA {} Bishop%
+}{%
+Winn%
+\ \BBA {} Bishop%
+}{%
+{\protect \APACyear {2005}}%
+}]{%
+winn05}
+\APACinsertmetastar {%
+winn05}%
+\begin{APACrefauthors}%
+Winn, J.%
+\BCBT {}\ \BBA {} Bishop, C\BPBI M.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2005}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Variational message passing} {Variational message
+  passing}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Journal of Machine Learning Research}{6}{}{661--694}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Yao%
+, M\"{u}ller%
+\BCBL {}\ \BBA {} Wang%
+}{%
+Yao%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2005}}%
+}]{%
+yao05}
+\APACinsertmetastar {%
+yao05}%
+\begin{APACrefauthors}%
+Yao, F.%
+, M\"{u}ller, H\BPBI G.%
+\BCBL {}\ \BBA {} Wang, J\BPBI L.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2005}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Functional data analysis for sparse longitudinal data}
+  {Functional data analysis for sparse longitudinal data}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Journal of the {American} Statistical
+  Association}{100}{}{577--590}.
+\PrintBackRefs{\CurrentBib}
+
+\end{thebibliography}

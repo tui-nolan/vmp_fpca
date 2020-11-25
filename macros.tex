@@ -1,0 +1,1347 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                            %
+%        GrandMacros.tex                     %
+%                                            %
+%  A file containing all non-colour LaTeX    %
+%  macros used by M.P. Wand                  %
+%                                            %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Conventions (for most current macros):
+%
+% \ba        <-->  bold-faced a
+% \ahat      <-->  hatted a
+% \atilde    <-->  tilded a
+% \abar      <-->  barred a
+% \asc       <-->  script a
+% \aarrow    <-->  arrowed a
+% \smba      <-->  small bold-faced a
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Necessary Packages           %
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{bm}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage[noend]{algpseudocode}
+\usepackage{varwidth}
+\usepackage{xspace}
+\makeatletter
+\def\BState{\State\hskip-\ALG@thistlm}
+\makeatother
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Bold Digits           %
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+%
+\def\bzero{\boldsymbol{0}}
+\def\bone{\boldsymbol{1}}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Bold Roman Letters    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+\usepackage{amsmath,amssymb,amsfonts}
+\def\ba{\boldsymbol{a}}
+\def\bb{\boldsymbol{b}}
+\def\bc{\boldsymbol{c}}
+\def\bd{\boldsymbol{d}}
+\def\be{\boldsymbol{e}}
+\def\bdf{\boldsymbol{f}}
+\def\bg{\boldsymbol{g}}
+\def\bh{\boldsymbol{h}}
+\def\bi{\boldsymbol{i}}
+\def\bj{\boldsymbol{j}}
+\def\bk{\boldsymbol{k}}
+\def\bl{\boldsymbol{l}}
+\def\bm{\boldsymbol{m}}
+\def\bn{\boldsymbol{n}}
+\def\bo{\boldsymbol{o}}
+\def\bp{\boldsymbol{p}}
+\def\bq{\boldsymbol{q}}
+\def\br{\boldsymbol{r}}
+\def\bs{\boldsymbol{s}}
+\def\bt{\boldsymbol{t}}
+\def\bu{\boldsymbol{u}}
+\def\bv{\boldsymbol{v}}
+\def\bw{\boldsymbol{w}}
+\def\bx{\boldsymbol{x}}
+\def\by{\boldsymbol{y}}
+\def\bz{\boldsymbol{z}}
+\def\bA{\boldsymbol{A}}
+\def\bB{\boldsymbol{B}}
+\def\bC{\boldsymbol{C}}
+\def\bD{\boldsymbol{D}}
+\def\bE{\boldsymbol{E}}
+\def\bF{\boldsymbol{F}}
+\def\bG{\boldsymbol{G}}
+\def\bH{\boldsymbol{H}}
+\def\bI{\boldsymbol{I}}
+\def\bJ{\boldsymbol{J}}
+\def\bK{\boldsymbol{K}}
+\def\bL{\boldsymbol{L}}
+\def\bM{\boldsymbol{M}}
+\def\bN{\boldsymbol{N}}
+\def\bO{\boldsymbol{O}}
+\def\bP{\boldsymbol{P}}
+\def\bQ{\boldsymbol{Q}}
+\def\bR{\boldsymbol{R}}
+\def\bS{\boldsymbol{S}}
+\def\bT{\boldsymbol{T}}
+\def\bU{\boldsymbol{U}}
+\def\bV{\boldsymbol{V}}
+\def\bW{\boldsymbol{W}}
+\def\bX{\boldsymbol{X}}
+\def\bY{\boldsymbol{Y}}
+\def\bZ{\boldsymbol{Z}}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Small Bold Roman Letters    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\thick#1{\hbox{\rlap{$#1$}\kern0.25pt\rlap{$#1$}\kern0.25pt$#1$}}
+\def\smba{{\thick{\scriptstyle{a}}}}
+\def\smbb{{\thick{\scriptstyle{\rm b}}}}
+\def\smbc{{\thick{\scriptstyle{\rm c}}}}
+\def\smbd{{\thick{\scriptstyle{\rm d}}}}
+\def\smbe{{\thick{\scriptstyle{\rm e}}}}
+\def\smbdf{{\thick{\scriptstyle{\rm f}}}}
+\def\smbg{\thick{\scriptstyle{g}}}
+\def\smbh{{\thick{\scriptstyle{\rm h}}}}
+\def\smbi{{\thick{\scriptstyle{\rm i}}}}
+\def\smbj{{\thick{\scriptstyle{\rm j}}}}
+\def\smbk{{\thick{\scriptstyle{\rm k}}}}
+\def\smbl{{\thick{\scriptstyle{\rm l}}}}
+\def\smbm{{\thick{\scriptstyle{\rm m}}}}
+\def\smbn{{\thick{\scriptstyle{\rm n}}}}
+\def\smbo{{\thick{\scriptstyle{\rm o}}}}
+\def\smbp{{\thick{\scriptstyle{\rm p}}}}
+\def\smbq{{\thick{\scriptstyle{\rm q}}}}
+\def\smbr{{\thick{\scriptstyle{\rm r}}}}
+\def\smbs{{\thick{\scriptstyle{\rm s}}}}
+\def\smbt{{\thick{\scriptstyle{\rm t}}}}
+\def\smbu{{\thick{\scriptstyle{\rm u}}}}
+\def\smbv{{\thick{\scriptstyle{\rm v}}}}
+\def\smbw{{\thick{\scriptstyle{\rm w}}}}
+\def\smbx{{\thick{\scriptstyle{\rm x}}}}
+\def\smby{{\thick{\scriptstyle{\rm y}}}}
+\def\smbz{{\thick{\scriptstyle{\rm z}}}}
+\def\smbA{{\thick{\scriptstyle{\rm A}}}}
+\def\smbB{{\thick{\scriptstyle{\rm B}}}}
+\def\smbC{{\thick{\scriptstyle{\rm C}}}}
+\def\smbD{{\thick{\scriptstyle{\rm D}}}}
+\def\smbE{{\thick{\scriptstyle{\rm E}}}}
+\def\smbF{{\thick{\scriptstyle{\rm F}}}}
+\def\smbG{{\thick{\scriptstyle{\rm G}}}}
+\def\smbH{{\thick{\scriptstyle{\rm H}}}}
+\def\smbI{{\thick{\scriptstyle{\rm I}}}}
+\def\smbJ{{\thick{\scriptstyle{\rm J}}}}
+\def\smbK{{\thick{\scriptstyle{\rm K}}}}
+\def\smbL{{\thick{\scriptstyle{\rm L}}}}
+\def\smbM{{\thick{\scriptstyle{\rm M}}}}
+\def\smbN{{\thick{\scriptstyle{\rm N}}}}
+\def\smbO{{\thick{\scriptstyle{\rm O}}}}
+\def\smbP{{\thick{\scriptstyle{\rm P}}}}
+\def\smbQ{{\thick{\scriptstyle{\rm Q}}}}
+\def\smbR{{\thick{\scriptstyle{\rm R}}}}
+\def\smbS{{\thick{\scriptstyle{\rm S}}}}
+\def\smbT{{\thick{\scriptstyle{\rm T}}}}
+\def\smbU{{\thick{\scriptstyle{\rm U}}}}
+\def\smbV{{\thick{\scriptstyle{\rm V}}}}
+\def\smbW{{\thick{\scriptstyle{\rm W}}}}
+\def\smbX{{\thick{\scriptstyle{\rm X}}}}
+\def\smbY{{\thick{\scriptstyle{\rm Y}}}}
+\def\smbZ{{\thick{\scriptstyle{\rm Z}}}}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Bold Greek Letters    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+%
+\def\balpha{\boldsymbol{\alpha}}
+\def\bbeta{\boldsymbol{\beta}}
+\def\bgamma{\boldsymbol{\gamma}}
+\def\bdelta{\boldsymbol{\delta}}
+\def\bepsilon{\boldsymbol{\epsilon}}
+\def\bvarepsilon{\boldsymbol{\varepsilon}}
+\def\bzeta{\boldsymbol{\zeta}}
+\def\bdeta{\boldsymbol{\eta}}
+\def\btheta{\boldsymbol{\theta}}
+\def\biota{\boldsymbol{\iota}}
+\def\bkappa{\boldsymbol{\kappa}}
+\def\blambda{\boldsymbol{\lambda}}
+\def\bmu{\boldsymbol{\mu}}
+\def\bnu{\boldsymbol{\nu}}
+\def\bxi{\boldsymbol{\xi}}
+\def\bomicron{\boldsymbol{\omicron}}
+\def\bpi{\boldsymbol{\pi}}
+\def\brho{\boldsymbol{\rho}}
+\def\bsigma{\boldsymbol{\sigma}}
+\def\btau{\boldsymbol{\tau}}
+\def\bupsilon{\boldsymbol{\upsilon}}
+\def\bphi{\boldsymbol{\phi}}
+\def\bchi{\boldsymbol{\chi}}
+\def\bpsi{\boldsymbol{\psi}}
+\def\bomega{\boldsymbol{\omega}}
+\def\bAlpha{\boldsymbol{\Alpha}}
+\def\bBeta{\boldsymbol{\Beta}}
+\def\bGamma{\boldsymbol{\Gamma}}
+\def\bDelta{\boldsymbol{\Delta}}
+\def\bEpsilon{\boldsymbol{\Epsilon}}
+\def\bZeta{\boldsymbol{\Zeta}}
+\def\bEta{\boldsymbol{\Eta}}
+\def\bTheta{\boldsymbol{\Theta}}
+\def\bIota{\boldsymbol{\Iota}}
+\def\bKappa{\boldsymbol{\Kappa}}
+\def\bLambda{\boldsymbol{\Lambda}}
+\def\bMu{\boldsymbol{\Mu}}
+\def\bNu{\boldsymbol{\Nu}}
+\def\bXi{\boldsymbol{\Xi}}
+\def\bOmicron{\boldsymbol{\Omicron}}
+\def\bPi{\boldsymbol{\Pi}}
+\def\bRho{\boldsymbol{\Rho}}
+\def\bSigma{\boldsymbol{\Sigma}}
+\def\bTau{\boldsymbol{\Tau}}
+\def\bUpsilon{\boldsymbol{\Upsilon}}
+\def\bPhi{\boldsymbol{\Phi}}
+\def\bChi{\boldsymbol{\Chi}}
+\def\bPsi{\boldsymbol{\Psi}}
+\def\bOmega{\boldsymbol{\Omega}}
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Small Bold Greek Letters    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\smbalpha{{\thick{\scriptstyle{\alpha}}}}
+\def\smbbeta{{\thick{\scriptstyle{\beta}}}}
+\def\smbgamma{{\thick{\scriptstyle{\gamma}}}}
+\def\smbdelta{{\thick{\scriptstyle{\delta}}}}
+\def\smbepsilon{{\thick{\scriptstyle{\epsilon}}}}
+\def\smbvarepsilon{{\thick{\scriptstyle{\varepsilon}}}}
+\def\smbzeta{{\thick{\scriptstyle{\zeta}}}}
+\def\smbdeta{{\thick{\scriptstyle{\eta}}}}
+\def\smbtheta{{\thick{\scriptstyle{\theta}}}}
+\def\smbiota{{\thick{\scriptstyle{\iota}}}}
+\def\smbkappa{{\thick{\scriptstyle{\kappa}}}}
+\def\smblambda{{\thick{\scriptstyle{\lambda}}}}
+\def\smbmu{{\thick{\scriptstyle{\mu}}}}
+\def\smbnu{{\thick{\scriptstyle{\nu}}}}
+\def\smbxi{{\thick{\scriptstyle{\xi}}}}
+\def\smbomicron{{\thick{\scriptstyle{\omicron}}}}
+\def\smbpi{{\thick{\scriptstyle{\pi}}}}
+\def\smbrho{{\thick{\scriptstyle{\rho}}}}
+\def\smbsigma{{\thick{\scriptstyle{\sigma}}}}
+\def\smbtau{{\thick{\scriptstyle{\tau}}}}
+\def\smbupsilon{{\thick{\scriptstyle{\upsilon}}}}
+\def\smbphi{{\thick{\scriptstyle{\phi}}}}
+\def\smbchi{{\thick{\scriptstyle{\chi}}}}
+\def\smbpsi{{\thick{\scriptstyle{\psi}}}}
+\def\smbomega{{\thick{\scriptstyle{\omega}}}}
+\def\smbAlpha{{\thick{\scriptstyle{\Alpha}}}}
+\def\smbBeta{{\thick{\scriptstyle{\Beta}}}}
+\def\smbGamma{{\thick{\scriptstyle{\Gamma}}}}
+\def\smbDelta{{\thick{\scriptstyle{\Delta}}}}
+\def\smbEpsilon{{\thick{\scriptstyle{\Epsilon}}}}
+\def\smbZeta{{\thick{\scriptstyle{\Zeta}}}}
+\def\smbEta{{\thick{\scriptstyle{\Eta}}}}
+\def\smbTheta{{\thick{\scriptstyle{\Theta}}}}
+\def\smbIota{{\thick{\scriptstyle{\Iota}}}}
+\def\smbKappa{{\thick{\scriptstyle{\Kappa}}}}
+\def\smbLambda{{\thick{\scriptstyle{\Lambda}}}}
+\def\smbMu{{\thick{\scriptstyle{\Mu}}}}
+\def\smbNu{{\thick{\scriptstyle{\Nu}}}}
+\def\smbXi{{\thick{\scriptstyle{\Xi}}}}
+\def\smbOmicron{{\thick{\scriptstyle{\Omicron}}}}
+\def\smbPi{{\thick{\scriptstyle{\Pi}}}}
+\def\smbRho{{\thick{\scriptstyle{\Rho}}}}
+\def\smbSigma{{\thick{\scriptstyle{\Sigma}}}}
+\def\smbTau{{\thick{\scriptstyle{\Tau}}}}
+\def\smbUpsilon{{\thick{\scriptstyle{\Upsilon}}}}
+\def\smbPhi{{\thick{\scriptstyle{\Phi}}}}
+\def\smbChi{{\thick{\scriptstyle{\Chi}}}}
+\def\smbPsi{{\thick{\scriptstyle{\Psi}}}}
+\def\smbOmega{{\thick{\scriptstyle{\Omega}}}}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Hatted Roman Letters  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+\def\ahat{{\widehat a}}
+\def\bhat{{\widehat b}}
+\def\chat{{\widehat c}}
+\def\dhat{{\widehat d}}
+\def\ehat{{\widehat e}}
+\def\fhat{{\widehat f}}
+\def\ghat{{\widehat g}}
+\def\hhat{{\widehat h}}
+\def\ihat{{\widehat i}}
+\def\jhat{{\widehat j}}
+\def\khat{{\widehat k}}
+\def\lhat{{\widehat l}}
+\def\mhat{{\widehat m}}
+\def\nhat{{\widehat n}}
+\def\ohat{{\widehat o}}
+\def\phat{{\widehat p}}
+\def\qhat{{\widehat q}}
+\def\rhat{{\widehat r}}
+\def\shat{{\widehat s}}
+\def\that{{\widehat t}}
+\def\uhat{{\widehat u}}
+\def\vhat{{\widehat v}}
+\def\what{{\widehat w}}
+\def\xhat{{\widehat x}}
+\def\yhat{{\widehat y}}
+\def\zhat{{\widehat z}}
+\def\Ahat{{\widehat A}}
+\def\Bhat{{\widehat B}}
+\def\Chat{{\widehat C}}
+\def\Dhat{{\widehat D}}
+\def\Ehat{{\widehat E}}
+\def\Fhat{{\widehat F}}
+\def\Ghat{{\widehat G}}
+\def\Hhat{{\widehat H}}
+\def\Ihat{{\widehat I}}
+\def\Jhat{{\widehat J}}
+\def\Khat{{\widehat K}}
+\def\Lhat{{\widehat L}}
+\def\Mhat{{\widehat M}}
+\def\Nhat{{\widehat N}}
+\def\Ohat{{\widehat O}}
+\def\Phat{{\widehat P}}
+\def\Qhat{{\widehat Q}}
+\def\Rhat{{\widehat R}}
+\def\Shat{{\widehat S}}
+\def\That{{\widehat T}}
+\def\Uhat{{\widehat U}}
+\def\Vhat{{\widehat V}}
+\def\What{{\widehat W}}
+\def\Xhat{{\widehat X}}
+\def\Yhat{{\widehat Y}}
+\def\Zhat{{\widehat Z}}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Tilded Roman Letters  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+\def\atilde{{\widetilde a}}
+\def\btilde{{\widetilde b}}
+\def\ctilde{{\widetilde c}}
+\def\dtilde{{\widetilde d}}
+\def\etilde{{\widetilde e}}
+\def\ftilde{{\widetilde f}}
+\def\gtilde{{\widetilde g}}
+\def\htilde{{\widetilde h}}
+\def\itilde{{\widetilde i}}
+\def\jtilde{{\widetilde j}}
+\def\ktilde{{\widetilde k}}
+\def\ltilde{{\widetilde l}}
+\def\mtilde{{\widetilde m}}
+\def\ntilde{{\widetilde n}}
+\def\otilde{{\widetilde o}}
+\def\ptilde{{\widetilde p}}
+\def\qtilde{{\widetilde q}}
+\def\rtilde{{\widetilde r}}
+\def\stilde{{\widetilde s}}
+\def\ttilde{{\widetilde t}}
+\def\utilde{{\widetilde u}}
+\def\vtilde{{\widetilde v}}
+\def\wtilde{{\widetilde w}}
+\def\xtilde{{\widetilde x}}
+\def\ytilde{{\widetilde y}}
+\def\ztilde{{\widetilde z}}
+\def\Atilde{{\widetilde A}}
+\def\Btilde{{\widetilde B}}
+\def\Ctilde{{\widetilde C}}
+\def\Dtilde{{\widetilde D}}
+\def\Etilde{{\widetilde E}}
+\def\Ftilde{{\widetilde F}}
+\def\Gtilde{{\widetilde G}}
+\def\Htilde{{\widetilde H}}
+\def\Itilde{{\widetilde I}}
+\def\Jtilde{{\widetilde J}}
+\def\Ktilde{{\widetilde K}}
+\def\Ltilde{{\widetilde L}}
+\def\Mtilde{{\widetilde M}}
+\def\Ntilde{{\widetilde N}}
+\def\Otilde{{\widetilde O}}
+\def\Ptilde{{\widetilde P}}
+\def\Qtilde{{\widetilde Q}}
+\def\Rtilde{{\widetilde R}}
+\def\Stilde{{\widetilde S}}
+\def\Ttilde{{\widetilde T}}
+\def\Utilde{{\widetilde U}}
+\def\Vtilde{{\widetilde V}}
+\def\Wtilde{{\widetilde W}}
+\def\Xtilde{{\widetilde X}}
+\def\Ytilde{{\widetilde Y}}
+\def\Ztilde{{\widetilde Z}}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Hatted Bold-faced Roman Letters %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+\def\bahat{{\widehat \ba}}
+\def\bbhat{{\widehat \bb}}
+\def\bchat{{\widehat \bc}}
+\def\bdhat{{\widehat \bd}}
+\def\behat{{\widehat \be}}
+\def\bfhat{{\widehat \bdf}}
+\def\bghat{{\widehat \bg}}
+\def\bhhat{{\widehat \bh}}
+\def\bihat{{\widehat \bi}}
+\def\bjhat{{\widehat \bj}}
+\def\bkhat{{\widehat \bk}}
+\def\blhat{{\widehat \bl}}
+\def\bmhat{{\widehat \bm}}
+\def\bnhat{{\widehat \bn}}
+\def\bohat{{\widehat \bo}}
+\def\bphat{{\widehat \bp}}
+\def\bqhat{{\widehat \bq}}
+\def\brhat{{\widehat \br}}
+\def\bshat{{\widehat \bs}}
+\def\bthat{{\widehat \bt}}
+\def\buhat{{\widehat \bu}}
+\def\bvhat{{\widehat \bv}}
+\def\bwhat{{\widehat \bw}}
+\def\bxhat{{\widehat \bx}}
+\def\byhat{{\widehat \by}}
+\def\bzhat{{\widehat \bz}}
+\def\bAhat{{\widehat \bA}}
+\def\bBhat{{\widehat \bB}}
+\def\bChat{{\widehat \bC}}
+\def\bDhat{{\widehat \bD}}
+\def\bEhat{{\widehat \bE}}
+\def\bFhat{{\widehat \bF}}
+\def\bGhat{{\widehat \bG}}
+\def\bHhat{{\widehat \bH}}
+\def\bIhat{{\widehat \bI}}
+\def\bJhat{{\widehat \bJ}}
+\def\bKhat{{\widehat \bK}}
+\def\bLhat{{\widehat \bL}}
+\def\bMhat{{\widehat \bM}}
+\def\bNhat{{\widehat \bN}}
+\def\bOhat{{\widehat \bO}}
+\def\bPhat{{\widehat \bP}}
+\def\bQhat{{\widehat \bQ}}
+\def\bRhat{{\widehat \bR}}
+\def\bShat{{\widehat \bS}}
+\def\bThat{{\widehat \bT}}
+\def\bUhat{{\widehat \bU}}
+\def\bVhat{{\widehat \bV}}
+\def\bWhat{{\widehat \bW}}
+\def\bXhat{{\widehat \bX}}
+\def\bYhat{{\widehat \bY}}
+\def\bZhat{{\widehat \bZ}}
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Tilded Bold-faced Roman Letters %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+\def\batilde{{\widetilde \ba}}
+\def\bbtilde{{\widetilde \bb}}
+\def\bctilde{{\widetilde \bc}}
+\def\bdtilde{{\widetilde \bd}}
+\def\betilde{{\widetilde \be}}
+\def\bftilde{{\widetilde \bdf}}
+\def\bgtilde{{\widetilde \bg}}
+\def\bhtilde{{\widetilde \bh}}
+\def\bitilde{{\widetilde \bi}}
+\def\bjtilde{{\widetilde \bj}}
+\def\bktilde{{\widetilde \bk}}
+\def\bltilde{{\widetilde \bl}}
+\def\bmtilde{{\widetilde \bm}}
+\def\bntilde{{\widetilde \bn}}
+\def\botilde{{\widetilde \bo}}
+\def\bptilde{{\widetilde \bp}}
+\def\bqtilde{{\widetilde \bq}}
+\def\brtilde{{\widetilde \br}}
+\def\bstilde{{\widetilde \bs}}
+\def\bttilde{{\widetilde \bt}}
+\def\butilde{{\widetilde \bu}}
+\def\bvtilde{{\widetilde \bv}}
+\def\bwtilde{{\widetilde \bw}}
+\def\bxtilde{{\widetilde \bx}}
+\def\bytilde{{\widetilde \by}}
+\def\bztilde{{\widetilde \bz}}
+\def\bAtilde{{\widetilde \bA}}
+\def\bBtilde{{\widetilde \bB}}
+\def\bCtilde{{\widetilde \bC}}
+\def\bDtilde{{\widetilde \bD}}
+\def\bEtilde{{\widetilde \bE}}
+\def\bFtilde{{\widetilde \bF}}
+\def\bGtilde{{\widetilde \bG}}
+\def\bHtilde{{\widetilde \bH}}
+\def\bItilde{{\widetilde \bI}}
+\def\bJtilde{{\widetilde \bJ}}
+\def\bKtilde{{\widetilde \bK}}
+\def\bLtilde{{\widetilde \bL}}
+\def\bMtilde{{\widetilde \bM}}
+\def\bNtilde{{\widetilde \bN}}
+\def\bOtilde{{\widetilde \bO}}
+\def\bPtilde{{\widetilde \bP}}
+\def\bQtilde{{\widetilde \bQ}}
+\def\bRtilde{{\widetilde \bR}}
+\def\bStilde{{\widetilde \bS}}
+\def\bTtilde{{\widetilde \bT}}
+\def\bUtilde{{\widetilde \bU}}
+\def\bVtilde{{\widetilde \bV}}
+\def\bWtilde{{\widetilde \bW}}
+\def\bXtilde{{\widetilde \bX}}
+\def\bYtilde{{\widetilde \bY}}
+\def\bZtilde{{\widetilde \bZ}}
+%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Hatted Greek Letters  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+\def\alphahat{{\widehat\alpha}}
+\def\betahat{{\widehat\beta}}
+\def\gammahat{{\widehat\gamma}}
+\def\deltahat{{\widehat\delta}}
+\def\epsilonhat{{\widehat\epsilon}}
+\def\varepsilonhat{{\widehat\varepsilon}}
+\def\zetahat{{\widehat\zeta}}
+\def\etahat{{\widehat\eta}}
+\def\thetahat{{\widehat\theta}}
+\def\thetahatmle{\thetahat_{\mbox{\tiny mle}}}
+\def\lambdahatmle{\lambdahat_{\mbox{\tiny mle}}}
+\def\sigsqhatmle{\sigmahat^2_{\mbox{\tiny mle}}}
+\def\iotahat{{\widehat\iota}}
+\def\kappahat{{\widehat\kappa}}
+\def\lambdahat{{\widehat\lambda}}
+\def\muhat{{\widehat\mu}}
+\def\nuhat{{\widehat\nu}}
+\def\xihat{{\widehat\xi}}
+\def\omicronhat{{\widehat\omicron}}
+\def\pihat{{\widehat\pi}}
+\def\rhohat{{\widehat\rho}}
+\def\sigmahat{{\widehat\sigma}}
+\def\tauhat{{\widehat\tau}}
+\def\upsilonhat{{\widehat\upsilon}}
+\def\phihat{{\widehat\phi}}
+\def\chihat{{\widehat\chi}}
+\def\psihat{{\widehat\psi}}
+\def\omegahat{{\widehat\omega}}
+\def\Alphahat{{\widehat\Alpha}}
+\def\Betahat{{\widehat\Beta}}
+\def\Gammahat{{\widehat\Gamma}}
+\def\Deltahat{{\widehat\Delta}}
+\def\Epsilonhat{{\widehat\Epsilon}}
+\def\Zetahat{{\widehat\Zeta}}
+\def\Etahat{{\widehat\Eta}}
+\def\Thetahat{{\widehat\Theta}}
+\def\Iotahat{{\widehat\Iota}}
+\def\Kappahat{{\widehat\Kappa}}
+\def\Lambdahat{{\widehat\Lambda}}
+\def\Muhat{{\widehat\Mu}}
+\def\Nuhat{{\widehat\Nu}}
+\def\Xihat{{\widehat\Xi}}
+\def\Omicronhat{{\widehat\Omicron}}
+\def\Pihat{{\widehat\Pi}}
+\def\Rhohat{{\widehat\Rho}}
+\def\Sigmahat{{\widehat\Sigma}}
+\def\Tauhat{{\widehat\Tau}}
+\def\Upsilonhat{{\widehat\Upsilon}}
+\def\Phihat{{\widehat\Phi}}
+\def\Chihat{{\widehat\Chi}}
+\def\Psihat{{\widehat\Psi}}
+\def\Omegahat{{\widehat\Omega}}
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Tilded Greek Letters  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+\def\alphatilde{{\widetilde\alpha}}
+\def\betatilde{{\widetilde\beta}}
+\def\gammatilde{{\widetilde\gamma}}
+\def\deltatilde{{\widetilde\delta}}
+\def\epsilontilde{{\widetilde\epsilon}}
+\def\varepsilontilde{{\widetilde\varepsilon}}
+\def\zetatilde{{\widetilde\zeta}}
+\def\etatilde{{\widetilde\eta}}
+\def\thetatilde{{\widetilde\theta}}
+\def\iotatilde{{\widetilde\iota}}
+\def\kappatilde{{\widetilde\kappa}}
+\def\lambdatilde{{\widetilde\lambda}}
+\def\mutilde{{\widetilde\mu}}
+\def\nutilde{{\widetilde\nu}}
+\def\xitilde{{\widetilde\xi}}
+\def\omicrontilde{{\widetilde\omicron}}
+\def\pitilde{{\widetilde\pi}}
+\def\rhotilde{{\widetilde\rho}}
+\def\sigmatilde{{\widetilde\sigma}}
+\def\tautilde{{\widetilde\tau}}
+\def\upsilontilde{{\widetilde\upsilon}}
+\def\phitilde{{\widetilde\phi}}
+\def\chitilde{{\widetilde\chi}}
+\def\psitilde{{\widetilde\psi}}
+\def\omegatilde{{\widetilde\omega}}
+\def\Alphatilde{{\widetilde\Alpha}}
+\def\Betatilde{{\widetilde\Beta}}
+\def\Gammatilde{{\widetilde\Gamma}}
+\def\Deltatilde{{\widetilde\Delta}}
+\def\Epsilontilde{{\widetilde\Epsilon}}
+\def\Zetatilde{{\widetilde\Zeta}}
+\def\Etatilde{{\widetilde\Eta}}
+\def\Thetatilde{{\widetilde\Theta}}
+\def\Iotatilde{{\widetilde\Iota}}
+\def\Kappatilde{{\widetilde\Kappa}}
+\def\Lambdatilde{{\widetilde\Lambda}}
+\def\Mutilde{{\widetilde\Mu}}
+\def\Nutilde{{\widetilde\Nu}}
+\def\Xitilde{{\widetilde\Xi}}
+\def\Omicrontilde{{\widetilde\Omicron}}
+\def\Pitilde{{\widetilde\Pi}}
+\def\Rhotilde{{\widetilde\Rho}}
+\def\Sigmatilde{{\widetilde\Sigma}}
+\def\Tautilde{{\widetilde\Tau}}
+\def\Upsilontilde{{\widetilde\Upsilon}}
+\def\Phitilde{{\widetilde\Phi}}
+\def\Chitilde{{\widetilde\Chi}}
+\def\Psitilde{{\widetilde\Psi}}
+\def\Omegatilde{{\widetilde\Omega}}
+%
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Hatted Bold-faced Greek Letters  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+\def\balphahat{{\widehat\balpha}}
+\def\bbetahat{{\widehat\bbeta}}
+\def\bgammahat{{\widehat\bgamma}}
+\def\bdeltahat{{\widehat\bdelta}}
+\def\bepsilonhat{{\widehat\bepsilon}}
+\def\bzetahat{{\widehat\bzeta}}
+\def\bdetahat{{\widehat\bdeta}}
+\def\bthetahat{{\widehat\btheta}}
+\def\biotahat{{\widehat\biota}}
+\def\bkappahat{{\widehat\bkappa}}
+\def\blambdahat{{\widehat\blambda}}
+\def\bmuhat{{\widehat\bmu}}
+\def\bnuhat{{\widehat\bnu}}
+\def\bxihat{{\widehat\bxi}}
+\def\bomicronhat{{\widehat\bomicron}}
+\def\bpihat{{\widehat\bpi}}
+\def\brhohat{{\widehat\brho}}
+\def\bsigmahat{{\widehat\bsigma}}
+\def\btauhat{{\widehat\btau}}
+\def\bupsilonhat{{\widehat\bupsilon}}
+\def\bphihat{{\widehat\bphi}}
+\def\bchihat{{\widehat\bchi}}
+\def\bpsihat{{\widehat\bpsi}}
+\def\bomegahat{{\widehat\bomega}}
+\def\bAlphahat{{\widehat\bAlpha}}
+\def\bBetahat{{\widehat\bBeta}}
+\def\bGammahat{{\widehat\bGamma}}
+\def\bDeltahat{{\widehat\bDelta}}
+\def\bEpsilonhat{{\widehat\bEpsilon}}
+\def\bZetahat{{\widehat\bZeta}}
+\def\bEtahat{{\widehat\bEta}}
+\def\bThetahat{{\widehat\bTheta}}
+\def\bIotahat{{\widehat\bIota}}
+\def\bKappahat{{\widehat\bKappa}}
+\def\bLambdahat{{\widehat\bLambda}}
+\def\bMuhat{{\widehat\bMu}}
+\def\bNuhat{{\widehat\bNu}}
+\def\bXihat{{\widehat\bXi}}
+\def\bOmicronhat{{\widehat\bOmicron}}
+\def\bPihat{{\widehat\bPi}}
+\def\bRhohat{{\widehat\bRho}}
+\def\bSigmahat{{\widehat\bSigma}}
+\def\bTauhat{{\widehat\bTau}}
+\def\bUpsilonhat{{\widehat\bUpsilon}}
+\def\bPhihat{{\widehat\bPhi}}
+\def\bChihat{{\widehat\bChi}}
+\def\bPsihat{{\widehat\bPsi}}
+\def\bOmegahat{{\widehat\bOmega}}%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Hatted Small Bold Greek Letters    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+\def\smbalpha{\widehat{\smbalpha}}
+\def\smbbetahat{\widehat{\smbbeta}}
+\def\smbgammahat{\widehat{\smbgamma}}
+\def\smbdeltahat{\widehat{\smbdelta}}
+\def\smbepsilonhat{\widehat{\smbepsilon}}
+\def\smbvarepsilonhat{\widehat{\smbvarepsilon}}
+\def\smbzetahat{\widehat{\smbzeta}}
+\def\smbdetahat{\widehat{\smbeta}}
+\def\smbthetahat{\widehat{\smbtheta}}
+\def\smbiotahat{\widehat{\smbiota}}
+\def\smbkappahat{\widehat{\smbkappa}}
+\def\smblambdahat{\widehat{\smblambda}}
+\def\smbmuhat{\widehat{\smbmu}}
+\def\smbnuhat{\widehat{\smbnu}}
+\def\smbxihat{\widehat{\smbxi}}
+\def\smbomicronhat{\widehat{\smbomicron}}
+\def\smbpihat{\widehat{\smbpi}}
+\def\smbrhohat{\widehat{\smbrho}}
+\def\smbsigmahat{\widehat{\smbsigma}}
+\def\smbtauhat{\widehat{\smbtau}}
+\def\smbupsilonhat{\widehat{\smbupsilon}}
+\def\smbphihat{\widehat{\smbphi}}
+\def\smbchihat{\widehat{\smbchi}}
+\def\smbpsihat{\widehat{\smbpsi}}
+\def\smbomegahat{\widehat{\smbomega}}
+\def\smbAlphahat{\widehat{\smbAlpha}}
+\def\smbBetahat{\widehat{\smbBeta}}
+\def\smbGammahat{\widehat{\smbGamma}}
+\def\smbDeltahat{\widehat{\smbDelta}}
+\def\smbEpsilonhat{\widehat{\smbEpsilon}}
+\def\smbZetahat{\widehat{\smbZeta}}
+\def\smbEtahat{\widehat{\smbEta}}
+\def\smbThetahat{\widehat{\smbTheta}}
+\def\smbIotahat{\widehat{\smbIota}}
+\def\smbKappahat{\widehat{\smbKappa}}
+\def\smbLambdahat{\widehat{\smbLambda}}
+\def\smbMuhat{\widehat{\smbMu}}
+\def\smbNuhat{\widehat{\smbNu}}
+\def\smbXihat{\widehat{\smbXi}}
+\def\smbOmicronhat{\widehat{\smbOmicron}}
+\def\smbPihat{\widehat{\smbPi}}
+\def\smbRhohat{\widehat{\smbRho}}
+\def\smbSigmahat{\widehat{\smbSigma}}
+\def\smbTauhat{\widehat{\smbTau}}
+\def\smbUpsilonhat{\widehat{\smbUpsilon}}
+\def\smbPhihat{\widehat{\smbPhi}}
+\def\smbChihat{\widehat{\smbChi}}
+\def\smbPsihat{\widehat{\smbPsi}}
+\def\smbOmegahat{\widehat{\smbOmega}}
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Tilded Bold-faced Greek Letters  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+\def\balphatilde{{\widetilde\balpha}}
+\def\bbetatilde{{\widetilde\bbeta}}
+\def\bgammatilde{{\widetilde\bgamma}}
+\def\bdeltatilde{{\widetilde\bdelta}}
+\def\bepsilontilde{{\widetilde\bepsilon}}
+\def\bzetatilde{{\widetilde\bzeta}}
+\def\bdetatilde{{\widetilde\bdeta}}
+\def\bthetatilde{{\widetilde\btheta}}
+\def\biotatilde{{\widetilde\biota}}
+\def\bkappatilde{{\widetilde\bkappa}}
+\def\blambdatilde{{\widetilde\blambda}}
+\def\bmutilde{{\widetilde\bmu}}
+\def\bnutilde{{\widetilde\bnu}}
+\def\bxitilde{{\widetilde\bxi}}
+\def\bomicrontilde{{\widetilde\bomicron}}
+\def\bpitilde{{\widetilde\bpi}}
+\def\brhotilde{{\widetilde\brho}}
+\def\bsigmatilde{{\widetilde\bsigma}}
+\def\btautilde{{\widetilde\btau}}
+\def\bupsilontilde{{\widetilde\bupsilon}}
+\def\bphitilde{{\widetilde\bphi}}
+\def\bchitilde{{\widetilde\bchi}}
+\def\bpsitilde{{\widetilde\bpsi}}
+\def\bomegatilde{{\widetilde\bomega}}
+\def\bAlphatilde{{\widetilde\bAlpha}}
+\def\bBetatilde{{\widetilde\bBeta}}
+\def\bGammatilde{{\widetilde\bGamma}}
+\def\bDeltatilde{{\widetilde\bDelta}}
+\def\bEpsilontilde{{\widetilde\bEpsilon}}
+\def\bZetatilde{{\widetilde\bZeta}}
+\def\bEtatilde{{\widetilde\bEta}}
+\def\bThetatilde{{\widetilde\bTheta}}
+\def\bIotatilde{{\widetilde\bIota}}
+\def\bKappatilde{{\widetilde\bKappa}}
+\def\bLambdatilde{{\widetilde\bLambda}}
+\def\bMutilde{{\widetilde\bMu}}
+\def\bNutilde{{\widetilde\bNu}}
+\def\bXitilde{{\widetilde\bXi}}
+\def\bOmicrontilde{{\widetilde\bOmicron}}
+\def\bPitilde{{\widetilde\bPi}}
+\def\bRhotilde{{\widetilde\bRho}}
+\def\bSigmatilde{{\widetilde\bSigma}}
+\def\bTautilde{{\widetilde\bTau}}
+\def\bUpsilontilde{{\widetilde\bUpsilon}}
+\def\bPhitilde{{\widetilde\bPhi}}
+\def\bChitilde{{\widetilde\bChi}}
+\def\bPsitilde{{\widetilde\bPsi}}
+\def\bOmegatilde{{\widetilde\bOmega}}
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Barred Roman Letters  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+\def\abar{{\overline a}}
+\def\bbar{{\overline b}}
+\def\cbar{{\overline c}}
+\def\dbar{{\overline d}}
+\def\ebar{{\overline e}}
+\def\fbar{{\overline f}}
+\def\gbar{{\overline g}}
+\def\hbar{{\overline h}}
+\def\ibar{{\overline i}}
+\def\jbar{{\overline j}}
+\def\kbar{{\overline k}}
+\def\lbar{{\overline l}}
+\def\mbar{{\overline m}}
+\def\nbar{{\overline n}}
+\def\obar{{\overline o}}
+\def\pbar{{\overline p}}
+\def\qbar{{\overline q}}
+\def\rbar{{\overline r}}
+\def\sbar{{\overline s}}
+\def\tbar{{\overline t}}
+\def\ubar{{\overline u}}
+\def\vbar{{\overline v}}
+\def\wbar{{\overline w}}
+\def\xbar{{\overline x}}
+\def\ybar{{\overline y}}
+\def\zbar{{\overline z}}
+\def\Abar{{\overline A}}
+\def\Bbar{{\overline B}}
+\def\Cbar{{\overline C}}
+\def\Dbar{{\overline D}}
+\def\Ebar{{\overline E}}
+\def\Fbar{{\overline F}}
+\def\Gbar{{\overline G}}
+\def\Hbar{{\overline H}}
+\def\Ibar{{\overline I}}
+\def\Jbar{{\overline J}}
+\def\Kbar{{\overline K}}
+\def\Lbar{{\overline L}}
+\def\Mbar{{\overline M}}
+\def\Nbar{{\overline N}}
+\def\Obar{{\overline O}}
+\def\Pbar{{\overline P}}
+\def\Qbar{{\overline Q}}
+\def\Rbar{{\overline R}}
+\def\Sbar{{\overline S}}
+\def\Tbar{{\overline T}}
+\def\Ubar{{\overline U}}
+\def\Vbar{{\overline V}}
+\def\Wbar{{\overline W}}
+\def\Xbar{{\overline X}}
+\def\Ybar{{\overline Y}}
+\def\Zbar{{\overline Z}}
+\def\taubar{{\overline\tau}}
+\def\bthetabar{{\overline\btheta}}
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Barred Greek Letters  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+\def\alphabar{{\overline{\alpha}}}
+\def\betabar{{\overline{\beta}}}
+\def\gammabar{{\overline{\gamma}}}
+\def\deltabar{{\overline\delta}}
+\def\epsilonbar{{\overline\epsilon}}
+\def\zetabar{{\overline\zeta}}
+\def\etabar{{\overline\eta}}
+\def\thetabar{{\overline\theta}}
+\def\iotabar{{\overline\iota}}
+\def\kappabar{{\overline\kappa}}
+\def\lambdabar{{\overline\lambda}}
+\def\mubar{{\overline\mu}}
+\def\nubar{{\overline\nu}}
+\def\xibar{{\overline\xi}}
+\def\omicronbar{{\overline\omicron}}
+\def\pibar{{\overline\pi}}
+\def\rhobar{{\overline\rho}}
+\def\sigmabar{{\overline\sigma}}
+\def\taubar{{\overline\tau}}
+\def\upsilonbar{{\overline\upsilon}}
+\def\phibar{{\overline\phi}}
+\def\chibar{{\overline\chi}}
+\def\psibar{{\overline\psi}}
+\def\omegabar{{\overline\omega}}
+\def\Alphabar{{\overline\Alpha}}
+\def\Betabar{{\overline\Beta}}
+\def\Gammabar{{\overline\Gamma}}
+\def\Deltabar{{\overline\Delta}}
+\def\Epsilonbar{{\overline\Epsilon}}
+\def\Zetabar{{\overline\Zeta}}
+\def\Etabar{{\overline\Eta}}
+\def\Thetabar{{\overline\Theta}}
+\def\Iotabar{{\overline\Iota}}
+\def\Kappabar{{\overline\Kappa}}
+\def\Lambdabar{{\overline\Lambda}}
+\def\Mubar{{\overline\Mu}}
+\def\Nubar{{\overline\Nu}}
+\def\Xibar{{\overline\Xi}}
+\def\Omicronbar{{\overline\Omicron}}
+\def\Pibar{{\overline\Pi}}
+\def\Rhobar{{\overline\Rho}}
+\def\Sigmabar{{\overline\Sigma}}
+\def\Taubar{{\overline\Tau}}
+\def\Upsilonbar{{\overline\Upsilon}}
+\def\Phibar{{\overline\Phi}}
+\def\Chibar{{\overline\Chi}}
+\def\Psibar{{\overline\Psi}}
+\def\Omegabar{{\overline\Omega}}
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Barred Bold-faced Roman Letters  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+\def\babar{{\overline \ba}}
+\def\bbbar{{\overline \bb}}
+\def\bcbar{{\overline \bc}}
+\def\bdbar{{\overline \bd}}
+\def\bebar{{\overline \be}}
+\def\bfbar{{\overline \bf}}
+\def\bgbar{{\overline \bg}}
+\def\bhbar{{\overline \bh}}
+\def\bibar{{\overline \bi}}
+\def\bjbar{{\overline \bj}}
+\def\bkbar{{\overline \bk}}
+\def\blbar{{\overline \bl}}
+\def\bmbar{{\overline \bm}}
+\def\bnbar{{\overline \bn}}
+\def\bobar{{\overline \bo}}
+\def\bpbar{{\overline \bp}}
+\def\bqbar{{\overline \bq}}
+\def\brbar{{\overline \br}}
+\def\bsbar{{\overline \bs}}
+\def\btbar{{\overline \bt}}
+\def\bubar{{\overline \bu}}
+\def\bvbar{{\overline \bv}}
+\def\bwbar{{\overline \bw}}
+\def\bxbar{{\overline \bx}}
+\def\bybar{{\overline \by}}
+\def\bzbar{{\overline \bz}}
+\def\bAbar{{\overline \bA}}
+\def\bBbar{{\overline \bB}}
+\def\bCbar{{\overline \bC}}
+\def\bDbar{{\overline \bD}}
+\def\bEbar{{\overline \bE}}
+\def\bFbar{{\overline \bF}}
+\def\bGbar{{\overline \bG}}
+\def\bHbar{{\overline \bH}}
+\def\bIbar{{\overline \bI}}
+\def\bJbar{{\overline \bJ}}
+\def\bKbar{{\overline \bK}}
+\def\bLbar{{\overline \bL}}
+\def\bMbar{{\overline \bM}}
+\def\bNbar{{\overline \bN}}
+\def\bObar{{\overline \bO}}
+\def\bPbar{{\overline \bP}}
+\def\bQbar{{\overline \bQ}}
+\def\bRbar{{\overline \bR}}
+\def\bSbar{{\overline \bS}}
+\def\bTbar{{\overline \bT}}
+\def\bUbar{{\overline \bU}}
+\def\bVbar{{\overline \bV}}
+\def\bWbar{{\overline \bW}}
+\def\bXbar{{\overline \bX}}
+\def\bYbar{{\overline \bY}}
+\def\bZbar{{\overline \bZ}}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Arrowed Roman Letters  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+%These are AMS constructs for horizontal arrows
+%
+%\input{tcilatex.sty}
+\def\aarrow{\underrightarrow{a}}
+\def\barrow{\underrightarrow{b}}
+\def\carrow{\underrightarrow{c}}
+\def\darrow{\underrightarrow{d}}
+\def\earrow{\underrightarrow{e}}
+\def\farrow{\underrightarrow{f}}
+\def\garrow{\underrightarrow{g}}
+\def\harrow{\underrightarrow{h}}
+\def\iarrow{\underrightarrow{i}}
+\def\jarrow{\underrightarrow{j}}
+\def\karrow{\underrightarrow{k}}
+\def\larrow{\underrightarrow{l}}
+\def\marrow{\underrightarrow{m}}
+\def\narrow{\underrightarrow{n}}
+\def\oarrow{\underrightarrow{o}}
+\def\parrow{\underrightarrow{p}}
+\def\qarrow{\underrightarrow{q}}
+\def\rarrow{\underrightarrow{r}}
+\def\sarrow{\underrightarrow{s}}
+\def\tarrow{\underrightarrow{t}}
+\def\uarrow{\underrightarrow{u}}
+\def\varrow{\underrightarrow{v}}
+\def\warrow{\underrightarrow{w}}
+\def\xarrow{\underrightarrow{x}}
+\def\yarrow{\underrightarrow{y}}
+\def\zarrow{\underrightarrow{z}}
+\def\Aarrow{\underrightarrow{A}}
+\def\Barrow{\underrightarrow{B}}
+\def\Carrow{\underrightarrow{C}}
+\def\Darrow{\underrightarrow{D}}
+\def\Earrow{\underrightarrow{E}}
+\def\Farrow{\underrightarrow{F}}
+\def\Garrow{\underrightarrow{G}}
+\def\Harrow{\underrightarrow{H}}
+\def\Iarrow{\underrightarrow{I}}
+\def\Jarrow{\underrightarrow{J}}
+\def\Karrow{\underrightarrow{K}}
+\def\Larrow{\underrightarrow{L}}
+\def\Marrow{\underrightarrow{M}}
+\def\Narrow{\underrightarrow{N}}
+\def\Oarrow{\underrightarrow{O}}
+\def\Parrow{\underrightarrow{P}}
+\def\Qarrow{\underrightarrow{Q}}
+\def\Rarrow{\underrightarrow{R}}
+\def\Sarrow{\underrightarrow{S}}
+\def\Tarrow{\underrightarrow{T}}
+\def\Uarrow{\underrightarrow{U}}
+\def\Varrow{\underrightarrow{V}}
+\def\Warrow{\underrightarrow{W}}
+\def\Xarrow{\underrightarrow{X}}
+\def\Yarrow{\underrightarrow{Y}}
+\def\Zarrow{\underrightarrow{Z}}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Calligraphic (Script) Letters  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+\def\asc{{\mathcal a}}
+\def\bsc{{\mathcal b}}
+\def\csc{{\mathcal c}}
+\def\dsc{{\mathcal d}}
+\def\esc{{\mathcal e}}
+\def\dsc{{\mathcal f}}
+\def\gsc{{\mathcal g}}
+\def\hsc{{\mathcal h}}
+\def\isc{{\mathcal i}}
+\def\jsc{{\mathcal j}}
+\def\ksc{{\mathcal k}}
+\def\lsc{{\mathcal l}}
+\def\msc{{\mathcal m}}
+\def\nsc{{\mathcal n}}
+\def\osc{{\mathcal o}}
+\def\psc{{\mathcal p}}
+\def\qsc{{\mathcal q}}
+\def\rsc{{\mathcal r}}
+\def\ssc{{\mathcal s}}
+\def\tsc{{\mathcal t}}
+\def\usc{{\mathcal u}}
+\def\vsc{{\mathcal v}}
+\def\wsc{{\mathcal w}}
+\def\xsc{{\mathcal x}}
+\def\ysc{{\mathcal y}}
+\def\zsc{{\mathcal z}}
+\def\Asc{{\mathcal A}}
+\def\Bsc{{\mathcal B}}
+\def\Csc{{\mathcal C}}
+\def\Dsc{{\mathcal D}}
+\def\Esc{{\mathcal E}}
+\def\Fsc{{\mathcal F}}
+\def\Gsc{{\mathcal G}}
+\def\Hsc{{\mathcal H}}
+\def\Isc{{\mathcal I}}
+\def\Jsc{{\mathcal J}}
+\def\Ksc{{\mathcal K}}
+\def\Lsc{{\mathcal L}}
+\def\Msc{{\mathcal M}}
+\def\Nsc{{\mathcal N}}
+\def\Osc{{\mathcal O}}
+\def\Psc{{\mathcal P}}
+\def\Qsc{{\mathcal Q}}
+\def\Rsc{{\mathcal R}}
+\def\Ssc{{\mathcal S}}
+\def\Tsc{{\mathcal T}}
+\def\Usc{{\mathcal U}}
+\def\Vsc{{\mathcal V}}
+\def\Wsc{{\mathcal W}}
+\def\Xsc{{\mathcal X}}
+\def\Ysc{{\mathcal Y}}
+\def\Zsc{{\mathcal Z}}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Sans Serif Letters  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+\def\asf{{\mathsf a}}
+\def\bsf{{\mathsf b}}
+\def\csf{{\mathsf c}}
+\def\dsf{{\mathsf d}}
+\def\esf{{\mathsf e}}
+\def\dsf{{\mathsf f}}
+\def\gsf{{\mathsf g}}
+\def\hsf{{\mathsf h}}
+\def\isf{{\mathsf i}}
+\def\jsf{{\mathsf j}}
+\def\ksf{{\mathsf k}}
+\def\lsf{{\mathsf l}}
+\def\msf{{\mathsf m}}
+\def\nsf{{\mathsf n}}
+\def\osf{{\mathsf o}}
+\def\psf{{\mathsf p}}
+\def\qsf{{\mathsf q}}
+\def\rsf{{\mathsf r}}
+\def\ssf{{\mathsf s}}
+\def\tsf{{\mathsf t}}
+\def\usf{{\mathsf u}}
+\def\vsf{{\mathsf v}}
+\def\wsf{{\mathsf w}}
+\def\xsf{{\mathsf x}}
+\def\ysf{{\mathsf y}}
+\def\zsf{{\mathsf z}}
+\def\Asf{{\mathsf A}}
+\def\Bsf{{\mathsf B}}
+\def\Csf{{\mathsf C}}
+\def\Dsf{{\mathsf D}}
+\def\Esf{{\mathsf E}}
+\def\Fsf{{\mathsf F}}
+\def\Gsf{{\mathsf G}}
+\def\Hsf{{\mathsf H}}
+\def\Isf{{\mathsf I}}
+\def\Jsf{{\mathsf J}}
+\def\Ksf{{\mathsf K}}
+\def\Lsf{{\mathsf L}}
+\def\Msf{{\mathsf M}}
+\def\Nsf{{\mathsf N}}
+\def\Osf{{\mathsf O}}
+\def\Psf{{\mathsf P}}
+\def\Qsf{{\mathsf Q}}
+\def\Rsf{{\mathsf R}}
+\def\Ssf{{\mathsf S}}
+\def\Tsf{{\mathsf T}}
+\def\Usf{{\mathsf U}}
+\def\Vsf{{\mathsf V}}
+\def\Wsf{{\mathsf W}}
+\def\Xsf{{\mathsf X}}
+\def\Ysf{{\mathsf Y}}
+\def\Zsf{{\mathsf Z}}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Text Letters  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+\def\ta{\text{a}}
+\def\tb{\text{b}}
+\def\tc{\text{c}}
+\def\td{\text{d}}
+\def\te{\text{e}}
+\def\tdf{\text{f}}
+\def\tg{\text{g}}
+\def\th{\text{h}}
+\def\ti{\text{i}}
+\def\tj{\text{j}}
+\def\tk{\text{k}}
+\def\tl{\text{l}}
+\def\tm{\text{m}}
+\def\tn{\text{n}}
+\def\to{\text{o}}
+\def\tp{\text{p}}
+\def\tq{\text{q}}
+%\def\tr{\text{r}}
+\def\ts{\text{s}}
+\def\tt{\text{t}}
+\def\tu{\text{u}}
+\def\tv{\text{v}}
+\def\tw{\text{w}}
+\def\tx{\text{x}}
+\def\ty{\text{y}}
+\def\tz{\text{z}}
+\def\tA{\text{A}}
+\def\tB{\text{B}}
+\def\tC{\text{C}}
+\def\tD{\text{D}}
+\def\tE{\text{E}}
+\def\tF{\text{F}}
+\def\tG{\text{G}}
+\def\tH{\text{H}}
+\def\tI{\text{I}}
+\def\tJ{\text{J}}
+\def\tK{\text{K}}
+\def\tL{\text{L}}
+\def\tM{\text{M}}
+\def\tN{\text{N}}
+\def\tO{\text{O}}
+\def\tP{\text{P}}
+\def\tQ{\text{Q}}
+\def\tR{\text{R}}
+\def\tS{\text{S}}
+\def\tT{\text{T}}
+\def\tU{\text{U}}
+\def\tV{\text{V}}
+\def\tW{\text{W}}
+\def\tX{\text{X}}
+\def\tY{\text{Y}}
+\def\tZ{\text{Z}}
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Set notation  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+\def\R{{\mathbb R}}
+\def\Rn{{\mathbb{R}^n}}
+\def\N{{\mathbb{N}}}
+\def\Z{\mathbb{Z}}
+\def\Zplus{\mathbb{Z}^+}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Common distributions   %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+\def\normal{\text{N}}
+\def\hc{\text{Half-Cauchy}}
+\def\ig{\text{Inverse-Gamma}}
+\def\iw{\text{Inverse-Wishart}}
+\def\igw{\text{Inverse G-Wishart}}
+\def\halft{\text{Half-}t}
+\def\lpyq{\text{log} \ \underline{p}(\boldsymbol{y}; q)}
+\def\bern{\text{Bernoulli}}
+\def\bin{\text{Binary}}
+\def\dirichlet{\text{Dirichlet}}
+\def\invchisq{\text{Inverse}-\chi^2}
+\def\multnom{\text{Multinomial}}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Mathematical variables    %
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+\newcommand{\indep}{\rotatebox[origin=c]{90}{$\models$}}
+\newcommand{\sigsq}[1]{\sigma^2_{#1}}
+\newcommand{\ZLone}[1]{\boldsymbol{Z}^{\text{L}1}_{#1}}
+\newcommand{\ZLtwo}[1]{\boldsymbol{Z}^{\text{L}2}_{#1}}
+\newcommand{\uLone}[1]{\boldsymbol{u}^{\text{L}1}_{#1}}
+\newcommand{\uLtwo}[1]{\boldsymbol{u}^{\text{L}2}_{#1}}
+\newcommand{\aLone}[1]{a^{\text{L}1}_{#1}}
+\newcommand{\aLtwo}[1]{a^{\text{L}2}_{#1}}
+\newcommand{\muq}[1]{\mu_{q(#1)}}
+\newcommand{\bmuq}[1]{\boldsymbol\mu_{q(#1)}}
+\newcommand{\bmuqT}[1]{\boldsymbol\mu_{q(#1)}^{\intercal}}
+\newcommand{\sigsqq}[1]{\sigma^2_{q(#1)}}
+\newcommand{\Sigq}[1]{\boldsymbol\Sigma_{q(#1)}}
+\newcommand{\Lambdaq}[1]{\boldsymbol\Lambda_{q(#1)}}
+\newcommand{\kappaq}[1]{\kappa_{q(#1)}}
+\newcommand{\lambdaq}[1]{\lambda_{q(#1)}}
+\newcommand{\Bq}[1]{B_{q(#1)}}
+\newcommand{\Mq}[1]{\bM_{q(#1)}}
+\newcommand{\MqT}[1]{\bM_{q(#1)}^{\intercal}}
+\newcommand{\alphaq}[1]{\alpha_{q(#1)}}
+\newcommand{\inv}[1]{(#1)^{-1}}
+\newcommand{\bcinv}[1]{\left\{ #1 \right\}^{-1}}
+\newcommand{\Evmp}[2]{\mathbb{E}_{#1 \rightarrow #2}}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Mathematical operators    %
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\blockdiag}{blockdiag}
+\DeclareMathOperator*{\Corr}{Corr}
+\def\Cov{\mathbb{C}\text{ov}}
+\def\indsim{\stackrel{\text{ind.}}{\sim}}
+\DeclareMathOperator*{\diag}{diag}
+\DeclareMathOperator*{\diagonal}{diagonal}
+\DeclareMathOperator*{\KL}{KL}
+\DeclareMathOperator*{\neighbours}{neighbours}
+\DeclareMathOperator*{\neighbors}{neighbors}
+\DeclareMathOperator*{\Entropy}{Entropy}
+\DeclareMathOperator*{\NonEntropy}{NonEntropy}
+\DeclareMathOperator{\E}{\mathbb{E}}
+\DeclareMathOperator{\V}{\mathbb{V}}
+\DeclareMathOperator{\Var}{\mathbb{V}ar}
+\DeclareMathOperator{\ind}{\mathbb{I}}
+\DeclareMathOperator*{\tr}{tr}
+\DeclareMathOperator{\vect}{vec}
+\DeclareMathOperator{\vech}{vech}
+\DeclareMathOperator*{\stack}{stack}
+\newcommand{\DKL}{D_{\text{KL}}}
+\newcommand{\T}[1]{#1^{\intercal}}
+\newcommand{\at}[2][]{#1|_{#2}}
+\newcommand{\norm}[1]{||#1||}
+\newcommand{\bignorm}[1]{\left|\left| #1 \right|\right|}
+\def\GVMP{\mathbb{G}_{\text{VMP}}}
+\newcommand{\msg}[2]{m_{#1 \rightarrow #2}}
+\newcommand{\msgbf}[2]{m_{#1 \leftrightarrow #2}}
+\newcommand{\np}[2]{\boldsymbol\eta_{#1 \rightarrow #2}}
+\newcommand{\npbf}[2]{\boldsymbol\eta_{#1 \leftrightarrow #2}}
+\newcommand{\npq}[1]{\boldsymbol\eta_{q^*(#1)}}
+\def\invlogit{\text{logit}^{-1}}
+\def\ci{\mathbin{\rotatebox[origin=c]{90}{$\models$}}}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Algorithm commands    %
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+\algnewcommand\algorithmicinput{\textbf{Data Inputs:}}
+\algnewcommand\DataInputs{\item[\algorithmicinput]}
+\algnewcommand\HyperparameterInputs{\item[{\textbf{Hyperparameter Inputs:}}]}
+\algnewcommand\ParameterInputs{\item[{\textbf{Parameter Inputs:}}]}
+\algnewcommand\ParameterOutputs{\item[{\textbf{Parameter Outputs:}}]}
+\algnewcommand\Inputs{\item[{\textbf{Inputs:}}]}
+\algnewcommand\Outputs{\item[{\textbf{Outputs:}}]}
+\algnewcommand\Updates{\item[{\textbf{Updates:}}]}
+\algnewcommand\Initialise{\item[{\textbf{Initialise:}}]}
+\algnewcommand\Initialize{\item[{\textbf{Initialize:}}]}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%  R fonts    %
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+%
+%
+%%%%%%%%%%%%%%
+%   THE END  %
+%%%%%%%%%%%%%%
