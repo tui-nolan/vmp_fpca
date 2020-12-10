@@ -226,6 +226,17 @@ scores. Variational Bayes for FPCA was introduced by \citeA{vanderlinde08} via a
 factorized approximation of the full posterior density function. We note that \citeA{vanderlinde08} was an extension
 of the probabilistic PCA framework that was introduced by \citeA{tipping99} and \citeA{bishop99}.
 
+Our interest in developing a Bayesian approach to FPCA is a matter of computing. In the frequentist setting,
+the covariance function is determined after computing and smoothing the covariance matrix of the dataset.
+Functional principal component basis functions and scores are then determined from an appropriate
+eigendecomposition. This can be a computationally demanding procedure. For example,
+in a high-dimensional dataset with 10,000 observations, we must compute a $10,000 \times 10,000$
+covariance matrix and apply a smoothing step to approximate the covariance function.
+In the Bayesian setting, however, the functional principal component basis functions are estimated directly,
+without the need to compute a covariance matrix and approximate the covariance function.
+Here, a predetermined number of basis functions are computed nonparametrically, representing
+enormous computational savings.
+
 Although there have been numerous contributions to Bayesian implementations of FPCA, we argue that there are
 additional factors that should be considered. First, MCMC modeling of FPCA is a computationally expensive
 procedure and, in some biostatistical applications \cite{Goldsmith15}, the computational time can reach several
@@ -835,9 +846,10 @@ a change of sign. In addition, expansions similar to \eqref{yhat} are also possi
 \end{equation}
 
 \noindent where $\zeta_{il}$ are correlated across $l$, but remain independent across $i$, and the $\psi_l$ are not
-orthonormal.
+orthonormal. We can establish uncorrelated scores and orthogonal basis functions through an appropriate
+use of decompositions and rotations, which we outline in Section \ref{sec:biorthogonal}.
 
-For the remainder of the article, we assume the following:
+For the remainder of the article, we will assume the following:
 
 \begin{assumption}
 	
@@ -849,10 +861,15 @@ For the remainder of the article, we assume the following:
 \begin{assumption}
 	
 	The signs of the orthonormal basis functions $\psi^*_1, \dots, \psi^*_L$ are such that if $\psihat_l$ is an
-	estimator of $\psi_l$, then $\langle \psi_l , \psihat_l \rangle \ge 0$.
+	estimator of $\psi^*_l$, then $\langle \psi^*_l , \psihat_l \rangle \ge 0$.
 	
 \label{asspn:signs}
 \end{assumption}
+
+\noindent Assumption \ref{asspn:scores} ensures that the basis functions are unique up to a change of sign.
+With this assumption, the sign of each basis function is arbitrary, meaning that $-\psi^*_l$ and $-\zeta^*_{il}$
+are also valid solutions to the decomposition \eqref{yhat}. Assumption \ref{asspn:signs} fixes the sign of
+the basis function for the purpose of identifiability.
 
 The VMP extensions of FPCA outlined in the following subsections are dependent on the following theorem:
 
