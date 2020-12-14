@@ -220,7 +220,7 @@ individual curves can be poor.
 
 Bayesian approaches to FPCA are also common. \citeA{di09} developed a Markov chain Monte Carlo (MCMC)
 approach to FPCA for multilevel functional data, which was designed to extract core sources of variability for within and
-between subject functional observations. \citeA{Goldsmith15} extended this framework to multilevel function-on-scalar
+between subject functional observations. \citeA{goldsmith15} extended this framework to multilevel function-on-scalar
 regression models, where subject-specific effects were expanded in terms of population basis functions and unique
 scores. Variational Bayes for FPCA was introduced by \citeA{vanderlinde08} via a generative model with a
 factorized approximation of the full posterior density function. We note that \citeA{vanderlinde08} was an extension
@@ -239,7 +239,7 @@ enormous computational savings.
 
 Although there have been numerous contributions to Bayesian implementations of FPCA, we argue that there are
 additional factors that should be considered. First, MCMC modeling of FPCA is a computationally expensive
-procedure and, in some biostatistical applications \cite{Goldsmith15}, the computational time can reach several
+procedure and, in some biostatistical applications \cite{goldsmith15}, the computational time can reach several
 hours. Second, current versions of variational Bayes for FPCA, despite being a much faster computational alternative,
 are not directly amenable to statistical modeling extensions, such as multilevel data structures and binary response
 outcomes.
@@ -838,16 +838,7 @@ Next, we make two observations involving the scores and the orthonormal basis fu
 and \eqref{yhat}.
 If $\gamma_l = \gamma_k$, $l \neq k$, then the corresponding eigenfunctions $\psi^*_l$ and $\psi^*_k$ are not
 unique. Furthermore, if all the eigenvalues are unique, the corresponding eigenfunctions are only unique up to
-a change of sign. In addition, expansions similar to \eqref{yhat} are also possible, where
-
-\begin{equation}
-	\yhat_i (t) \equiv \mu (t) + \sum_{l=1}^L \zeta_{il} \ \psi_l (t), \quad i = 1, \dots, n,
-\label{yhat_not_orthogonal}
-\end{equation}
-
-\noindent where $\zeta_{il}$ are correlated across $l$, but remain independent across $i$, and the $\psi_l$ are not
-orthonormal. We can establish uncorrelated scores and orthogonal basis functions through an appropriate
-use of decompositions and rotations, which we outline in Section \ref{sec:biorthogonal}.
+a change of sign.
 
 For the remainder of the article, we will assume the following:
 
@@ -888,6 +879,18 @@ The VMP extensions of FPCA outlined in the following subsections are dependent o
 \end{theorem}
 
 \noindent A proof of Theorem \ref{thm:orth_basis} is provided in Appendix \ref{app:proof_thm_orth_basis}.
+
+Expansions similar to \eqref{yhat} are also possible. For instance, we could also have
+
+\begin{equation}
+	\yhat_i (t) \equiv \mu (t) + \sum_{l=1}^L \zeta_{il} \ \psi_l (t), \quad i = 1, \dots, n,
+\label{yhat_not_orthogonal}
+\end{equation}
+
+\noindent where $\zeta_{il}$ are correlated across $l$, but remain independent across $i$, and the $\psi_l$ are not
+orthonormal. These representations are commonly encountered in Bayesian treatments of FPCA \cite{vanderlinde08,
+goldsmith15}. We can establish uncorrelated scores and orthogonal basis functions through an appropriate
+use of decompositions and rotations, which we outline in Section \ref{sec:biorthogonal}.
 
 %%%%%%%%%%%%%% Bayesian Model Construction
 
@@ -1335,10 +1338,13 @@ The FPCA Gaussian likelihood fragment, shown in blue in Figure \ref{fig:fg_fpca}
 \label{fpc_gauss_lik_factor}
 \end{equation}
 
-\noindent Here, we outline the construction of the messages that are passed from the factor representing
+\noindent The messages passed from this fragment provide updates for the optimal posterior distributions of
+$\bnu$, $\sigsqeps$ and each $\bzeta_{il}$. Note that this fragment only handles a
+Gaussian likelihood specification, whereas other likelihood specifications would require a new fragment
+with different updates.
+Here, we outline the construction of the messages that are passed from the factor representing
 the likelihood $p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)$ to each of its neighbouring stochastic nodes.
-On the other hand, the
-derivations of these messages and the derivations of expected values of random variables, random vectors
+The derivations of these messages and the derivations of expected values of random variables, random vectors
 and random matrices that these messages depend on are deferred to Appendix \ref{app:fpca_gauss_lik_frag}.
 
 The message from $p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)$ to $\bnu$ can be shown to be
@@ -1568,7 +1574,12 @@ The mean and FPC Gaussian penalization fragment, shown in red in Figure \ref{fig
 \label{mean_fpc_gauss_pen_factor}
 \end{equation}
 
-\noindent and all sub-vectors and sub-matrices are defined in \eqref{sub_vecs_mats}. Here, as in Section
+\noindent and all sub-vectors and sub-matrices are defined in \eqref{sub_vecs_mats}.
+The messages passed from this fragment provide updates for the optimal posterior distributions of $\bnu$,
+$\sigsqmu$ and each $\sigsqpsi{l}$. Indeed, this key fragment would be essential in any VMP treatment
+of FPCA that relies on semiparametric regression for determining the functional principal component basis
+function because the penalization, which follows from \citeA{wand08}, does not need to be altered with any
+change in the likelihood specification. Here, as in Section
 \ref{sec:fpca_gauss_lik_frag}, we outline the messages that are passed from this factor to its neighbouring
 stochastic nodes. For detailed derivations of these messages and all relevant expectations, we defer the
 reader to Appendix \ref{app:mean_fpc_gauss_pen_frag}.
@@ -2339,7 +2350,7 @@ generalized outcomes would also satisfy a popular area of research in functional
 
 %%%%%%%%%%%%%%  BIBLIOGRAPHY  %%%%%%%%%%%%%%%
 
-\bibliography{/Users/tuinolan/Desktop/latex_central/bibliography}
+\bibliography{bibliography}
 
 %%%%%%%%%%%%%%  APPENDICES  %%%%%%%%%%%%%%%
 

@@ -11,11 +11,11 @@ Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated wiz_functions (elt_size=4) to 9000 items from 6000.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
-Database file #1: /Users/tuinolan/Desktop/latex_central/bibliography.bib
+Database file #1: bibliography.bib
 apacite.bst [2013/07/21 v6.03 APA bibliography style]
 You've used 42 entries,
             6951 wiz_defined-function locations,
-            1497 strings with 16273 characters,
+            1496 strings with 16224 characters,
 and the built_in function-call counts, 77870 in all, are:
 = -- 9790
 > -- 628
