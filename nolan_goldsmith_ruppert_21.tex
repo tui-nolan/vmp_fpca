@@ -206,7 +206,7 @@ Furthermore, the points of observation, as well as the total number of observati
 same for each curve. Therefore, the eigendecomposition approach that is often used in PCA needs some
 modifications to extend to the functional framework.
 In FPCA, we often rely on semiparametric regression to infer the behaviour of the original curves and employ
-a singular value decomposition (SVD) to ensure that the basis functions are orthogonal.
+an appropriate orthogonalisation step to ensure that the basis functions are orthogonal.
 
 There have been numerous developments in FPCA methodology throughout the statistical literature.
 A thorough introduction to the statistical framework and applications can be found in \citeA[Chapter~8]{ramsay05}
@@ -220,28 +220,22 @@ individual curves can be poor.
 
 Bayesian approaches to FPCA are also common. \citeA{di09} developed a Markov chain Monte Carlo (MCMC)
 approach to FPCA for multilevel functional data, which was designed to extract core sources of variability for within and
-between subject functional observations. \citeA{goldsmith15} extended this framework to multilevel function-on-scalar
+between subject functional observations. \citeA{Goldsmith15} extended this framework to multilevel function-on-scalar
 regression models, where subject-specific effects were expanded in terms of population basis functions and unique
 scores. Variational Bayes for FPCA was introduced by \citeA{vanderlinde08} via a generative model with a
 factorized approximation of the full posterior density function. We note that \citeA{vanderlinde08} was an extension
 of the probabilistic PCA framework that was introduced by \citeA{tipping99} and \citeA{bishop99}.
 
-Our interest in developing a Bayesian approach to FPCA is a matter of computing. In the frequentist setting,
-the covariance function is determined after computing and smoothing the covariance matrix of the dataset.
-Functional principal component basis functions and scores are then determined from an appropriate
-eigendecomposition. This can be a computationally demanding procedure. For example,
-in a high-dimensional dataset with 10,000 observations, we must compute a $10,000 \times 10,000$
-covariance matrix and apply a smoothing step to approximate the covariance function.
-In the Bayesian setting, however, the functional principal component basis functions are estimated directly,
-without the need to compute a covariance matrix and approximate the covariance function.
-Here, a predetermined number of basis functions are computed nonparametrically, representing
-enormous computational savings.
-
+In frequentist versions of FPCA, the covariance function is determined through bivariate smoothing of the raw
+covariances. Eigenfunctions and eigenvalues are then determined from the smoothed covariance function.
+The key advantage in the Bayesian approach is that the covariance function is not determined, meaning that
+complex bivariate smoothing is not required. Indeed, the eigenfunctions and eigenvalues are computed directly
+as part of a Bayesian hierarchical model. For this reason, we pursue a Bayesian approach to FPCA.
 Although there have been numerous contributions to Bayesian implementations of FPCA, we argue that there are
 additional factors that should be considered. First, MCMC modeling of FPCA is a computationally expensive
-procedure and, in some biostatistical applications \cite{goldsmith15}, the computational time can reach several
+procedure and, in some biostatistical applications \cite{Goldsmith15}, the computational time can reach several
 hours. Second, current versions of variational Bayes for FPCA, despite being a much faster computational alternative,
-are not directly amenable to statistical modeling extensions, such as multilevel data structures and binary response
+are difficult to extend to more complex likelihood specifications, such as multilevel data models and binary response
 outcomes.
 
 \citeA{minka05} presents a unifying view of approximate Bayesian inference under a message passing framework
@@ -254,7 +248,13 @@ models.
 
 In this article, we propose an FPCA extension of the VMP framework for semiparametric regression set out in
 \citeA{wand17}. Our novel methodology includes the introduction of two fragments  that are necessary for
-computing approximate posterior density functions under an MFVB scheme.
+computing approximate posterior density functions under an MFVB scheme. We provide an introduction to
+variational Bayesian inference in Section \ref{sec:vbi}, with an overview of VMP in Section \ref{sec:vmp}.
+Section \ref{sec:fpca} introduces the Bayesian hierarchical model for FPCA and its extensions under a
+VMP formulation. In Section \ref{sec:post_vmp_steps}, we outline the post-VMP steps that are required for
+producing orthogonal eigenfunctions. Simulations, including speed and accuracy comparisons with MCMC
+algorithms, are presented in Section \ref{sec:sims}, and an application to United States weather data is
+provided in Section \ref{sec:us_weather_data}.
 
 %%%%%%%%%%%%%%  VARIATIONAL  BAYESIAN  INFERENCE  %%%%%%%%%%%%%%%
 
@@ -263,7 +263,7 @@ computing approximate posterior density functions under an MFVB scheme.
 
 The overarching aim of this article is the identification and derivation of fragments that are necessary for VMP
 implementations of FPCA. VMP is an approximate Bayesian inference construction that is derived from MFVB
-approaches. In this section, we provide a brief introduction of the MFVB and VMP frameworks. For an in-depth
+approaches. In this section, we provide a brief introduction to the MFVB and VMP frameworks. For an in-depth
 explanation of MFVB, we refer the reader to \citeA{ormerod10} and \citeA{blei17}; for a comprehensive review
 of VMP, we refer the reader to \citeA{minka05} and \citeA{wand17}.
 
@@ -297,7 +297,7 @@ function, defined by
 
 \noindent as an approximation to the true posterior density function $p (\btheta | \by)$.
 
-Simple algebraic arguments \cite<e.g.>[section~2.1]{ormerod10} show that the marginal log-likelihood satisfies:
+Simple algebraic arguments \cite<e.g.>[Section~2.1]{ormerod10} show that the marginal log-likelihood satisfies:
 
 \[
 	\log p (\by) = \DKL \{ q(\btheta), p (\btheta | \by) \} + \log \underline{p} (\by; q),
@@ -377,13 +377,14 @@ coding required for variational Bayesian inference. Posterior density estimation
 within and between factor graph fragments. Here, we give a brief description of the foundations of VMP. For a
 thorough exposition of the VMP framework, we refer the reader to \citeA{wand17}.
 
-Consider a generic Bayesian model with observed data vector $\by$ and parameter vectors $\btheta_1, \dots,
+As a specific example,
+consider a generic Bayesian model with observed data vector $\by$ and parameter vectors $\btheta_1, \dots,
 \btheta_5$. Suppose that the joint density function factorises according to
 
 \begin{equation}
 	p (\by, \btheta_1, \dots, \btheta_5) =
 		p (\by | \btheta_1, \btheta_2, \btheta_3) p (\btheta_1) p (\btheta_2 | \btheta_4, \btheta_5)
-		p (\btheta_3 | \btheta_4) p (\btheta_4) p (\btheta_5)
+		p (\btheta_3 | \btheta_4) p (\btheta_4) p (\btheta_5).
 \label{arb_bayes_mod}
 \end{equation}
 
@@ -392,7 +393,7 @@ in Figure \ref{fig:arb_bayes_mod_fg}. The square nodes are the factors, which re
 specifications of the model, and the circular nodes are called stochastic nodes, which represent the random
 variables of the model. Furthermore, the graph is bipartite, meaning that stochastic nodes can only share an
 edge with a factor and vice versa. Additionally, notice that the edges of the factor graph respect the distributional
-dependencies of \eqref{arb_bayes_mod}. For example, the factor for $p (\btheta_2 | \btheta_4, \btheta_5)$
+dependencies of \eqref{arb_bayes_mod}. For instance, the factor for $p (\btheta_2 | \btheta_4, \btheta_5)$
 shares edges with the stochastic nodes for $\btheta_2$, $\btheta_4$ and $\btheta_5$ only.
 
 \begin{figure}
@@ -506,16 +507,15 @@ returns to these factors are
 			\msg{p (\btheta_3 | \btheta_4)}{\btheta_4} (\btheta_4).
 \end{align*}
 
-Now, consider a general Bayesian model with $M$ factors ($p_1, \dots, p_M$) and $N$ parameter vectors
-($\btheta_1, \dots, \btheta_N$). We define the set of stochastic nodes that are connected to the factor
+Now, consider a general Bayesian model with $M$ factors $p_1, \dots, p_M$ and $N$ parameter vectors
+$\btheta_1, \dots, \btheta_N$. We define the set of stochastic nodes that are connected to the factor
 $p_j$ as
 
 \[
-	\neighbors (j) \equiv \{ i = 1, \dots, N: \text{$\btheta_i$ is a neighbor of $p_j$} \}
+	\neighbors (j) \equiv \{ i = 1, \dots, N: \text{$\btheta_i$ is shares an edge with $p_j$} \}.
 \]
 
-\noindent and use the notation
-$\btheta_S \equiv \{ \btheta_i : i \in S \}$, for any $S \subset \{ 1, \dots, M \}$. Then, the message from factor
+\noindent Then, the message from factor
 $p_j$ to the stochastic node $\btheta_i$ is
 
 \begin{equation}
@@ -525,14 +525,14 @@ $p_j$ to the stochastic node $\btheta_i$ is
 				\E_{q(\btheta \setminus \btheta_i)} \log p_j
 			} {
 				\int \E_{q(\btheta \setminus \btheta_i)} \log p_j d\btheta_i
-			} \ind \{ i \in \neighbors(j) \},
+			}.
 \label{msg_fact_sn}
 \end{equation}
 
-\noindent where $\ind (\cdot)$ is the indicator function. The message from $\btheta_i$ to $p_j$ is
+\noindent The message from $\btheta_i$ to $p_j$ is
 
 \begin{equation}
-	\msg{\btheta_i}{p_j}
+	\msg{\btheta_i}{p_j} (\btheta_i)
 		\longleftarrow
 			\prod_{j' \neq j : i \in \neighbors(j')} \msg{p_{j'}}{\btheta_i} (\btheta_i).
 \label{msg_sn_fact}
@@ -582,24 +582,35 @@ optimal $q$-density functions in \eqref{opt_q_vmp} take the form
 \label{npbf}
 \end{equation}
 
-The Normal distribution is one of the most important distributions within the exponential family, and it plays a
-major role in VMP versions of variational Bayesian inference. Consider the $d \times 1$ Multivariate Normal
-random vector
+Before introducing the exponential family forms for key distributions in the VMP setting, we outline some
+matrix and vector operators. We define the $\vect$ and $\vech$ operators,
+which are well-established \cite<e.g.>{gentle07}.
+For a $d_1 \times d_2$ matrix, the $\vect$ operator concatenates the columns of the matrix from left to right.
+For a $d_1 \times d_1$ matrix, the $\vech$ operator concatenates the columns of the matrix after removing
+the above diagonal elements. For example, suppose that
 
 \[
-	\bx \sim \normal (\bmu, \bSigma).
+	\bA = \begin{bmatrix}
+		2 & -1 \\
+		-3 & 1
+	\end{bmatrix}.
 \]
 
-\noindent The probability density function of $\bx$ can be shown to satisfy
+\noindent Then $\vect (\bA) = \T{(2, -3, -1, 1)}$ and $\vech (\bA) = \T{(-2, -3, 1)}$.
+For a $d^2 \times 1$ vector
+$\ba$, $\vect^{-1} (\ba)$ is the $d \times d$ matrix such that $\vect \{\vect^{-1} (\ba)\} = \ba$. Additionally, the matrix
+$\bD_d$ is the duplication matrix of order $d$, and it is such that $\bD_d \vech (\bA) = \vect (\bA)$ for a
+$d \times d$ symmetric matrix $\bA$. Furthermore, $\bD_d^{+} \equiv (\T{\bD_d} \bD_d)^{-1} \T{\bD_d}$ is the
+Moore-Penrose inverse of $\bD_d$, where $\bD_d^+ \vect (\bA) = \vech(\bA)$.
 
-\begin{align}
-\begin{split}
-	p(\bx)
-		&= (2 \pi)^{-d/2} |\bSigma|^{-1/2} \exp \left\{ \T{(\bx - \bmu)} \bSigma^{-1} (\bx - \bmu) \right\} \\
-		&= \exp \left\{ \T{\bT_{\vect} (\bx)} \bdeta_{\vect} - A_{\vect} (\bdeta_{\vect}) - \frac{d}{2} \log (2 \pi) \right\}
-\end{split}
+The Normal distribution is one of the most important distributions within the exponential family, and it plays a
+major role in VMP versions of variational Bayesian inference. Consider the $d \times 1$ Multivariate Normal
+random vector $\bx \sim \normal (\bmu, \bSigma)$. The probability density function of $\bx$ can be shown to satisfy
+
+\begin{equation}
+	p(\bx) = \exp \left\{ \T{\bT_{\vect} (\bx)} \bdeta_{\vect} - A_{\vect} (\bdeta_{\vect}) - \frac{d}{2} \log (2 \pi) \right\}
 \label{vec_repn}
-\end{align}
+\end{equation}
 
 \noindent where
 
@@ -618,7 +629,7 @@ random vector
 	\end{bmatrix}
 \]
 
-\noindent are, respectively, the sufficient statistic vector and the natural parameter vector. The function
+\noindent are, respectively, the vector of sufficient statistics and the natural parameter vector. The function
 
 \[
 	A_{\vect} (\bdeta_{\vect}) =
@@ -636,15 +647,15 @@ random vector
 \label{gauss_vec_comm_params}
 \end{equation}
 
-\noindent We will refer to the representation of the Multivariate Normal probability density function in the second
-line of \eqref{vec_repn} as the \emph{vec-based representation}. Alternatively, a more storage-economical
+\noindent We will refer to the representation of the Multivariate Normal probability density function in
+\eqref{vec_repn} as the \emph{vec-based representation}. Alternatively, a more storage-economical
 representation of the Multivariate Normal probability density function is the \emph{vech-based representation}:
 
 \[
 	p (\bx) = \exp \left\{ \T{\bT_{\vech} (\bx)} \bdeta_{\vech} - A_{\vech} (\bdeta_{\vech}) - \frac{d}{2} \log (2 \pi) \right\},
 \]
 
-\noindent where the sufficient statistic vector, the natural parameter vector and the log-partition function are,
+\noindent where the vector of sufficient statistics, the natural parameter vector and the log-partition function are,
 respectively,
 
 \[
@@ -680,12 +691,6 @@ respectively,
 \label{gauss_vech_comm_params}
 \end{equation}
 
-The $\vect$ and $\vech$ operators are well-established \cite<e.g.>{gentle07}, whereas for a $d^2 \times 1$ vector
-$\ba$, $\vect^{-1} (\ba)$ is the $d \times d$ matrix such that $\vect \{\vect^{-1} (\ba)\} = \ba$. Additionally, the matrix
-$\bD_d$ is the duplication matrix of order $d$, and it is such that $\bD_d \vech (\bA) = \vect (\bA)$ for a
-$d \times d$ symmetric matrix $\bA$. Furthermore, $\bD_d^{+} \equiv (\T{\bD_d} \bD_d)^{-1} \T{\bD_d}$ is the
-Moore-Penrose inverse of $\bD_d$, where $\bD_d^+ \vect (\bA) = \vech(\bA)$.
-
 The other major distribution within the exponential family that is pivotal for this article is the $\invchisq$ distribution.
 A random variable $x$ has an $\invchisq$ distribution with shape parameter $\xi > 0$ and scale parameter
 $\lambda > 0$ if the probability density function of $x$ is
@@ -703,7 +708,7 @@ du$. The exponential family representation of the $\invchisq$ density function i
 	p(x) = \exp \left\{ \T{\bT (x)} \bdeta - A(\bdeta) \right\} \ind (x > 0),
 \]
 
-\noindent where the sufficient statistic vector, the natural parameter vector and the log-partition function are,
+\noindent where the vector of sufficient statistics, the natural parameter vector and the log-partition function are,
 respectively,
 
 \[
@@ -735,6 +740,45 @@ respectively,
 	\lambda = -2 \eta_2.
 \]
 
+The generalization of the $\invchisq$ distribution is the $\igw$ distribution, written $\bX \sim \igw (G, \xi, \Lambda)$,
+for a symmetric and positive definite $d \times d$ matrix $\bX$.
+The parameter $G$ is an undirected graph with $d$ nodes and edge
+set $E$ with pairs of nodes connected by an edge. Furthermore, $\xi > 0$ and
+$\bLambda$ is a symmetric and positive definite $d \times d$ matrix.
+We say that, the symmetric matrix $\bA$ respects $G$ if $\bA_{ij} = 0$
+for all $( i, j ) \notin E$. Now, impose the additional constraint that  $\bX^{-1}$ respects $G$. Furthermore, let $G_{\text{full}}$ represent a
+complete graph where each node is connected
+to every other node by an edge, and let $G_{\text{diag}}$ represent a sparse graph where the edge set is empty.
+The justification for this notation is that a matrix with no zero constraints respects $G_{\text{full}}$ and a diagonal
+matrix respects $G_{\text{diag}}$.
+The two graph constructions generate two definitions for the $\igw$ distribution \cite[Definition~3]{maestrini20}:
+
+\begin{enumerate}[label={(\alph*)}]
+	%
+	\item If $G = G_{\text{full}}$ and $\xi$ is restricted such that $\xi > 2d - 2$ then we say that $\bX$ has an $\igw$
+	distribution with graph $G$, shape parameter $\xi$ and scale matrix $\bLambda$ if and only if the non-zero
+	values of the density function of $\bX$ satisfy
+		%
+		\[
+			p (\bX) \propto |\bX|^{-(\xi + 2)/2} \exp \left\{ -\frac12 \tr (\bLambda \bX^{-1}) \right\}
+		\]
+	%
+	\item If $G = G_{\text{diag}}$, then we say the $\bX$ has an $\igw$
+	distribution with graph $G$, shape parameter $\xi$ and scale matrix $\bLambda$ if and only if the non-zero
+	values of the density function of $\bX$ satisfy
+		%
+		\[
+			p (\bX) \propto |\bX|^{-(\xi + 2)/2} \exp \left\{ -\frac12 \tr (\bLambda \bX^{-1}) \right\}.
+		\]
+	%
+\end{enumerate}
+
+The exponential family form of the $\igw$ distribution is not important for this article; we refer the reader to
+\citeA[Section~2.2]{maestrini20}. Instead, our interest lies in the role of the graphical parameter, which must be
+incorporated as an argument for variational message updates involving $\igw$ random matrices, including
+$\invchisq$ random variables. We follow the advice in \citeA[Sections~5 \& 6]{maestrini20} for message passing
+updates involving graphical parameters.
+
 %% Factor Graph Fragments
 
 \subsubsection{Factor Graph Fragments}
@@ -755,7 +799,7 @@ models. The following is a list of some of the major contributions to fragment u
 \begin{itemize}
 	%
 	\item \citeA{wand17} identified five fundamental fragments for Gaussian response semiparametric regression.
-	This includes the Gaussian prior fragment, Inverse Wishart prior fragment and the iterated Inverse
+	This includes the Gaussian prior fragment, Inverse G-Wishart prior fragment and the iterated Inverse
 	G-Wishart fragment, which are necessary for a VMP construction of Bayesian FPCA. The author also
 	identified several other fragments for direct implementation in various extensions for semiparametric
 	regression.
@@ -777,7 +821,7 @@ models. The following is a list of some of the major contributions to fragment u
 	streamline the computations of VMP for Gaussian response linear mixed models. This involved the
 	introduction of four new fragments.
 	%
-	\item \citeA{maestrini20} provides corrections for the matrix versions of the Inverse Wishart prior fragment
+	\item \citeA{maestrini20} provide corrections for the matrix versions of the Inverse G-Wishart prior fragment
 	and the iterated Inverse G-Wishart fragment from \citeA{wand17}. The corrections are based on graph
 	theoretic results that affect VMP treatments of covariance matrices. Although the scalar versions of these
 	fragments from \citeA{wand17} are sufficient for the current article, we will use the updated fragments
@@ -812,8 +856,8 @@ is the basis for the FPCA expansion \cite{yao05}:
 \label{kl_expansion}
 \end{equation}
 
-\noindent where $\zeta^*_{il} = \int_0^1 \{ y_i (t) - \mu(t) \} \psi^*_l(t) dt$ are the functional principal components or
-\emph{scores}. The $\zeta^*_{il}$ are independent across $i$ and uncorrelated across $l$, with $\E (\zeta^*_{il}) = 0$
+\noindent where $\zeta^*_{il} = \int_0^1 \{ y_i (t) - \mu(t) \} \psi^*_l(t) dt$ are the principal components
+scores. The $\zeta^*_{il}$ are independent across $i$ and uncorrelated across $l$, with $\E (\zeta^*_{il}) = 0$
 and $\Var (\zeta^*_{il}) = \gamma_l$.
 
 Expansion \eqref{kl_expansion} facilitates dimension reduction by providing a best approximation for each
@@ -834,13 +878,27 @@ $y_i$ as
 \label{yhat}
 \end{equation}
 
-Next, we make two observations involving the scores and the orthonormal basis functions in \eqref{kl_expansion}
-and \eqref{yhat}.
-If $\gamma_l = \gamma_k$, $l \neq k$, then the corresponding eigenfunctions $\psi^*_l$ and $\psi^*_k$ are not
-unique. Furthermore, if all the eigenvalues are unique, the corresponding eigenfunctions are only unique up to
-a change of sign.
+Next, we make some observations involving the scores and the orthonormal basis functions in \eqref{kl_expansion}
+and \eqref{yhat}:
 
-For the remainder of the article, we will assume the following:
+\begin{enumerate}
+	%
+	\item If $\gamma_l = \gamma_k$, $l \neq k$, then the corresponding eigenfunctions $\psi^*_l$ and $\psi^*_k$
+	are not unique. We will simply assume that the eigenvalues are unique. This is a reasonable assumption
+	for most applications (e.g. climate data
+	and biostatistical problems), where equal eigenvalues are normally encountered after the infinite series
+	in \eqref{kl_expansion} is truncated.
+	%
+	\item If all the eigenvalues are unique, the corresponding eigenfunctions are only unique up to
+	a change of sign. Issues of identifiability are always present when one attempts to infer eigenfunctions or
+	eigenvectors. However, choosing one eigenfunction over its opposite sign has no effect on the resulting fits or
+	the interpretation of the contribution of the eigenfunction.
+	Here, we simply assume that the inner product of the Bayesian estimate of an
+	eigenfunction and the eigenfunction itself is positive.
+	%
+\end{enumerate}
+
+\noindent We state these assumptions formally.
 
 \begin{assumption}
 	
@@ -852,17 +910,22 @@ For the remainder of the article, we will assume the following:
 \begin{assumption}
 	
 	The signs of the orthonormal basis functions $\psi^*_1, \dots, \psi^*_L$ are such that if $\psihat_l$ is an
-	estimator of $\psi^*_l$, then $\langle \psi^*_l , \psihat_l \rangle \ge 0$.
+	estimator of $\psi^*_l$, then $\langle \psi^*_l , \psihat_l \rangle > 0$.
 	
 \label{asspn:signs}
 \end{assumption}
 
-\noindent Assumption \ref{asspn:scores} ensures that the basis functions are unique up to a change of sign.
-With this assumption, the sign of each basis function is arbitrary, meaning that $-\psi^*_l$ and $-\zeta^*_{il}$
-are also valid solutions to the decomposition \eqref{yhat}. Assumption \ref{asspn:signs} fixes the sign of
-the basis function for the purpose of identifiability.
+Expansions similar to \eqref{yhat} are also possible, where
 
-The VMP extensions of FPCA outlined in the following subsections are dependent on the following theorem:
+\begin{equation}
+	\yhat_i (t) \equiv \mu (t) + \sum_{l=1}^L \zeta_{il} \ \psi_l (t), \quad i = 1, \dots, n,
+\label{yhat_not_orthogonal}
+\end{equation}
+
+\noindent where $\zeta_{il}$ are correlated across $l$, but remain independent across $i$, and the $\psi_l$ are not
+orthonormal. Theorem \ref{thm:orth_basis} shows that an orthogonal decomposition of the resulting basis functions
+and scores is sufficient for establishing the appropriate estimator \eqref{yhat}.
+Its proof is provided in Appendix \ref{app:proof_thm_orth_basis}.
 
 \begin{theorem}
 	
@@ -878,27 +941,13 @@ The VMP extensions of FPCA outlined in the following subsections are dependent o
 \label{thm:orth_basis}
 \end{theorem}
 
-\noindent A proof of Theorem \ref{thm:orth_basis} is provided in Appendix \ref{app:proof_thm_orth_basis}.
-
-Expansions similar to \eqref{yhat} are also possible. For instance, we could also have
-
-\begin{equation}
-	\yhat_i (t) \equiv \mu (t) + \sum_{l=1}^L \zeta_{il} \ \psi_l (t), \quad i = 1, \dots, n,
-\label{yhat_not_orthogonal}
-\end{equation}
-
-\noindent where $\zeta_{il}$ are correlated across $l$, but remain independent across $i$, and the $\psi_l$ are not
-orthonormal. These representations are commonly encountered in Bayesian treatments of FPCA \cite{vanderlinde08,
-goldsmith15}. We can establish uncorrelated scores and orthogonal basis functions through an appropriate
-use of decompositions and rotations, which we outline in Section \ref{sec:biorthogonal}.
-
 %%%%%%%%%%%%%% Bayesian Model Construction
 
 \subsection{Bayesian Model Construction}
 \label{sec:bayes_mod}
 
-In practice, the curves $y_1, \dots, y_n$ are indirectly observed as noisy observations at discrete points in time,
-which are not necessarily the same for each curve.
+In practice, the curves $y_1, \dots, y_n$ are indirectly observed as noisy observations at discrete points in time.
+Furthermore, the observations in time are not necessarily the same for each curve.
 Let the set of design points for the $i$th curve be summarized by the vector
 
 \begin{equation}
@@ -922,8 +971,8 @@ The finite decomposition in \eqref{yhat} takes the form:
 \label{resp_mod}
 \end{equation}
 
-\noindent where $\bmu_i \equiv \T{\{ \mu (t_{i1}), \dots, \mu (t_{iT_i}) \}}$, for $l = 1, \dots, L$,
-$\bpsi_{il} \equiv \T{\{ \psi_l (t_{i1}), \dots, \psi_l (t_{iT_i}) \}}$, and
+\noindent where $\bmu_i \equiv \T{\{ \mu (t_{i1}), \dots, \mu (t_{iT_i}) \}}$,
+$\bpsi_{il} \equiv \T{\{ \psi_l (t_{i1}), \dots, \psi_l (t_{iT_i}) \}}$, for $l = 1, \dots, L$, and
 $\bepsilon_{i} \equiv \T{(\epsilon_{i1}, \dots, \epsilon_{iT_i})}$ is a vector of measurement errors
 for the observations on curve $y_i (t)$.
 
@@ -957,8 +1006,8 @@ In order to avoid notational clutter, we incorporate the following definitions:
 \end{gathered}
 \]
 
-\noindent Then simple derivations that stem from \eqref{resp_mod} show that each of the response curves satisfy the
-representation:
+\noindent Then simple derivations that stem from \eqref{resp_mod} show that the vector of observations on
+each of the response curves satisfies the representation:
 
 \[
 	\by_i = \bC_i \left(
@@ -1066,7 +1115,7 @@ of the posterior density function
 \noindent but it is typically analytically intractable. The standard approach for overcoming this deficiency is to
 employ MCMC approaches. However, we propose two major arguments against this approach. First, MCMC
 simulations are very slow for model \eqref{bayes_fpca_mod}, even for moderate dimensions for $\bnu$, which
-depends on the numbers of FPC basis functions ($L$) and O'Sullivan penalised spline basis functions ($K$).
+depends on the number of FPC basis functions ($L$) and O'Sullivan penalised spline basis functions ($K$).
 Second, the mean function $\mu (t)$ and the FPC basis functions $\psi_1 (t), \dots,
 \psi_L (t)$ are typically highly correlated, which is expected to lead to poor mixing. After preliminary MCMC
 simulations through \textsf{Rstan}, the \textsf{R} \cite{r20} interface to the probabilistic programming language
@@ -1338,13 +1387,12 @@ The FPCA Gaussian likelihood fragment, shown in blue in Figure \ref{fig:fg_fpca}
 \label{fpc_gauss_lik_factor}
 \end{equation}
 
-\noindent The messages passed from this fragment provide updates for the optimal posterior distributions of
-$\bnu$, $\sigsqeps$ and each $\bzeta_{il}$. Note that this fragment only handles a
-Gaussian likelihood specification, whereas other likelihood specifications would require a new fragment
-with different updates.
+\noindent The purpose of this fragment is to provide message updates for the variational posterior density functions
+of $\bnu$, $\bzeta_i, \dots, \bzeta_n$ and $\sigsqeps$ at every iteration of the VMP algorithm.
 Here, we outline the construction of the messages that are passed from the factor representing
 the likelihood $p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)$ to each of its neighbouring stochastic nodes.
-The derivations of these messages and the derivations of expected values of random variables, random vectors
+On the other hand, the
+derivations of these messages and the derivations of expected values of random variables, random vectors
 and random matrices that these messages depend on are deferred to Appendix \ref{app:fpca_gauss_lik_frag}.
 
 The message from $p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)$ to $\bnu$ can be shown to be
@@ -1406,11 +1454,11 @@ For each $i = 1, \dots, n$, the message from $p (\by | \bnu, \bzeta_1, \dots, \b
 				\vech (\bzeta_i \T{\bzeta_i})
 			\end{bmatrix}}
 			\np{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)}{\bzeta_i}
-		\right\}.
+		\right\},
 \label{msg_lik_zeta}
 \end{equation}
 
-\noindent That is, the message is proportional to a Multivariate Normal density function.
+\noindent which is proportional to a Multivariate Normal density function.
 The update for the natural parameter vector in \eqref{msg_lik_zeta} is
 
 \begin{equation}
@@ -1478,7 +1526,7 @@ The message from $p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)$ to $\sig
 \label{V_mat}
 \end{equation}
 
-\noindent With conjugacy in mind, we must remember that the $\invchisq$ density function message that is passed
+\noindent We must remember that the $\invchisq$ density function message that is passed
 to $\sigsqeps$ is part of the Inverse G-Wishart class of density functions for VMP. Within this class of messages,
 a graph message is also required to specify whether the density function respects a full or a diagonal matrix. This
 graphical message does not affect $\invchisq$ density function messages, however we will include
@@ -1574,12 +1622,9 @@ The mean and FPC Gaussian penalization fragment, shown in red in Figure \ref{fig
 \label{mean_fpc_gauss_pen_factor}
 \end{equation}
 
-\noindent and all sub-vectors and sub-matrices are defined in \eqref{sub_vecs_mats}.
-The messages passed from this fragment provide updates for the optimal posterior distributions of $\bnu$,
-$\sigsqmu$ and each $\sigsqpsi{l}$. Indeed, this key fragment would be essential in any VMP treatment
-of FPCA that relies on semiparametric regression for determining the functional principal component basis
-function because the penalization, which follows from \citeA{wand08}, does not need to be altered with any
-change in the likelihood specification. Here, as in Section
+\noindent and all sub-vectors and sub-matrices are defined in \eqref{sub_vecs_mats}. The purpose of
+this fragment is to provide message updates for the variational posterior density functions of $\bnu$, $\sigsqmu$
+and $\sigsqpsi{1}, \dots, \sigsqpsi{L}$ at each iteration of the VMP algorithm. Here, as in Section
 \ref{sec:fpca_gauss_lik_frag}, we outline the messages that are passed from this factor to its neighbouring
 stochastic nodes. For detailed derivations of these messages and all relevant expectations, we defer the
 reader to Appendix \ref{app:mean_fpc_gauss_pen_frag}.
@@ -1593,8 +1638,9 @@ First, let us introduce the vector and matrix
 \label{munu_Sigmanu}
 \end{equation}
 
-\noindent Then, the normalized message from $p (\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})$ to $\bnu$
-can be shown to be a Multivariate Normal density function, with vec-based exponential density representation
+\noindent Then, the message from $p (\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})$ to $\bnu$
+can be shown to be proportional to a Multivariate Normal density function, with vec-based exponential density
+representation
 
 \begin{equation}
 	\msg{p (\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})}{\bnu} (\bnu)
@@ -1766,8 +1812,7 @@ basis functions and independent vectors of scores with uncorrelated entries.
 However, the variational Bayesian FPCA resulting from a VMP treatment
 does not enforce any orthogonality restrictions on the resulting basis functions. Although curve estimation is still
 valid without these constraints, interpretation of the analysis is more straightforward with orthogonal basis
-functions. Furthermore, the scale of the basis functions and, by extension, the functional principal component
-scores is not guaranteed to match the scales of the original basis functions and scores.
+functions. Furthermore, the basis functions are not guaranteed to be normalized.
 In the following sections, we outline
 a sequence of post-VMP steps that aid inference and interpretability for variational Bayes-based FPCA.
 
@@ -1777,9 +1822,9 @@ a sequence of post-VMP steps that aid inference and interpretability for variati
 \label{sec:opt_dens_funcs}
 
 We are primarily concerned with the optimal posterior density functions for the vector of spline coefficients for
-the mean function and basis functions $\bnu$ and the functional principal component scores $\bzeta_1, \dots,
+the mean function and basis functions $\bnu$ and the vectors of principal component scores $\bzeta_1, \dots,
 \bzeta_n$. Upon convergence of the algorithm, the natural parameter vectors for these optimal posterior density
-functions are
+functions are, according to \eqref{etaq},
 
 \[
 	\npq{\bnu} \longleftarrow
@@ -1793,10 +1838,10 @@ functions are
 	\npq{\bzeta_i} \longleftarrow
 		\np{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)}{\bzeta_i}
 		+ \np{p (\bzeta_i)}{\bzeta_i}, \quad
-	\text{for $i = 1, \dots, n$,}
+	\text{for $i = 1, \dots, n$.}
 \]
 
-\noindent according to \eqref{etaq}. The optimal posterior density for each of these parameters is a Gaussian density
+\noindent The optimal posterior density for each of these parameters is a Gaussian density
 function, where the mean vector $\E_q (\bnu)$ and covariance matrix $\Cov_q (\bnu)$ for $q^* (\bnu)$
 can be computed from
 \eqref{gauss_vec_comm_params}, and the corresponding parameters $\E_q (\bzeta_i)$ and $\Cov_q (\bzeta_i)$
@@ -1823,7 +1868,7 @@ alone. This treatment is in line with standard approaches to FPCA, where the ran
 generated by the functional principal component scores  \cite<e.g.>{yao05, benko09}.
 
 Now, we outline the steps to construct orthogonal functional principal component basis functions and
-uncorrelated scores. Ther existence and uniqueness of the basis functions are justified by Theorem \ref{thm:orth_basis}.
+uncorrelated scores. The existence and uniqueness of the basis functions are justified by Theorem \ref{thm:orth_basis}.
 First, set up an equidistant grid of design points $\bt_g = \T{(t_{g1}, \dots, t_{gn_g})}$,
 where $t_{g1} = 0$, $t_{gn_g} = 1$ and $n_g$ is the length of the grid. Then define $\bC_g$ in an analogous fashion
 to \eqref{C_mat}:
@@ -1908,10 +1953,10 @@ integration. This allows us to establish estimates of the orthonormal functions 
 	\zetahat_{il} \equiv || \bpsitilde_l || \zetatilde_{il}, \quad i = 1, \dots, n, \quad l = 1, \dots, L.
 \]
 
-\noindent Lemma \ref{lem:response_est} outlines how posterior curve estimation is constructed for the
-true response vectors $y_1 (\bt_g),
+\noindent Lemma \ref{lem:response_est} outlines the construction of posterior curve estimation for the
+response vectors $y_1 (\bt_g),
 \dots, y_n (\bt_g)$. Proposition \ref{prop:bi_orthogonal} shows that the form of the predicted response vectors
-in \eqref{post_curve_est} is a vector version of the Karhunen-Lo\`{e}ve decomposition. Here, we define
+in Lemma \ref{lem:response_est} is a vector version of the Karhunen-Lo\`{e}ve decomposition. Here, we define
 $\bzetahat_i \equiv \T{(\zetahat_{i1}, \dots, \zetahat_{iL})}$, $i = 1, \dots, n$.
 
 \begin{lemma}
@@ -2032,7 +2077,7 @@ Note that the VMP iterative loop has the following generic steps
 	\hbox{%
 		\begin{subfigure}{\textwidth}
 			\centering
-			\includegraphics[width=\textwidth]{images/response_curves.pdf}
+			\includegraphics[width=\textwidth]{/Users/tuinolan/Desktop/fulbright/images/response_curves.pdf}
 		\caption{}
 		\label{subfig:gauss_response_curves}
 		\end{subfigure}%
@@ -2041,7 +2086,7 @@ Note that the VMP iterative loop has the following generic steps
 	\hbox{%
 		\begin{subfigure}{\textwidth}
 			\centering
-			\includegraphics[width=\textwidth]{images/scores.pdf}
+			\includegraphics[width=\textwidth]{/Users/tuinolan/Desktop/fulbright/images/scores.pdf}
 		\caption{}
 		\label{subfig:gauss_response_scores}
 		\end{subfigure}%
@@ -2088,7 +2133,7 @@ while the residual variance $\sigsqeps$ was set to 1. The mean function was
 \label{bf_gauss_sim}
 \end{equation}
 
-\noindent where $L = 2$. The vector of functional principal component scores were simulated according to
+\noindent where $L = 2$. Each vector of principal component scores were simulated according to
 
 \begin{equation}
 	\bzeta_i = \begin{bmatrix}
@@ -2139,7 +2184,7 @@ represents the VMP-based variational Bayes posterior mean curve.
 	\hbox{%
 		\begin{subfigure}{\textwidth}
 		\centering
-			\includegraphics[width=\textwidth]{images/box_plot_sims.pdf}
+			\includegraphics[width=\textwidth]{/Users/tuinolan/Desktop/fulbright/images/box_plot_sims.pdf}
 		\caption{}
 		\label{subfig:bf_accs}
 		\end{subfigure}%
@@ -2148,7 +2193,7 @@ represents the VMP-based variational Bayes posterior mean curve.
 	\hbox{%
 		\begin{subfigure}{\textwidth}
 		\centering
-			\includegraphics[width=\textwidth]{images/panel_plot.pdf}
+			\includegraphics[width=\textwidth]{/Users/tuinolan/Desktop/fulbright/images/panel_plot.pdf}
 		\caption{}
 		\label{subfig:bf_sims}
 		\end{subfigure}%
@@ -2169,7 +2214,7 @@ represents the VMP-based variational Bayes posterior mean curve.
 \label{fig:gauss_resp_sim_st}
 \end{figure}
 
-The error scores in Figure \ref{fig:gauss_resp_sim_st} \subref{subfig:bf_accs} reflect excellent results for the
+The error scores in Figure \ref{fig:gauss_resp_sim_st} \subref{subfig:bf_accs} reflect the excellent results for the
 settings where $N = 50 \ \text{and} \ 100$. Overall, the results for the setting where $N = 10$ are good, however,
 there are a few simulations where the posterior estimates of the second functional principal component basis
 function $\psi_2 (\cdot)$ are poor. This is to be expected because the functional principal component scores
@@ -2181,8 +2226,8 @@ for the mean function and the functional principal component basis functions, wh
 overlaid with the true functions in black. These plots demonstrate the strength of the VMP algorithm for estimating
 the underlying curves that generate an observed set of functional data. In addition to each of the VMP posterior
 estimates, we have included the pointwise mean curve and the pointwise 95\% confidence interval for the MCMC
-simulations for each of the generated data sets. There seems to be strong agreement between the VMP simulations
-and the MCMC simulations for this setting.
+simulations for each of the generated data sets. Evidently, there is strong agreement between the VMP simulations
+and the MCMC simulations in this setting.
 
 %%%%%%%%%%%%%% Computational Speed Comparisons
 
@@ -2242,86 +2287,86 @@ than the median MCMC simulation for $N = 10$, 39.5 times faster for $N = 50$ and
 	\hbox{%
 		\begin{subfigure}{\textwidth}
 		\centering
-			\includegraphics[height=6cm, width=\textwidth]{images/cw_fits.pdf}
+			\includegraphics[height=9cm, width=\textwidth]{/Users/tuinolan/Desktop/fulbright/images/us_fits.pdf}
 		\caption{}
-		\label{subfig:cw_fits}
+		\label{subfig:us_fits}
 		\end{subfigure}%
 	}\cr
 	\noalign{\vfill}
 	\hbox{%
 		\begin{subfigure}{\textwidth}
 		\centering
-			\includegraphics[height=6cm, width=\textwidth]{images/cw_bf.pdf}
+			\includegraphics[height=9cm, width=\textwidth]{/Users/tuinolan/Desktop/fulbright/images/us_mean_shift.pdf}
 		\caption{}
-		\label{subfig:cs_bf}
-		\end{subfigure}%
-	}\cr
-	\noalign{\vfill}
-	\hbox{%
-		\begin{subfigure}{\textwidth}
-		\centering
-			\includegraphics[height=6cm, width=\textwidth]{images/cw_mean_shift.pdf}
-		\caption{}
-		\label{subfig:cw_mean_shift}
+		\label{subfig:us_mean_shift}
 		\end{subfigure}%
 	}\cr
 }
 \caption{
-	Application of the VMP algorithm for FPCA to the Canadian weather data. The fits in \subref{subfig:cw_fits}
-	are for four randomly selected weather stations in the dataset. The plots in \subref{subfig:cs_bf} are the
-	estimated functional principal component basis functions with their proportion of the total explained variance
-	included in the panel. The plots in \subref{subfig:cw_mean_shift} show the estimated mean function with
-	perturbations from each functional principal component basis function: $\muhat (t) \pm || \psitilde_l || \psihat_l (t)$,
+	Application of the VMP algorithm for FPCA to the United States weather data. The fits in \subref{subfig:us_fits}
+	are for four randomly selected weather stations in the dataset.
+	The plots in \subref{subfig:us_mean_shift} show the estimated mean function with
+	perturbations from each functional principal component basis function: $\muhat (t) \pm \delta \psihat_l (t)$,
 	$l = 1, \dots, 4$.
 }
-\label{fig:can_weather_data}
+\label{fig:us_weather_data}
 \end{figure}
 
-%%%%%%%%%%%  APPLICATION:  CANADIAN  WEATHER  DATA  %%%%%%%%%%%
+%%%%%%%%%%%  APPLICATION:  UNITED STATES  WEATHER  DATA  %%%%%%%%%%%
 
-\section{Application: Canadian Weather Data}
-\label{sec:can_weather_data}
+\section{Application: United States Weather Data}
+\label{sec:us_weather_data}
 
-We now provide an illustration of our methodology with an application to the Canadian weather dataset, which
-is available from the \textsf{fda} package in \textsf{R}. This dataset was popularized by \citeA{ramsay05}, and
-it is a common source of application for various models in functional data analysis \cite{silverman95,
-giraldo10, suarez17}. It contains information on the daily temperature and precipitation of 35 weather stations
-in different locations in Canada averaged over 1960 to 1994. Our analysis focuses on the averaged daily
-temperatures.
+We now provide an illustration of our methodology with an application to weather data collected from
+various United
+States weather stations, which is available from the \textsf{rnoaa} package \cite{rnoaa21} in \textsf{R}.
+The \textsf{rnoaa}
+package is an interace to the National Oceanic and Atmospheric Administration's climate data.
+The function \textsf{ghcnd\_stations()} provides access to all available global historical climatology
+network daily weather data for each weather site from 1960 to 1994. The information includes the longitude
+and latitude for each site, and this was used to determine the state or the federal district of the site.
+Our analysis focused on
+maximum daily temperature.
 
-There is data available for every day of the year for each weather station, however, we simply gathered
-a random sample of 20 to 30 observations for each weather station. Although our methodology is directly applicable
-to datasets with balanced design points, the more challenging task is datasets with random design points.
-For $i = 1, \dots, 35$, we selected the total number of observations for the $i$th weather station by uniformly
-sampling $T_i \in \{ 20, 21, \dots, 30 \}$. We then uniformly selected $T_i$ observations from the 365 available
-data points for the $i$th weather station. Based on the results of Chapter 8 of \citeA{ramsay05}, we expect to uncover
-approximately four functional principal component basis functions. Therefore, we conducted VMP simulations
-with $L = 6$ because the simulations in Section \ref{sec:acc_ass} showed that slight model misspecification in the
-number of functional principal component basis functions has no obvious effect on the variational Bayes accuracy.
+From this package, we collected full data sets (data available for every day
+of the year) from 2837 weather stations, where 49 states and federal districts were represented. For each
+state or federal district, we took a random sample of 3 of the available sites. In cases where there were
+less than 3 sites available (Rhode Island and District of Columbia), we used all available sites. This resulted
+in 145 sites used in our applications, with 365 observations for each site.
 
-The results are presented in Figure \ref{fig:can_weather_data}, and they are consistent with the analysis of
-\citeA{ramsay05}. Note that any variations from the analysis of \citeA{ramsay05} can be attributed to:
-1) only using a subset of the the dataset; 2) using a variational Bayes algorithm, as opposed to solving via direct
-eigendecomposition; and 3) predicting functional principal component basis function with opposite signs, which
-does not affect prediction or interpretation.
-In Figure \ref{fig:can_weather_data} \subref{subfig:cw_fits}, four randomly selected weather
-station locations are presented with the posterior fits from the VMP algorithm. The fits capture the time-oscillating
-nature of the observed data, as well as establishing reasonable pointwise 95\% credible sets. Next, note that
-Figures \ref{fig:can_weather_data} \subref{subfig:cs_bf} and \subref{subfig:cw_mean_shift} should be analyzed
-concurrently. In figure \ref{fig:can_weather_data} \subref{subfig:cs_bf}, we present the first four estimated functional
-principal component basis functions, and in figure \ref{fig:can_weather_data} \subref{subfig:cw_mean_shift}, we show
-the effect of perturbing the estimated mean function with each basis function: $\muhat (t) \pm || \psitilde_l || \psihat_l (t)$,
-$l = 1, \dots, 4$.
-The first functional principal component basis function, which accounts for 88.9\% of the total variation, is a mean shift,
-weighting most heavily on the winter months and reflecting the conclusion of \citeA{ramsay05} in that Canadian
-weather is most variable in Winter.
-The second functional principal component basis function, which accounts 9.4\% of the total variation, accounts for
-uniformity in the measured temperatures because it has a strong positive weighting for the winter months and a
-negative weighting for the summer months. As a consequence, weather stations at locations with larger discrepancies
+Chapter 8 of \citeA{ramsay05} conducts a similar analysis of Canadian weather data from various weather
+stations. In their application, they uncovered four functional principal component basis functions.
+Similarly, we conducted VMP simulations with $L = 4$.
+The results are presented in Figure \ref{fig:us_weather_data}. In Figure \ref{fig:us_weather_data}
+\subref{subfig:us_fits}, we display the results of four randomly selected weather stations, from four different
+states. There is relatively small residual variability in the observed dataset.
+As a consequence, the pointwise 95\% credible sets would not be visible in the plots,
+so we have only included the pointwise variational Bayesian posterior means.
+In figure \ref{fig:us_weather_data} \subref{subfig:us_mean_shift}, we show
+the effect of perturbing the estimated mean function with each basis function: $\muhat (t) \pm \delta \psihat_l (t)$,
+$l = 1, \dots, 4$. The plus (minus) signs indicate the shift that each basis function makes to the mean function
+with a positive (negative) perturbation.
+The first functional principal component basis function, which accounts for 99.1\% of the total variation, is a mean shift
+that shifts the mean function in the negative (positive) direction when it is added (subtracted).
+This effect is stronger in the Winter months than the Summer months, indicating that
+US weather is most variable in the Winter.
+The second functional principal component basis function, which accounts 7.2\% of the total variation, shifts
+the mean function in the positive (negative) direction in the Summer (Winter) months when it is added. Therefore,
+it accounts for uniformity in the measured temperatures.
+As a consequence, weather stations at locations with larger discrepancies
 between Winter and Summer temperatures will have a strong and positive score for this basis function.
 The third and fourth functional principal components are harder to interpret given their weak contributions to the
-total variation. However, these estimated basis functions are similar to the basis functions found in Chapter 8 of
-\citeA{ramsay05}, and we defer the reader to this text for an interpretation of these basis functions.
+total variation. The scores associated with the first two basis functions for the displayed weather stations are
+(4.46, -0.81) for the weather station in Connecticut, (-1.56, -0.04) for the weather station in Kansas, (7.81, 2.37)
+for the weather station in North Dakota and (-2.57, -1.13) for the weather station in Texas.
+The scores for the first basis functions indicate that the
+lowest temperatures are to be expected in Connecticut and North Dakota, whereas Texas and Kansas have
+warmer temperatures. Furthermore, the scores for the second basis functions show that the
+greatest variability between Summer and Winter months can be found
+in North Dakota, whereas Connecticut and Texas may appear to be more uniform in comparison to North Dakota.
+On the other hand, the contribution of the second basis function to the Kansas weather station
+is very weak.
+
 
 %%%%%%%%%%%  CLOSING  REMARKS  %%%%%%%%%%%
 

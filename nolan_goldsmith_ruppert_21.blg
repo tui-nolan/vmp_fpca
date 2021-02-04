@@ -1,6 +1,6 @@
 This is BibTeX, Version 0.99d (TeX Live 2016)
 Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
-The top-level auxiliary file: nolan_goldsmith_ruppert_20.aux
+The top-level auxiliary file: nolan_goldsmith_ruppert_21.aux
 The style file: apacite.bst
 Reallocated glb_str_ptr (elt_size=4) to 20 items from 10.
 Reallocated global_strs (elt_size=20001) to 20 items from 10.
@@ -13,44 +13,44 @@ Reallocated wiz_functions (elt_size=4) to 9000 items from 6000.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Database file #1: bibliography.bib
 apacite.bst [2013/07/21 v6.03 APA bibliography style]
-You've used 42 entries,
+You've used 40 entries,
             6951 wiz_defined-function locations,
-            1496 strings with 16224 characters,
-and the built_in function-call counts, 77870 in all, are:
-= -- 9790
-> -- 628
-< -- 3631
-+ -- 3766
-- -- 88
-* -- 4911
-:= -- 14074
-add.period$ -- 176
-call.type$ -- 42
-change.case$ -- 717
+            1485 strings with 15975 characters,
+and the built_in function-call counts, 73858 in all, are:
+= -- 9281
+> -- 612
+< -- 3378
++ -- 3528
+- -- 86
+* -- 4619
+:= -- 13189
+add.period$ -- 167
+call.type$ -- 40
+change.case$ -- 683
 chr.to.int$ -- 0
-cite$ -- 84
-duplicate$ -- 2082
-empty$ -- 3095
-format.name$ -- 1020
-if$ -- 15023
+cite$ -- 80
+duplicate$ -- 2026
+empty$ -- 2973
+format.name$ -- 1008
+if$ -- 14307
 int.to.chr$ -- 0
-int.to.str$ -- 126
+int.to.str$ -- 120
 missing$ -- 0
-newline$ -- 1043
-num.names$ -- 336
-pop$ -- 1358
+newline$ -- 1000
+num.names$ -- 320
+pop$ -- 1368
 preamble$ -- 1
-purify$ -- 168
+purify$ -- 160
 quote$ -- 0
-skip$ -- 5096
+skip$ -- 4812
 stack$ -- 0
-substring$ -- 4155
-swap$ -- 1172
-text.length$ -- 99
+substring$ -- 3903
+swap$ -- 1127
+text.length$ -- 96
 text.prefix$ -- 0
 top$ -- 1
-type$ -- 3552
+type$ -- 3392
 warning$ -- 0
-while$ -- 343
+while$ -- 338
 width$ -- 0
-write$ -- 1293
+write$ -- 1243

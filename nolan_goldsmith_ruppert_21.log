@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.11.30)  14 DEC 2020 17:29
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.11.30)  4 FEB 2021 22:42
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**nolan_goldsmith_ruppert_20.tex
-(./nolan_goldsmith_ruppert_20.tex
+**nolan_goldsmith_ruppert_21.tex
+(./nolan_goldsmith_ruppert_21.tex
 LaTeX2e <2016/03/31>
 Babel <3.9r> and hyphenation patterns for 83 language(s) loaded.
 (/usr/local/texlive/2016/texmf-dist/tex/latex/base/article.cls
@@ -1616,8 +1616,8 @@ Package: varwidth 2009/03/30 ver 0.92;  Variable-width minipages
 (/usr/local/texlive/2016/texmf-dist/tex/latex/tools/xspace.sty
 Package: xspace 2014/10/28 v1.13 Space after command names (DPC,MH)
 ))
-(./nolan_goldsmith_ruppert_20.aux)
-\openout1 = `nolan_goldsmith_ruppert_20.aux'.
+(./nolan_goldsmith_ruppert_21.aux)
+\openout1 = `nolan_goldsmith_ruppert_21.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 179.
 LaTeX Font Info:    ... okay on input line 179.
@@ -1893,99 +1893,121 @@ LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <14.4> not available
 (Font)              Font shape `T1/ptm/b/n' tried instead on input line 337.
  [4]
 LaTeX Font Info:    Font shape `T1/phv/m/n' will be
-(Font)              scaled to size 10.79993pt on input line 408.
+(Font)              scaled to size 10.79993pt on input line 409.
 LaTeX Font Info:    Font shape `T1/phv/m/n' will be
-(Font)              scaled to size 15.55188pt on input line 408.
+(Font)              scaled to size 15.55188pt on input line 409.
 LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <17.28> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 408.
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 409.
 LaTeX Font Info:    Font shape `T1/phv/b/n' will be
-(Font)              scaled to size 15.55188pt on input line 408.
+(Font)              scaled to size 15.55188pt on input line 409.
 LaTeX Font Info:    Font shape `T1/phv/m/n' will be
-(Font)              scaled to size 9.85492pt on input line 440.
+(Font)              scaled to size 9.85492pt on input line 441.
 
 [5]
 LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <12> not available
 (Font)              Font shape `T1/ptm/b/n' tried instead on input line 551.
- [6] [7]
+ [6] [7] [8]
 LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <12> not available
-(Font)              Font shape `OMS/pzccm/m/n' tried instead on input line 757.
+(Font)              Font shape `OMS/pzccm/m/n' tried instead on input line 801.
 
- [8] [9] [10] [11] [12]
+ [9] [10] [11] [12] [13]
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <24.88> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 1156.
- [13] [14] [15] [16] [17] [18] [19] [20]
-Overfull \hbox (1.1933pt too wide) in paragraph at lines 1979--1982
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 1205.
+ [14] [15] [16] [17] [18] [19] [20]
+Overfull \hbox (29.37889pt too wide) in paragraph at lines 1956--1961
+\T1/ptm/m/n/12 Lemma 4.1[] out-lines the con-struc-tion of pos-te-rior curve es
+-ti-ma-tion for the re-sponse vec-tors $\OML/ptmcm/m/it/12 y[]\OT1/ptmcm/m/n/12
+ (\OML/cmm/b/it/12 t[]\OT1/ptmcm/m/n/12 )\OML/ptmcm/m/it/12 ; [] ; y[]\OT1/ptmc
+m/m/n/12 (\OML/cmm/b/it/12 t[]\OT1/ptmcm/m/n/12 )$\T1/ptm/m/n/12 .
+ []
+
+[21]
+Overfull \hbox (1.1933pt too wide) in paragraph at lines 2024--2027
 []\T1/ptm/m/n/12 Update the pa-ram-e-ter vec-tors of the mes-sages passed from 
 the fac-tor to its neigh-bour-ing stochas-
  []
 
-<images/response_curves.pdf, id=85, 469.755pt x 180.675pt>
-File: images/response_curves.pdf Graphic file (type pdf)
 
-<use images/response_curves.pdf>
-Package pdftex.def Info: images/response_curves.pdf used on input line 2035.
+</Users/tuinolan/Desktop/fulbright/images/response_curves.pdf, id=88, 469.755pt
+ x 180.675pt>
+File: /Users/tuinolan/Desktop/fulbright/images/response_curves.pdf Graphic file
+ (type pdf)
+
+<use /Users/tuinolan/Desktop/fulbright/images/response_curves.pdf>
+Package pdftex.def Info: /Users/tuinolan/Desktop/fulbright/images/response_curv
+es.pdf used on input line 2080.
 (pdftex.def)             Requested size: 483.69684pt x 186.03665pt.
 
-<images/scores.pdf, id=86, 469.755pt x 180.675pt>
-File: images/scores.pdf Graphic file (type pdf)
- <use images/scores.pdf>
-Package pdftex.def Info: images/scores.pdf used on input line 2044.
+</Users/tuinolan/Desktop/fulbright/images/scores.pdf, id=89, 469.755pt x 180.67
+5pt>
+File: /Users/tuinolan/Desktop/fulbright/images/scores.pdf Graphic file (type pd
+f)
+ <use /Users/tuinolan/Desktop/fulbright/images/scores.pdf>
+Package pdftex.def Info: /Users/tuinolan/Desktop/fulbright/images/scores.pdf us
+ed on input line 2089.
 (pdftex.def)             Requested size: 483.69684pt x 186.03665pt.
-
-[21] [22] <images/box_plot_sims.pdf, id=93, 469.755pt x 216.81pt>
-File: images/box_plot_sims.pdf Graphic file (type pdf)
-
-<use images/box_plot_sims.pdf>
-Package pdftex.def Info: images/box_plot_sims.pdf used on input line 2142.
+ [22]
+</Users/tuinolan/Desktop/fulbright/images/box_plot_sims.pdf, id=93, 469.755pt x
+ 216.81pt>
+File: /Users/tuinolan/Desktop/fulbright/images/box_plot_sims.pdf Graphic file (
+type pdf)
+ <use /Users/tuinolan/Desktop/fulbright/images/box_plot_sims.pdf>
+Package pdftex.def Info: /Users/tuinolan/Desktop/fulbright/images/box_plot_sims
+.pdf used on input line 2187.
 (pdftex.def)             Requested size: 483.69684pt x 223.244pt.
 
-<images/panel_plot.pdf, id=94, 469.755pt x 216.81pt>
-File: images/panel_plot.pdf Graphic file (type pdf)
-
-<use images/panel_plot.pdf>
-Package pdftex.def Info: images/panel_plot.pdf used on input line 2151.
+</Users/tuinolan/Desktop/fulbright/images/panel_plot.pdf, id=94, 469.755pt x 21
+6.81pt>
+File: /Users/tuinolan/Desktop/fulbright/images/panel_plot.pdf Graphic file (typ
+e pdf)
+ <use /Users/tuinolan/Desktop/fulbright/images/panel_plot.pdf>
+Package pdftex.def Info: /Users/tuinolan/Desktop/fulbright/images/panel_plot.pd
+f used on input line 2196.
 (pdftex.def)             Requested size: 483.69684pt x 223.244pt.
- [23 <./images/response_curves.pdf> <./images/scores.pdf>] [24 <./images/box_pl
-ot_sims.pdf> <./images/panel_plot.pdf>]
-<images/cw_fits.pdf, id=125, 469.755pt x 180.675pt>
-File: images/cw_fits.pdf Graphic file (type pdf)
- <use images/cw_fits.pdf>
-Package pdftex.def Info: images/cw_fits.pdf used on input line 2245.
-(pdftex.def)             Requested size: 483.69537pt x 170.7167pt.
+ [23]
+[24 </Users/tuinolan/Desktop/fulbright/images/response_curves.pdf> </Users/tuin
+olan/Desktop/fulbright/images/scores.pdf>] [25 </Users/tuinolan/Desktop/fulbrig
+ht/images/box_plot_sims.pdf> </Users/tuinolan/Desktop/fulbright/images/panel_pl
+ot.pdf>]
+</Users/tuinolan/Desktop/fulbright/images/us_fits.pdf, id=129, 469.755pt x 252.
+945pt>
+File: /Users/tuinolan/Desktop/fulbright/images/us_fits.pdf Graphic file (type p
+df)
+ <use /Users/tuinolan/Desktop/fulbright/images/us_fits.pdf>
+Package pdftex.def Info: /Users/tuinolan/Desktop/fulbright/images/us_fits.pdf u
+sed on input line 2290.
+(pdftex.def)             Requested size: 483.69537pt x 256.07838pt.
 
-<images/cw_bf.pdf, id=126, 469.755pt x 180.675pt>
-File: images/cw_bf.pdf Graphic file (type pdf)
- <use images/cw_bf.pdf>
-Package pdftex.def Info: images/cw_bf.pdf used on input line 2254.
-(pdftex.def)             Requested size: 483.69537pt x 170.7167pt.
+</Users/tuinolan/Desktop/fulbright/images/us_mean_shift.pdf, id=130, 469.755pt 
+x 252.945pt>
+File: /Users/tuinolan/Desktop/fulbright/images/us_mean_shift.pdf Graphic file (
+type pdf)
+ <use /Users/tuinolan/Desktop/fulbright/images/us_mean_shift.pdf>
+Package pdftex.def Info: /Users/tuinolan/Desktop/fulbright/images/us_mean_shift
+.pdf used on input line 2299.
+(pdftex.def)             Requested size: 483.69537pt x 256.07838pt.
 
-<images/cw_mean_shift.pdf, id=127, 469.755pt x 180.675pt>
-File: images/cw_mean_shift.pdf Graphic file (type pdf)
-
-<use images/cw_mean_shift.pdf>
-Package pdftex.def Info: images/cw_mean_shift.pdf used on input line 2263.
-(pdftex.def)             Requested size: 483.69537pt x 170.7167pt.
- [25] [26 <./images/cw_fits.pdf> <./images/cw_bf.pdf> <./images/cw_mean_shift.p
-df>] [27] (./nolan_goldsmith_ruppert_20.bbl
-[28] [29]
+[26] [27 </Users/tuinolan/Desktop/fulbright/images/us_fits.pdf> </Users/tuinola
+n/Desktop/fulbright/images/us_mean_shift.pdf>] [28]
+(./nolan_goldsmith_ruppert_21.bbl
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <12> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 900.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 132.
 LaTeX Font Info:    Font shape `T1/phv/m/sl' will be
-(Font)              scaled to size 10.79993pt on input line 900.
-
-Underfull \hbox (badness 2126) in paragraph at lines 893--906
+(Font)              scaled to size 10.79993pt on input line 132.
+ [29]
+Underfull \hbox (badness 2126) in paragraph at lines 869--882
 []\T1/ptm/m/n/12 Stan De-vel-op-ment Team.  (2020).  \T1/phv/m/sl/12 RStan\T1/p
 tm/m/it/12 : the \T1/phv/m/sl/12 R \T1/ptm/m/it/12 in-ter-face to \T1/phv/m/sl/
 12 Stan\T1/ptm/m/it/12 .  \T1/ptm/m/n/12 Re-trieved from
  []
 
-) [30] [31] [32] [33] [34] [35] [36] [37] [38] [39] [40]
-(./nolan_goldsmith_ruppert_20.aux) ) 
+[30]) [31] [32] [33] [34] [35] [36] [37] [38] [39] [40] [41]
+(./nolan_goldsmith_ruppert_21.aux) ) 
 Here is how much of TeX's memory you used:
- 37710 strings out of 493014
- 758123 string characters out of 6133350
- 811501 words of memory out of 5000000
- 40497 multiletter control sequences out of 15000+600000
+ 37696 strings out of 493014
+ 758754 string characters out of 6133350
+ 808228 words of memory out of 5000000
+ 40484 multiletter control sequences out of 15000+600000
  142067 words of font info for 268 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  55i,19n,73p,10398b,834s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -2008,10 +2030,10 @@ usr/local/texlive/2016/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/
 texlive/2016/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/20
 16/texmf-dist/fonts/type1/urw/times/utmri8a.pfb></usr/local/texlive/2016/texmf-
 dist/fonts/type1/urw/zapfchan/uzcmi8a.pfb>
-Output written on nolan_goldsmith_ruppert_20.pdf (40 pages, 1973518 bytes).
+Output written on nolan_goldsmith_ruppert_21.pdf (41 pages, 1988914 bytes).
 PDF statistics:
- 259 PDF objects out of 1000 (max. 8388607)
- 183 compressed objects within 2 object streams
+ 255 PDF objects out of 1000 (max. 8388607)
+ 180 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 48 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 43 words of extra memory for PDF output out of 10000 (max. 10000000)
 
