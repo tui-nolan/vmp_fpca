@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.11.30)  4 FEB 2021 22:42
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.11.30)  4 FEB 2021 23:14
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1927,69 +1927,48 @@ Overfull \hbox (1.1933pt too wide) in paragraph at lines 2024--2027
 the fac-tor to its neigh-bour-ing stochas-
  []
 
+<images/response_curves.pdf, id=88, 469.755pt x 180.675pt>
+File: images/response_curves.pdf Graphic file (type pdf)
 
-</Users/tuinolan/Desktop/fulbright/images/response_curves.pdf, id=88, 469.755pt
- x 180.675pt>
-File: /Users/tuinolan/Desktop/fulbright/images/response_curves.pdf Graphic file
- (type pdf)
-
-<use /Users/tuinolan/Desktop/fulbright/images/response_curves.pdf>
-Package pdftex.def Info: /Users/tuinolan/Desktop/fulbright/images/response_curv
-es.pdf used on input line 2080.
+<use images/response_curves.pdf>
+Package pdftex.def Info: images/response_curves.pdf used on input line 2080.
 (pdftex.def)             Requested size: 483.69684pt x 186.03665pt.
 
-</Users/tuinolan/Desktop/fulbright/images/scores.pdf, id=89, 469.755pt x 180.67
-5pt>
-File: /Users/tuinolan/Desktop/fulbright/images/scores.pdf Graphic file (type pd
-f)
- <use /Users/tuinolan/Desktop/fulbright/images/scores.pdf>
-Package pdftex.def Info: /Users/tuinolan/Desktop/fulbright/images/scores.pdf us
-ed on input line 2089.
+<images/scores.pdf, id=89, 469.755pt x 180.675pt>
+File: images/scores.pdf Graphic file (type pdf)
+ <use images/scores.pdf>
+Package pdftex.def Info: images/scores.pdf used on input line 2089.
 (pdftex.def)             Requested size: 483.69684pt x 186.03665pt.
- [22]
-</Users/tuinolan/Desktop/fulbright/images/box_plot_sims.pdf, id=93, 469.755pt x
- 216.81pt>
-File: /Users/tuinolan/Desktop/fulbright/images/box_plot_sims.pdf Graphic file (
-type pdf)
- <use /Users/tuinolan/Desktop/fulbright/images/box_plot_sims.pdf>
-Package pdftex.def Info: /Users/tuinolan/Desktop/fulbright/images/box_plot_sims
-.pdf used on input line 2187.
+
+[22] <images/box_plot_sims.pdf, id=93, 469.755pt x 216.81pt>
+File: images/box_plot_sims.pdf Graphic file (type pdf)
+
+<use images/box_plot_sims.pdf>
+Package pdftex.def Info: images/box_plot_sims.pdf used on input line 2187.
 (pdftex.def)             Requested size: 483.69684pt x 223.244pt.
 
-</Users/tuinolan/Desktop/fulbright/images/panel_plot.pdf, id=94, 469.755pt x 21
-6.81pt>
-File: /Users/tuinolan/Desktop/fulbright/images/panel_plot.pdf Graphic file (typ
-e pdf)
- <use /Users/tuinolan/Desktop/fulbright/images/panel_plot.pdf>
-Package pdftex.def Info: /Users/tuinolan/Desktop/fulbright/images/panel_plot.pd
-f used on input line 2196.
+<images/panel_plot.pdf, id=94, 469.755pt x 216.81pt>
+File: images/panel_plot.pdf Graphic file (type pdf)
+
+<use images/panel_plot.pdf>
+Package pdftex.def Info: images/panel_plot.pdf used on input line 2196.
 (pdftex.def)             Requested size: 483.69684pt x 223.244pt.
- [23]
-[24 </Users/tuinolan/Desktop/fulbright/images/response_curves.pdf> </Users/tuin
-olan/Desktop/fulbright/images/scores.pdf>] [25 </Users/tuinolan/Desktop/fulbrig
-ht/images/box_plot_sims.pdf> </Users/tuinolan/Desktop/fulbright/images/panel_pl
-ot.pdf>]
-</Users/tuinolan/Desktop/fulbright/images/us_fits.pdf, id=129, 469.755pt x 252.
-945pt>
-File: /Users/tuinolan/Desktop/fulbright/images/us_fits.pdf Graphic file (type p
-df)
- <use /Users/tuinolan/Desktop/fulbright/images/us_fits.pdf>
-Package pdftex.def Info: /Users/tuinolan/Desktop/fulbright/images/us_fits.pdf u
-sed on input line 2290.
+ [23] [24 <./images/response_curves.pdf> <./images/scores.pdf>] [25 <./images/b
+ox_plot_sims.pdf> <./images/panel_plot.pdf>]
+<images/us_fits.pdf, id=129, 469.755pt x 252.945pt>
+File: images/us_fits.pdf Graphic file (type pdf)
+ <use images/us_fits.pdf>
+Package pdftex.def Info: images/us_fits.pdf used on input line 2290.
 (pdftex.def)             Requested size: 483.69537pt x 256.07838pt.
 
-</Users/tuinolan/Desktop/fulbright/images/us_mean_shift.pdf, id=130, 469.755pt 
-x 252.945pt>
-File: /Users/tuinolan/Desktop/fulbright/images/us_mean_shift.pdf Graphic file (
-type pdf)
- <use /Users/tuinolan/Desktop/fulbright/images/us_mean_shift.pdf>
-Package pdftex.def Info: /Users/tuinolan/Desktop/fulbright/images/us_mean_shift
-.pdf used on input line 2299.
-(pdftex.def)             Requested size: 483.69537pt x 256.07838pt.
+<images/us_mean_shift.pdf, id=130, 469.755pt x 252.945pt>
+File: images/us_mean_shift.pdf Graphic file (type pdf)
 
-[26] [27 </Users/tuinolan/Desktop/fulbright/images/us_fits.pdf> </Users/tuinola
-n/Desktop/fulbright/images/us_mean_shift.pdf>] [28]
-(./nolan_goldsmith_ruppert_21.bbl
+<use images/us_mean_shift.pdf>
+Package pdftex.def Info: images/us_mean_shift.pdf used on input line 2299.
+(pdftex.def)             Requested size: 483.69537pt x 256.07838pt.
+ [26] [27 <./images/us_fits.pdf> <./images/us_mean_shift.pdf>] [28] (./nolan_go
+ldsmith_ruppert_21.bbl
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <12> not available
 (Font)              Font shape `T1/phv/m/sl' tried instead on input line 132.
 LaTeX Font Info:    Font shape `T1/phv/m/sl' will be
@@ -2005,7 +1984,7 @@ tm/m/it/12 : the \T1/phv/m/sl/12 R \T1/ptm/m/it/12 in-ter-face to \T1/phv/m/sl/
 (./nolan_goldsmith_ruppert_21.aux) ) 
 Here is how much of TeX's memory you used:
  37696 strings out of 493014
- 758754 string characters out of 6133350
+ 757904 string characters out of 6133350
  808228 words of memory out of 5000000
  40484 multiletter control sequences out of 15000+600000
  142067 words of font info for 268 fonts, out of 8000000 for 9000
@@ -2030,7 +2009,7 @@ usr/local/texlive/2016/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/
 texlive/2016/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/20
 16/texmf-dist/fonts/type1/urw/times/utmri8a.pfb></usr/local/texlive/2016/texmf-
 dist/fonts/type1/urw/zapfchan/uzcmi8a.pfb>
-Output written on nolan_goldsmith_ruppert_21.pdf (41 pages, 1988914 bytes).
+Output written on nolan_goldsmith_ruppert_21.pdf (41 pages, 1988719 bytes).
 PDF statistics:
  255 PDF objects out of 1000 (max. 8388607)
  180 compressed objects within 2 object streams
