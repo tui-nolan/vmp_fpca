@@ -5,3 +5,4 @@ Including brief explanation of Bayesian vs frequentist approaches and correcting
 Including brief explanation on the relevance of each fragment.Adding my latest draft
 updating the images
 updating the images
+adding my latest draft

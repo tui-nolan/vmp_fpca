@@ -2388,7 +2388,15 @@ includes the introduction of two new fragments for VMP:
 \noindent These are directly compatible with the fragment-based computational constructions of VMP outlined in
 \citeA{wand17}. This is, to our knowledge, the first VMP construction of a Bayesian FPCA model. In addition,
 we have outlined a sequence of post-VMP steps that are necessary for producing orthonormal functional
-principal component basis functions and uncorrelated scores. This study could be extended to other
+principal component basis functions and uncorrelated scores.
+
+Simulations were conducted to assess the speed and accuracy of the VMP simulations against MCMC
+counterparts. The approximate variational  posterior density functions were in good agreement with the
+MCMC estimations, and the VMP algorithm was approximately 20 to 50 times faster than the MCMC
+algorithm depending on the number of response curves. An application to a large US weather dataset
+showed that the VMP-based FPCA algorithm can be used for strong inference in big data applications.
+
+This study could be extended to other
 functional data models, such as function on scalar or vector regression models, that are yet to be treated
 under a VMP-based mean field variational Bayes approach. In addition, extending the likelihood specification to
 generalized outcomes would also satisfy a popular area of research in functional data analysis.
