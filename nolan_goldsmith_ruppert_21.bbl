@@ -328,6 +328,39 @@ Goldsmith, J.%
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
+Greven%
+, Crainiceanu%
+, Caffo%
+\BCBL {}\ \BBA {} Reich%
+}{%
+Greven%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2011}}%
+}]{%
+greven2011}
+\APACinsertmetastar {%
+greven2011}%
+\begin{APACrefauthors}%
+Greven, S.%
+, Crainiceanu, C.%
+, Caffo, B.%
+\BCBL {}\ \BBA {} Reich, D.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2011}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Longitudinal functional principal component analysis}
+  {Longitudinal functional principal component analysis}.{\BBCQ}
+\newblock
+\BIn{} \APACrefbtitle {Recent Advances in Functional Data Analysis and Related
+  Topics} {Recent advances in functional data analysis and related topics}\
+  (\BPGS\ 149--154).
+\newblock
+\APACaddressPublisher{}{Springer}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
 Jaakkola%
 \ \BBA {} Jordan%
 }{%
@@ -351,6 +384,33 @@ Jaakkola, T\BPBI S.%
   {Bayesian parameter estimation via variational methods}.{\BBCQ}
 \newblock
 \APACjournalVolNumPages{Statistics and Computing}{10}{}{25--37}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+James%
+, Hastie%
+\BCBL {}\ \BBA {} Sugar%
+}{%
+James%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2000}}%
+}]{%
+james2000}
+\APACinsertmetastar {%
+james2000}%
+\begin{APACrefauthors}%
+James, G\BPBI M.%
+, Hastie, T\BPBI J.%
+\BCBL {}\ \BBA {} Sugar, C\BPBI A.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2000}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Principal component models for sparse functional data}
+  {Principal component models for sparse functional data}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Biometrika}{87}{3}{587--602}.
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%
@@ -1037,6 +1097,36 @@ Winn, J.%
   passing}.{\BBCQ}
 \newblock
 \APACjournalVolNumPages{Journal of Machine Learning Research}{6}{}{661--694}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Xiao%
+, Zipunnikov%
+, Ruppert%
+\BCBL {}\ \BBA {} Crainiceanu%
+}{%
+Xiao%
+\ \protect \BOthers {.}}{%
+{\protect \APACyear {2016}}%
+}]{%
+xiao2016}
+\APACinsertmetastar {%
+xiao2016}%
+\begin{APACrefauthors}%
+Xiao, L.%
+, Zipunnikov, V.%
+, Ruppert, D.%
+\BCBL {}\ \BBA {} Crainiceanu, C.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2016}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Fast covariance estimation for high-dimensional
+  functional data} {Fast covariance estimation for high-dimensional functional
+  data}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Statistics and computing}{26}{1-2}{409--421}.
 \PrintBackRefs{\CurrentBib}
 
 \bibitem [\protect \citeauthoryear {%

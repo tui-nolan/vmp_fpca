@@ -187,7 +187,7 @@
 
 Functional principal components analysis (FPCA) is the methodological extension of classical principal
 components analysis (PCA) to functional data. Within the overarching framework of functional data analysis,
-FPCA is a key technique to consider. The advantages of using FPCA for functional data are derived
+FPCA is a central technique. The advantages of using FPCA for functional data are derived
 from analogous advantages that PCA affords for multivariate data analysis. For instance, PCA in the multivariate
 data setting is used to reduce dimensionality and identify the major modes of variation of the
 data set. The modes of variation are determined by the eigenvectors of the sample covariance matrix of the data
@@ -203,34 +203,27 @@ There are key issues that arise in the functional setting, which are not present
 The domain of the functional curves is typically a compact interval $[0, T]$ of the real line.
 Despite having a continuous domain, the curves are only observed at discrete points over this interval.
 Furthermore, the points of observation, as well as the total number of observations, need not be the
-same for each curve. Therefore, the eigendecomposition approach that is often used in PCA needs some
-modifications to extend to the functional framework.
+same for each curve. Therefore, approaches that are used in PCA require modifications to extend to the functional framework.
 In FPCA, we often rely on semiparametric regression to infer the behaviour of the original curves and employ
 an appropriate orthogonalisation step to ensure that the basis functions are orthogonal.
 
 There have been numerous developments in FPCA methodology throughout the statistical literature.
 A thorough introduction to the statistical framework and applications can be found in \citeA[Chapter~8]{ramsay05}
-and \citeA[Section~2]{wang16}. \citeA{yao05} developed a nonparametric approach to FPCA
-for sparse longitudinal data, where the eigenfunction basis was estimated from the data and the
-principal component scores were obtained by a conditioning step. This permitted
-prediction of unobserved response curves from sparse measurements of a predictor curve. However,
-\citeA{goldsmith13} noted that these curve estimates implicitly condition on quantities derived from functional
-principal components decompositions, which are objects that are unknown in practice, meaning that inference on
-individual curves can be poor.
+and \citeA[Section~2]{wang16}. Much of this work mirrors the eigendecomposition approach to PCA, in that an eigenfuncion basis is obtained from a covariance surface. \citeA{yao05} focused on the case of sparsely observed functional data, and estimate
+principal component scores through conditional expectations. \citeA{xiao2016} developed a fast covariance estimation method for densely observed functional data. \citeA{di09} extended FPCA to multilevel functional data, extracting within and
+between subject sources of variability, and \citeA{greven2011} developed methods for longitudinal functional data. However,
+\citeA{goldsmith13} noted that these approaches implicitly condition on estimated eigenbasis to estimate scores, meaning that inference on
+individual curve estimates can be poor.
 
-Bayesian approaches to FPCA are also common. \citeA{di09} developed a Markov chain Monte Carlo (MCMC)
-approach to FPCA for multilevel functional data, which was designed to extract core sources of variability for within and
-between subject functional observations. \citeA{Goldsmith15} extended this framework to multilevel function-on-scalar
-regression models, where subject-specific effects were expanded in terms of population basis functions and unique
-scores. Variational Bayes for FPCA was introduced by \citeA{vanderlinde08} via a generative model with a
-factorized approximation of the full posterior density function. We note that \citeA{vanderlinde08} was an extension
-of the probabilistic PCA framework that was introduced by \citeA{tipping99} and \citeA{bishop99}.
+Meanwhile, other approaches have built on or are similar to the probabilistic PCA framework that was introduced by \citeA{tipping99} and \citeA{bishop99}. Rather than first obtaining eigenfunctions from a covariance and then estimating scores, all quantities are considered unknown and are estimated jointly.  \citeA{james2000} used an EM algorithm for estimation and inference in the context of sparsely observed curves. Variational Bayes for FPCA was introduced by \citeA{vanderlinde08} via a generative model with a factorized approximation of the full posterior density function. \citeA{Goldsmith15} introduced a fully Bayes framework for multilevel function-on-scalar
+regression models, and also considered observed values that arise from exponential family distributions. 
 
 In frequentist versions of FPCA, the covariance function is determined through bivariate smoothing of the raw
 covariances. Eigenfunctions and eigenvalues are then determined from the smoothed covariance function.
 The key advantage in the Bayesian approach is that the covariance function is not determined, meaning that
 complex bivariate smoothing is not required. Indeed, the eigenfunctions and eigenvalues are computed directly
-as part of a Bayesian hierarchical model. For this reason, we pursue a Bayesian approach to FPCA.
+as part of a Bayesian hierarchical model. Further, it is unnecessary to compute or store large covariance matrices for dense functional data, and for sparse, irregular functional data -- where estimating the raw covariance is difficult or impossible -- direct estimation of eigenfunctions in a Bayesian model is straightforward. For these reason, we pursue a Bayesian approach to FPCA.
+
 Although there have been numerous contributions to Bayesian implementations of FPCA, we argue that there are
 additional factors that should be considered. First, MCMC modeling of FPCA is a computationally expensive
 procedure and, in some biostatistical applications \cite{Goldsmith15}, the computational time can reach several
