@@ -341,4 +341,3 @@ col_names <- c("N", "sim", "VMP", "MCMC")#
 n_col <- length(col_names)#
 write(col_names, "comp_speed_res.txt", ncol=n_col, append=FALSE)
 source("test.R")
-source("test.R")

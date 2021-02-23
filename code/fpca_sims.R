@@ -14,6 +14,8 @@ library(rstan)
 rstan_options(auto_write = TRUE)
 library(lattice)
 library(ellipse)
+library(matrixcalc)
+library(pracma)
 
 set.seed(0)
 
@@ -29,6 +31,7 @@ source("trapint.r")
 source("cprod.r")
 source("wait.r")
 source("ise.r")
+source("logistic.r")
 source("vmp_functions.r")
 source("fpca_algs.r")
 
