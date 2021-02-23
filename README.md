@@ -6,3 +6,4 @@ Including brief explanation on the relevance of each fragment.Adding my latest d
 updating the images
 updating the images
 adding my latest draft
+updated the code folder with simulation scripts
