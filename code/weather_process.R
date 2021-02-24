@@ -55,7 +55,7 @@ aggregate_temp =
   nest_weather_df %>% 
   # slice(1:100) %>% 
   mutate(
-    df = purrr::map(df, ann_summ)
+    df = furrr::future_map(df, ann_summ)
   ) %>% 
   unnest(df) %>% 
   filter(min_n_days >= 30) %>% 
