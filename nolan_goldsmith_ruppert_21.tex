@@ -166,7 +166,7 @@
 \author[1,4]{David Ruppert}
 \affil[1]{School of Operations Research and Information Engineering, Cornell University}
 \affil[2]{School of Mathematical and Physical Sciences, University of Technology Sydney}
-\affil[3]{Mailman School of Public Health, Columbia University}
+\affil[3]{Department of Biostatistics, Mailman School of Public Health, Columbia University}
 \affil[4]{School of Statistical Science, Cornell University}
 %\author{Tui Hiraka Nolan}
 %\date{\parbox{\linewidth}{\centering%
@@ -191,7 +191,7 @@ FPCA is a central technique. The advantages of using FPCA for functional data ar
 from analogous advantages that PCA affords for multivariate data analysis. For instance, PCA in the multivariate
 data setting is used to reduce dimensionality and identify the major modes of variation of the
 data set. The modes of variation are determined by the eigenvectors of the sample covariance matrix of the data
-set, while dimension reduction is achieved by identifying the eigenvectors that maximise a mean square criterion.
+set, while dimension reduction is achieved by identifying the eigenvectors that maximise variation in the data.
 In the functional setting, response curves are interpreted as independent realisations of an underlying
 stochastic process. A covariance operator and its basis functions play the analogous
 role that the covariance matrix and its eigenvectors play in the multivariate data setting. By determining the
@@ -199,13 +199,15 @@ basis functions that have the strongest contributions to the covariance function
 dimensionality of the entire data set by approximating each curve as a linear combination of the reduced set
 of basis functions.
 
-There are key issues that arise in the functional setting, which are not present in the multivariate setting.
+There are functional issues that arise in the functional setting that are not present for multivariate data.
 The domain of the functional curves is typically a compact interval $[0, T]$ of the real line.
 Despite having a continuous domain, the curves are only observed at discrete points over this interval.
 Furthermore, the points of observation, as well as the total number of observations, need not be the
-same for each curve. Therefore, approaches that are used in PCA require modifications to extend to the functional framework.
-In FPCA, we often rely on semiparametric regression to infer the behaviour of the original curves and employ
-an appropriate orthogonalisation step to ensure that the basis functions are orthogonal.
+same for each curve. Therefore, approaches that are used in PCA require
+modifications to extend to the functional framework.
+In FPCA, we often rely on nonparametric regression to ensure that eigenfunctions are smooth and employ
+an appropriate step to ensure that the basis functions are orthonormal from the perspective of integration, rather
+than inner products of vectors.
 
 There have been numerous developments in FPCA methodology throughout the statistical literature.
 A thorough introduction to the statistical framework and applications can be found in \citeA[Chapter~8]{ramsay05}
@@ -220,7 +222,7 @@ regression models, and also considered observed values that arise from exponenti
 
 In frequentist versions of FPCA, the covariance function is determined through bivariate smoothing of the raw
 covariances. Eigenfunctions and eigenvalues are then determined from the smoothed covariance function.
-The key advantage in the Bayesian approach is that the covariance function is not determined, meaning that
+The key advantage in the Bayesian approach is that the covariance function is not estimated, meaning that
 complex bivariate smoothing is not required. Indeed, the eigenfunctions and eigenvalues are computed directly
 as part of a Bayesian hierarchical model. Further, it is unnecessary to compute or store large covariance matrices for dense functional data, and for sparse, irregular functional data -- where estimating the raw covariance is difficult or impossible -- direct estimation of eigenfunctions in a Bayesian model is straightforward. For these reason, we pursue a Bayesian approach to FPCA.
 
@@ -239,14 +241,14 @@ the algebraic derivations that are necessary for approximate Bayesian inference 
 within a factor graph is essential for efficient extensions of variational Bayes-based FPCA to arbitrarily large statistical
 models.
 
-In this article, we propose an FPCA extension of the VMP framework for semiparametric regression set out in
+In this article, we propose an FPCA extension of the VMP framework for variational Bayesian inference set out in
 \citeA{wand17}. Our novel methodology includes the introduction of two fragments  that are necessary for
 computing approximate posterior density functions under an MFVB scheme. We provide an introduction to
 variational Bayesian inference in Section \ref{sec:vbi}, with an overview of VMP in Section \ref{sec:vmp}.
 Section \ref{sec:fpca} introduces the Bayesian hierarchical model for FPCA and its extensions under a
 VMP formulation. In Section \ref{sec:post_vmp_steps}, we outline the post-VMP steps that are required for
-producing orthogonal eigenfunctions. Simulations, including speed and accuracy comparisons with MCMC
-algorithms, are presented in Section \ref{sec:sims}, and an application to United States weather data is
+producing orthonormal eigenfunctions. Simulations, including speed and accuracy comparisons with MCMC
+algorithms, are presented in Section \ref{sec:sims}, and an application to United States temperature data is
 provided in Section \ref{sec:us_weather_data}.
 
 %%%%%%%%%%%%%%  VARIATIONAL  BAYESIAN  INFERENCE  %%%%%%%%%%%%%%%
@@ -342,7 +344,7 @@ in the optimal $q$-density function. The mean field approximation, which has its
 \noindent for all $q \in \Qsc$, where $\{ \btheta_1, \dots, \btheta_N \}$ is some partition of $\btheta$. The
 optimal $q$-density functions that satisfy \eqref{vb_elbo} are given by \cite<e.g.>{minka05, ormerod10}
 
-\[
+\begin{equation}
 	q^*_i (\btheta_i) = \frac{
 		\exp \{
 			\E_{q (\btheta \setminus \btheta_i)} \log p (\by, \btheta)
@@ -352,11 +354,19 @@ optimal $q$-density functions that satisfy \eqref{vb_elbo} are given by \cite<e.
 			\E_{q (\btheta \setminus \btheta_i)} \log p (\by, \btheta)
 		\} d\btheta_i
 	}, \quad \text{for $i = 1, \dots, N$,}
-\]
+\label{opt_q}
+\end{equation}
 
 \noindent where $\E_{q (\btheta \setminus \btheta_i)}$ denotes expectation with respect to the optimal posterior density
 functions of all elements in the partition of $\btheta$, defined by \eqref{mf_rest}, except for the optimal posterior
-density function of $\btheta_i$. The standard MFVB algorithm is presented as Algorithm 1 in \citeA{ormerod10}.
+density function of $\btheta_i$.
+
+The parameter vectors that define each of the optimal $q$-density
+functions in \eqref{opt_q} are interrelated and are updated
+by a coordinate ascent algorithm \cite[Algorithm~1]{ormerod10}. However, the resulting parameter vector updates
+are problem-specific and must be rederived if there is a change to the model. For instance, the updates for the
+optimal posterior density functions of the coefficients in a linear regression model will differ from those in a
+linear logistic regression model.
 
 %%%%%%%%%%%%%%  Variational  Message  Passing
 
@@ -383,8 +393,8 @@ consider a generic Bayesian model with observed data vector $\by$ and parameter 
 
 \noindent A factor graph representation of the Bayesian model expressed in \eqref{arb_bayes_mod} is presented
 in Figure \ref{fig:arb_bayes_mod_fg}. The square nodes are the factors, which represent the distributional
-specifications of the model, and the circular nodes are called stochastic nodes, which represent the random
-variables of the model. Furthermore, the graph is bipartite, meaning that stochastic nodes can only share an
+specifications of the model, and the circular nodes are called stochastic nodes, which represent the parameter
+vectors of the model. Furthermore, the graph is bipartite, meaning that stochastic nodes can only share an
 edge with a factor and vice versa. Additionally, notice that the edges of the factor graph respect the distributional
 dependencies of \eqref{arb_bayes_mod}. For instance, the factor for $p (\btheta_2 | \btheta_4, \btheta_5)$
 shares edges with the stochastic nodes for $\btheta_2$, $\btheta_4$ and $\btheta_5$ only.
@@ -471,7 +481,7 @@ nodes. Consider the factor for $p (\btheta_2 | \btheta_4, \btheta_5)$ and the me
 neighboring stochastic nodes $\btheta_2$, $\btheta_4$ and $\btheta_5$. The messages passed from this
 factor take the form
 
-\[
+\begin{equation}
 	\msg{p (\btheta_2 | \btheta_4, \btheta_5)}{\btheta_i} (\btheta_i)
 		\longleftarrow
 			\frac{
@@ -480,32 +490,49 @@ factor take the form
 				\int \E_{q(\btheta \setminus \btheta_i)} \log p (\btheta_2 | \btheta_4, \btheta_5) d\btheta_i
 			},
 	\quad \text{for $i = 2, 4, 5$.}
-\]
+\label{msg_fact_st}
+\end{equation}
 
-\noindent Next, consider the factor $\btheta_4$, which receives messages from the factors
+\noindent Before continuing, we will make a brief note on our notation for computational updates. In \eqref{msg_fact_st},
+we use a left arrow to indicate a computational update, rather than an equality symbol. This reflects the fact that at each
+iteration of the VMP algorithm, the algebraic form of the message remains the same, whereas the parameterisation of the
+message will change between iterations as the Kullback-Leibler divergence is minimised. In addition, the subscript
+of the message in \eqref{msg_fact_st} indicates the direction of the message. Finally, each message is a function of
+the parameter vector that it is sent to or sent from.
+
+Next, consider the stochastic node $\btheta_4$, which receives messages from the factors
 $p (\btheta_2 | \btheta_4, \btheta_5)$, $p (\btheta_3 | \btheta_4)$ and $p (\btheta_4)$. The messages that $\btheta_4$
 returns to these factors are
 
-\begin{align*}
+\begin{align}
+\begin{split}
 	\msg{\btheta_4}{p (\btheta_2 | \btheta_4, \btheta_5)} (\btheta_4)
 		&\longleftarrow
-			\msg{p (\btheta_3 | \btheta_4)}{\btheta_4} (\btheta_4) \msg{p(\btheta_4)}{\btheta_4} (\btheta_4) \\
+			\msg{p (\btheta_3 | \btheta_4)}{\btheta_4} (\btheta_4) \
+			\msg{p(\btheta_4)}{\btheta_4} (\btheta_4) \\
 	\msg{\btheta_4}{p (\btheta_3 | \btheta_4)} (\btheta_4)
 		&\longleftarrow
-			\msg{p (\btheta_2 | \btheta_4, \btheta_5)}{\btheta_4} (\btheta_4)
+			\msg{p (\btheta_2 | \btheta_4, \btheta_5)}{\btheta_4} (\btheta_4) \
 			\msg{p (\btheta_4)}{\btheta_4} (\btheta_4) \\
 	\msg{\btheta_4}{p (\btheta_4)} (\btheta_4)
 		&\longleftarrow
-			\msg{p (\btheta_2 | \btheta_4, \btheta_5)}{\btheta_4} (\btheta_4)
+			\msg{p (\btheta_2 | \btheta_4, \btheta_5)}{\btheta_4} (\btheta_4) \
 			\msg{p (\btheta_3 | \btheta_4)}{\btheta_4} (\btheta_4).
-\end{align*}
+\end{split}
+\label{examp_st_f_msg}
+\end{align}
+
+\noindent In general, the message that a stochastic node passes to a neighbouring factor is simply the product
+of the messages that it has received from its other neighbouring factors. Note that the form of the message
+updates in \eqref{msg_fact_st} are such that range of each message is a subset of $\R$. Therefore, the computations
+in \eqref{examp_st_f_msg} simply involve multiplication of scalars.
 
 Now, consider a general Bayesian model with $M$ factors $p_1, \dots, p_M$ and $N$ parameter vectors
 $\btheta_1, \dots, \btheta_N$. We define the set of stochastic nodes that are connected to the factor
 $p_j$ as
 
 \[
-	\neighbors (j) \equiv \{ i = 1, \dots, N: \text{$\btheta_i$ is shares an edge with $p_j$} \}.
+	\neighbors (j) \equiv \{ i = 1, \dots, N: \text{$\btheta_i$ shares an edge with $p_j$} \}.
 \]
 
 \noindent Then, the message from factor
@@ -538,6 +565,18 @@ take the form
 	q^* (\btheta_i) \propto \prod_{j : i \in \neighbors(j)} \msg{p_j}{\btheta_i} (\btheta_i), \quad i = 1, \dots, N.
 \label{opt_q_vmp}
 \end{equation}
+
+\noindent The VMP iterative loop has the following generic steps \cite{minka05, wand17}:
+
+\begin{enumerate}
+	%
+	\item Choose a factor.
+	%
+	\item Update the messages passed from the factor's neighbouring stochastic nodes to the factor.
+	%
+	\item Update the messages passed from the factor to its neighbouring stochastic nodes.
+	%
+\end{enumerate}
 
 %% Exponential Family Form
 
@@ -589,7 +628,7 @@ the above diagonal elements. For example, suppose that
 	\end{bmatrix}.
 \]
 
-\noindent Then $\vect (\bA) = \T{(2, -3, -1, 1)}$ and $\vech (\bA) = \T{(-2, -3, 1)}$.
+\noindent Then $\vect (\bA) = \T{(2, -3, -1, 1)}$ and $\vech (\bA) = \T{(2, -3, 1)}$.
 For a $d^2 \times 1$ vector
 $\ba$, $\vect^{-1} (\ba)$ is the $d \times d$ matrix such that $\vect \{\vect^{-1} (\ba)\} = \ba$. Additionally, the matrix
 $\bD_d$ is the duplication matrix of order $d$, and it is such that $\bD_d \vech (\bA) = \vect (\bA)$ for a
@@ -597,7 +636,7 @@ $d \times d$ symmetric matrix $\bA$. Furthermore, $\bD_d^{+} \equiv (\T{\bD_d} \
 Moore-Penrose inverse of $\bD_d$, where $\bD_d^+ \vect (\bA) = \vech(\bA)$.
 
 The Normal distribution is one of the most important distributions within the exponential family, and it plays a
-major role in VMP versions of variational Bayesian inference. Consider the $d \times 1$ Multivariate Normal
+major role in VMP versions of variational Bayesian inference. Consider the $d \times 1$ multivariate normal
 random vector $\bx \sim \normal (\bmu, \bSigma)$. The probability density function of $\bx$ can be shown to satisfy
 
 \begin{equation}
@@ -640,9 +679,9 @@ random vector $\bx \sim \normal (\bmu, \bSigma)$. The probability density functi
 \label{gauss_vec_comm_params}
 \end{equation}
 
-\noindent We will refer to the representation of the Multivariate Normal probability density function in
+\noindent We will refer to the representation of the multivariate normal probability density function in
 \eqref{vec_repn} as the \emph{vec-based representation}. Alternatively, a more storage-economical
-representation of the Multivariate Normal probability density function is the \emph{vech-based representation}:
+representation of the multivariate normal probability density function is the \emph{vech-based representation}:
 
 \[
 	p (\bx) = \exp \left\{ \T{\bT_{\vech} (\bx)} \bdeta_{\vech} - A_{\vech} (\bdeta_{\vech}) - \frac{d}{2} \log (2 \pi) \right\},
@@ -783,16 +822,24 @@ is a subgraph of a factor graph
 consisting of a single factor and each of its neighboring stochastic nodes.
 An example of a factor graph fragment is the fragment for $p (\btheta_2 | \btheta_4, \btheta_5)$ in Figure
 \ref{fig:arb_bayes_mod_fg}, which is highlighted in blue. The factor representing $p (\btheta_2 | \btheta_4, \btheta_5)$,
-the neighboring stochastic nodes $\btheta_2$, $\btheta_4$ and $\btheta_5$ and the connecting edges are all
-part of the fragment.
-The identification and derivation of
-the algebraic computations in fragments is the key step for extending VMP to arbitrarily large Bayesian statistical
-models. The following is a list of some of the major contributions to fragment updates for VMP:
+the neighboring stochastic nodes $\btheta_2$, $\btheta_4$ and $\btheta_5$
+and the connecting edges comprise the fragment.
+
+The identification and derivation of the algebraic computations in fragments is the key step for extending VMP
+to arbitrarily large Bayesian statistical models. As explained at the end of Section \ref{sec:mfvb}, the form of each of the
+optimal $q$-density functions is problem-specific, requiring rederivations for any changes in the model. However,
+the fragment based approach in VMP means that updates are localized within the fragment.
+This represents enormous savings in algebraic derivations and coding because once a fragment has
+been coded and stored, it can simply be called as a function without the need to rederive the updates.
+Any change in the model is simply handled by removing the fragment that does not fit the new model and replacing
+it with an appropriate alternative.
+
+The following is a list of some of the major contributions to fragment updates for VMP:
 
 \begin{itemize}
 	%
 	\item \citeA{wand17} identified five fundamental fragments for Gaussian response semiparametric regression.
-	This includes the Gaussian prior fragment, Inverse G-Wishart prior fragment and the iterated Inverse
+	This includes the Gaussian prior fragment, inverse G-Wishart prior fragment and the iterated inverse
 	G-Wishart fragment, which are necessary for a VMP construction of Bayesian FPCA. The author also
 	identified several other fragments for direct implementation in various extensions for semiparametric
 	regression.
@@ -814,9 +861,11 @@ models. The following is a list of some of the major contributions to fragment u
 	streamline the computations of VMP for Gaussian response linear mixed models. This involved the
 	introduction of four new fragments.
 	%
-	\item \citeA{maestrini20} provide corrections for the matrix versions of the Inverse G-Wishart prior fragment
-	and the iterated Inverse G-Wishart fragment from \citeA{wand17}. The corrections are based on graph
-	theoretic results that affect VMP treatments of covariance matrices. Although the scalar versions of these
+	\item \citeA{maestrini20} provide corrections for the matrix versions of the inverse G-Wishart prior fragment
+	and the iterated inverse G-Wishart fragment from \citeA{wand17}. In particular, Section 4.1.3 of
+	\citeA{wand17}, which introduces the iterated inverse G-Wishart fragment, only addresses the case where
+	the graph parameter is $G = G_{\text{full}}$. However, it does not account for the case where $G = G_{\text{diag}}$.
+	The necessary corrections are outlined in Section 6.1 of \citeA{maestrini20}. Although the scalar versions of these
 	fragments from \citeA{wand17} are sufficient for the current article, we will use the updated fragments
 	from \citeA{maestrini20} since they are the new standard for approximate Bayesian inference on variance
 	and covariance matrix parameters.
@@ -969,7 +1018,7 @@ $\bpsi_{il} \equiv \T{\{ \psi_l (t_{i1}), \dots, \psi_l (t_{iT_i}) \}}$, for $l 
 $\bepsilon_{i} \equiv \T{(\epsilon_{i1}, \dots, \epsilon_{iT_i})}$ is a vector of measurement errors
 for the observations on curve $y_i (t)$.
 
-We model continuous curves from discrete observations via semiparametric regression \cite{ruppert03, ruppert09},
+We model continuous curves from discrete observations via nonparametric regression \cite{ruppert03, ruppert09},
 using the mixed model-based penalized spline basis function representation, as in \citeA{durban05}. The
 representation for the mean function and the FPCA basis functions are:
 
@@ -1340,13 +1389,13 @@ FPCA model \eqref{bayes_fpca_mod}:
 	%
 	\item The fragments for $p (\bzeta_1), \dots, p(\bzeta_n)$ are Gaussian prior fragments. The updates for
 	this fragment are presented in Section 4.1.1 of \citeA{wand17}, where a vec-based representation of the
-	Multivariate Normal density function is used.
+	multivariate normal density function is used.
 	%
 	\item The fragments for $p (\aeps)$, $p (\amu)$ and $p (\apsi{1}), \dots, p (\apsi{L})$ are scalar versions
-	of the Inverse G-Wishart prior fragment, which is presented as Algorithm 1 of \citeA{maestrini20}.
+	of the inverse G-Wishart prior fragment, which is presented as Algorithm 1 of \citeA{maestrini20}.
 	%
 	\item The fragments for $p (\sigsqeps | \aeps)$, $p (\sigsqmu | \amu)$ and $p (\sigsqpsi{1} | \apsi{1}), \dots,
-	p (\sigsqpsi{L} | \apsi{L})$ are scalar versions of the iterated Inverse G-Wishart fragment, which is presented
+	p (\sigsqpsi{L} | \apsi{L})$ are scalar versions of the iterated inverse G-Wishart fragment, which is presented
 	as Algorithm 2 of \citeA{maestrini20}.
 	%
 	\item The fragments for $p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)$ and $p (\bnu | \sigsqmu,
@@ -1389,8 +1438,8 @@ derivations of these messages and the derivations of expected values of random v
 and random matrices that these messages depend on are deferred to Appendix \ref{app:fpca_gauss_lik_frag}.
 
 The message from $p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)$ to $\bnu$ can be shown to be
-proportional to a Multivariate
-Normal density function, with vec-based exponential density function representation:
+proportional to a multivariate
+normal density function, with vec-based exponential density function representation:
 
 \begin{equation}
 	\msg{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)}{\bnu} (\bnu) \propto
@@ -1431,7 +1480,7 @@ Normal density function, with vec-based exponential density function representat
 representation of the message in \eqref{msg_lik_nu}, as opposed to the storage-economical vech-based representation.
 In preliminary simulations, we found that computations using the vech-based representation were enormously hindered
 by the need to use a huge Moore-Penrose inverse matrix. For instance, consider the case where
-there are two basis functions ($L = 2$) and 25 O'Sullivan penalised spline basis functions ($K = 25$) for semiparametric
+there are two basis functions ($L = 2$) and 25 O'Sullivan penalised spline basis functions ($K = 25$) for nonparametric
 regression. In this instance, the vector $\bnu$ is $81 \times 1$ ($d = 81$) and the Moore-Penrose inverse matrix
 $\bD_{81}^+$ has dimension $3321 \times 6561$, inhibiting the computational speed. For this reason, we have
 decided to use the vec-based representation of the message in \eqref{msg_lik_nu}, which does not require the
@@ -1451,7 +1500,7 @@ For each $i = 1, \dots, n$, the message from $p (\by | \bnu, \bzeta_1, \dots, \b
 \label{msg_lik_zeta}
 \end{equation}
 
-\noindent which is proportional to a Multivariate Normal density function.
+\noindent which is proportional to a multivariate normal density function.
 The update for the natural parameter vector in \eqref{msg_lik_zeta} is
 
 \begin{equation}
@@ -1520,10 +1569,10 @@ The message from $p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)$ to $\sig
 \end{equation}
 
 \noindent We must remember that the $\invchisq$ density function message that is passed
-to $\sigsqeps$ is part of the Inverse G-Wishart class of density functions for VMP. Within this class of messages,
+to $\sigsqeps$ is part of the inverse G-Wishart class of density functions for VMP. Within this class of messages,
 a graph message is also required to specify whether the density function respects a full or a diagonal matrix. This
 graphical message does not affect $\invchisq$ density function messages, however we will include
-a graph message with the aim of providing fragments that are compatible with previously constructed Inverse
+a graph message with the aim of providing fragments that are compatible with previously constructed inverse
 G-Wishart fragments \cite[Algorithms 1 \& 2]{maestrini20}. According to Section 7.4 of \citeA{maestrini20},
 the auxiliary-based hierarchical prior specification of $\sigsqeps$ in \eqref{bayes_fpca_mod} requires a
 graphical message of the form
@@ -1632,7 +1681,7 @@ First, let us introduce the vector and matrix
 \end{equation}
 
 \noindent Then, the message from $p (\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})$ to $\bnu$
-can be shown to be proportional to a Multivariate Normal density function, with vec-based exponential density
+can be shown to be proportional to a multivariate normal density function, with vec-based exponential density
 representation
 
 \begin{equation}
@@ -2145,7 +2194,7 @@ while the residual variance $\sigsqeps$ was set to 1. The mean function was
 \label{score_sims}
 \end{equation}
 
-\noindent Semiparameteric regression with O'Sullivan penalized splines for the nonlinear curves was performed
+\noindent Nonparameteric regression with O'Sullivan penalized splines for the nonlinear curves was performed
 with $K = 10$.
 
 The results from the simulation are presented in Figure \ref{fig:gauss_resp_sim}, where a random sample of
@@ -2686,7 +2735,7 @@ of
 	\msg{\bnu}{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)} (\bnu),
 \]
 
-\noindent which is a Multivariate Normal density function with natural parameter vector $\npbf{p (\by | \bnu, \bzeta_1,
+\noindent which is a multivariate normal density function with natural parameter vector $\npbf{p (\by | \bnu, \bzeta_1,
 \dots, \bzeta_n, \sigsqeps)}{\bnu}$. From \eqref{gauss_vec_comm_params}, we have
 
 \begin{align}
@@ -2740,7 +2789,7 @@ respect to the normalization of
 	\msg{\bzeta_i}{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)} (\bzeta_i),
 \]
 
-\noindent which is a Multivariate Normal density function with natural parameter vector $\npbf{p (\by | \bnu, \bzeta_1,
+\noindent which is a multivariate normal density function with natural parameter vector $\npbf{p (\by | \bnu, \bzeta_1,
 \dots, \bzeta_n, \sigsqeps)}{\bzeta_i}$. According to \eqref{gauss_vech_comm_params},
 
 \begin{align}
@@ -2816,7 +2865,7 @@ Now, we turn our attention to the derivation of the message passed from $p (\by 
 \noindent where, for each $i = 1, \dots, n$, $\zetatilde_i$ is defined in \eqref{zeta_tilde}.
 From \eqref{msg_fact_sn} and \eqref{fpc_gauss_lik_factorized}, the message from the factor $p (\by | \bnu,
 \bzeta_1, \dots, \bzeta_n, \sigsqeps)$ to $\bnu$ is as given in \eqref{msg_lik_nu}, which is proportional to a
-Multivariate Normal density function. The update for the message's natural parameter vector,
+multivariate normal density function. The update for the message's natural parameter vector,
 in \eqref{np_lik_nu}, is dependent upon
 the mean vector and covariance matrix of $\bzetatilde_i$, which are
 
@@ -2866,7 +2915,7 @@ in \eqref{log_fpc_gauss_lik_factor} can be represented as a function of $\bzeta_
 \noindent where $\hmupsi{i}$ and $\Hpsi{i}$ are also defined in \eqref{psi_related_defns}.
 \noindent From \eqref{msg_fact_sn} and \eqref{fpc_gauss_lik_factorized}, the message from the factor
 $p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)$ to $\bzeta_i$ is as given in \eqref{msg_lik_zeta}, which
-is proportional to a Multivariate Normal density function. The message's natural parameter vector update, in
+is proportional to a multivariate normal density function. The message's natural parameter vector update, in
 \eqref{np_lik_zeta}, is dependant on the following expectations that are yet to be determined:
 
 \[
@@ -3053,7 +3102,7 @@ respect to the normalization of
 	\msg{\bnu}{p(\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})} (\bnu),
 \]
 
-\noindent which is a Multivariate Normal density function with natural parameter vector $\npbf{p(\bnu | \sigsqmu,
+\noindent which is a multivariate normal density function with natural parameter vector $\npbf{p(\bnu | \sigsqmu,
 \sigsqpsi{1}, \dots, \sigsqpsi{L})}{\bnu}$. From \eqref{gauss_vec_comm_params}, we have
 
 \begin{align}
@@ -3162,7 +3211,7 @@ Now, we turn our attention to the derivation of the messages passed from the fac
 
 \noindent where $\munu$ and $\Sigmanu$ are defined in \eqref{munu_Sigmanu}.
 From \eqref{msg_fact_sn}, the message from the factor $p(\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})$
-to $\bnu$ is as given in \eqref{msg_pen_nu}, which is proportional to a Multivariate Normal density function.
+to $\bnu$ is as given in \eqref{msg_pen_nu}, which is proportional to a multivariate normal density function.
 The update for the message's natural parameter vector, in \eqref{np_pen_nu},
 is dependant upon the expectation of $\Sigmanu^{-1}$, which is given by
 
