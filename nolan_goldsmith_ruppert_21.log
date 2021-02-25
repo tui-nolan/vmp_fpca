@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.11.30)  24 FEB 2021 19:57
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.11.30)  26 FEB 2021 00:19
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1912,10 +1912,10 @@ LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <12> not available
 
  [10] [11] [12] [13] [14]
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <24.88> not available
-(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 1247.
+(Font)              Font shape `OT1/ptm/b/n' tried instead on input line 1261.
  [15] [16] [17] [18] [19] [20]
 [21]
-Overfull \hbox (29.37889pt too wide) in paragraph at lines 1998--2003
+Overfull \hbox (29.37889pt too wide) in paragraph at lines 2012--2017
 \T1/ptm/m/n/12 Lemma 4.1[] out-lines the con-struc-tion of pos-te-rior curve es
 -ti-ma-tion for the re-sponse vec-tors $\OML/ptmcm/m/it/12 y[]\OT1/ptmcm/m/n/12
  (\OML/cmm/b/it/12 t[]\OT1/ptmcm/m/n/12 )\OML/ptmcm/m/it/12 ; [] ; y[]\OT1/ptmc
@@ -1923,7 +1923,7 @@ m/m/n/12 (\OML/cmm/b/it/12 t[]\OT1/ptmcm/m/n/12 )$\T1/ptm/m/n/12 .
  []
 
 [22]
-Overfull \hbox (1.1933pt too wide) in paragraph at lines 2066--2069
+Overfull \hbox (1.1933pt too wide) in paragraph at lines 2080--2083
 []\T1/ptm/m/n/12 Update the pa-ram-e-ter vec-tors of the mes-sages passed from 
 the fac-tor to its neigh-bour-ing stochas-
  []
@@ -1932,62 +1932,61 @@ the fac-tor to its neigh-bour-ing stochas-
 File: images/response_curves.pdf Graphic file (type pdf)
 
 <use images/response_curves.pdf>
-Package pdftex.def Info: images/response_curves.pdf used on input line 2122.
+Package pdftex.def Info: images/response_curves.pdf used on input line 2136.
 (pdftex.def)             Requested size: 483.69684pt x 186.03665pt.
 
 <images/scores.pdf, id=92, 469.755pt x 180.675pt>
 File: images/scores.pdf Graphic file (type pdf)
  <use images/scores.pdf>
-Package pdftex.def Info: images/scores.pdf used on input line 2131.
+Package pdftex.def Info: images/scores.pdf used on input line 2145.
 (pdftex.def)             Requested size: 483.69684pt x 186.03665pt.
 
-[23] [24 <./images/response_curves.pdf> <./images/scores.pdf>]
-<images/box_plot_sims.pdf, id=111, 469.755pt x 216.81pt>
+[23] <images/box_plot_sims.pdf, id=96, 469.755pt x 216.81pt>
 File: images/box_plot_sims.pdf Graphic file (type pdf)
 
 <use images/box_plot_sims.pdf>
-Package pdftex.def Info: images/box_plot_sims.pdf used on input line 2229.
+Package pdftex.def Info: images/box_plot_sims.pdf used on input line 2243.
 (pdftex.def)             Requested size: 483.69684pt x 223.244pt.
 
-<images/panel_plot.pdf, id=112, 469.755pt x 216.81pt>
+<images/panel_plot.pdf, id=97, 469.755pt x 216.81pt>
 File: images/panel_plot.pdf Graphic file (type pdf)
 
 <use images/panel_plot.pdf>
-Package pdftex.def Info: images/panel_plot.pdf used on input line 2238.
+Package pdftex.def Info: images/panel_plot.pdf used on input line 2252.
 (pdftex.def)             Requested size: 483.69684pt x 223.244pt.
- [25] [26 <./images/box_plot_sims.pdf> <./images/panel_plot.pdf>] <images/us_fi
-ts.pdf, id=132, 469.755pt x 252.945pt>
+ [24] [25 <./images/response_curves.pdf> <./images/scores.pdf>] [26 <./images/b
+ox_plot_sims.pdf> <./images/panel_plot.pdf>]
+<images/us_fits.pdf, id=132, 469.755pt x 252.945pt>
 File: images/us_fits.pdf Graphic file (type pdf)
-
-<use images/us_fits.pdf>
-Package pdftex.def Info: images/us_fits.pdf used on input line 2332.
+ <use images/us_fits.pdf>
+Package pdftex.def Info: images/us_fits.pdf used on input line 2346.
 (pdftex.def)             Requested size: 483.69537pt x 256.07838pt.
 
 <images/us_mean_shift.pdf, id=133, 469.755pt x 252.945pt>
 File: images/us_mean_shift.pdf Graphic file (type pdf)
 
 <use images/us_mean_shift.pdf>
-Package pdftex.def Info: images/us_mean_shift.pdf used on input line 2341.
+Package pdftex.def Info: images/us_mean_shift.pdf used on input line 2355.
 (pdftex.def)             Requested size: 483.69537pt x 256.07838pt.
- [27] [28 <./images/us_fits.pdf> <./images/us_mean_shift.pdf>] (./nolan_goldsmi
-th_ruppert_21.bbl [29]
+ [27] [28 <./images/us_fits.pdf> <./images/us_mean_shift.pdf>] [29] (./nolan_go
+ldsmith_ruppert_21.bbl
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <12> not available
 (Font)              Font shape `T1/phv/m/sl' tried instead on input line 132.
 LaTeX Font Info:    Font shape `T1/phv/m/sl' will be
 (Font)              scaled to size 10.79993pt on input line 132.
- [30]
+ [30] [31]
 Underfull \hbox (badness 2126) in paragraph at lines 929--942
 []\T1/ptm/m/n/12 Stan De-vel-op-ment Team.  (2020).  \T1/phv/m/sl/12 RStan\T1/p
 tm/m/it/12 : the \T1/phv/m/sl/12 R \T1/ptm/m/it/12 in-ter-face to \T1/phv/m/sl/
 12 Stan\T1/ptm/m/it/12 .  \T1/ptm/m/n/12 Re-trieved from
  []
 
-[31]) [32] [33] [34] [35] [36] [37] [38] [39] [40] [41] [42]
+) [32] [33] [34] [35] [36] [37] [38] [39] [40] [41] [42]
 (./nolan_goldsmith_ruppert_21.aux) ) 
 Here is how much of TeX's memory you used:
  37714 strings out of 493014
- 758153 string characters out of 6133350
- 808779 words of memory out of 5000000
+ 758145 string characters out of 6133350
+ 811777 words of memory out of 5000000
  40502 multiletter control sequences out of 15000+600000
  142067 words of font info for 268 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -2011,7 +2010,7 @@ usr/local/texlive/2016/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/
 texlive/2016/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/20
 16/texmf-dist/fonts/type1/urw/times/utmri8a.pfb></usr/local/texlive/2016/texmf-
 dist/fonts/type1/urw/zapfchan/uzcmi8a.pfb>
-Output written on nolan_goldsmith_ruppert_21.pdf (42 pages, 1992015 bytes).
+Output written on nolan_goldsmith_ruppert_21.pdf (42 pages, 1993009 bytes).
 PDF statistics:
  258 PDF objects out of 1000 (max. 8388607)
  182 compressed objects within 2 object streams

@@ -193,11 +193,11 @@ data setting is used to reduce dimensionality and identify the major modes of va
 data set. The modes of variation are determined by the eigenvectors of the sample covariance matrix of the data
 set, while dimension reduction is achieved by identifying the eigenvectors that maximise variation in the data.
 In the functional setting, response curves are interpreted as independent realisations of an underlying
-stochastic process. A covariance operator and its basis functions play the analogous
+stochastic process. A covariance operator and its eigenfunctions play the analogous
 role that the covariance matrix and its eigenvectors play in the multivariate data setting. By determining the
-basis functions that have the strongest contributions to the covariance function, one can reduce the
+eigenfunctions that have the strongest contributions to the covariance function, one can reduce the
 dimensionality of the entire data set by approximating each curve as a linear combination of the reduced set
-of basis functions.
+of eigenfunctions.
 
 There are functional issues that arise in the functional setting that are not present for multivariate data.
 The domain of the functional curves is typically a compact interval $[0, T]$ of the real line.
@@ -205,14 +205,14 @@ Despite having a continuous domain, the curves are only observed at discrete poi
 Furthermore, the points of observation, as well as the total number of observations, need not be the
 same for each curve. Therefore, approaches that are used in PCA require
 modifications to extend to the functional framework.
-In FPCA, we often rely on nonparametric regression to ensure that eigenfunctions are smooth and employ
-an appropriate step to ensure that the basis functions are orthonormal from the perspective of integration, rather
+In FPCA, we often rely on nonparametric regression to smooth the eigenfunctions and employ
+an appropriate step to ensure that the they are orthonormal from the perspective of integration, rather
 than inner products of vectors.
 
 There have been numerous developments in FPCA methodology throughout the statistical literature.
 A thorough introduction to the statistical framework and applications can be found in \citeA[Chapter~8]{ramsay05}
 and \citeA[Section~2]{wang16}. Much of this work mirrors the eigendecomposition approach to PCA, in that an eigenfuncion basis is obtained from a covariance surface. \citeA{yao05} focused on the case of sparsely observed functional data, and estimate
-principal component scores through conditional expectations. \citeA{xiao2016} developed a fast covariance estimation method for densely observed functional data. \citeA{di09} extended FPCA to multilevel functional data, extracting within and
+principal component scores through conditional expectations. \citeA{xiao16} developed a fast covariance estimation method for densely observed functional data. \citeA{di09} extended FPCA to multilevel functional data, extracting within and
 between subject sources of variability, and \citeA{greven2011} developed methods for longitudinal functional data. However,
 \citeA{goldsmith13} noted that these approaches implicitly condition on estimated eigenbasis to estimate scores, meaning that inference on
 individual curve estimates can be poor.
@@ -877,8 +877,8 @@ The following is a list of some of the major contributions to fragment updates f
 \section{Functional Principal Components Analysis}
 \label{sec:fpca}
 
-Consider a random sample of i.i.d. smooth random functions $y_1, \dots, y_n \in L^2 [0, 1]$. We will assume the
-existence of a continuous mean function $\mu = \E y_i$ and continuous covariance function
+Consider a random sample of i.i.d.\ smooth random functions $y_1, \dots, y_n \in L^2 [0, 1]$. We will assume the
+existence of a continuous mean function $\mu = \E y_i$ and continuous covariance surface
 $\sigma (t, s) = \E [ \{ y_i (t) - \mu (t) \} \{ y_i (s) - \mu (s) \} ]$, $i = 1, \dots, n$.
 Then, the covariance operator $\Sigma$ of $y_i$ is defined as
 
@@ -901,10 +901,12 @@ is the basis for the FPCA expansion \cite{yao05}:
 \noindent where $\zeta^*_{il} = \int_0^1 \{ y_i (t) - \mu(t) \} \psi^*_l(t) dt$ are the principal components
 scores. The $\zeta^*_{il}$ are independent across $i$ and uncorrelated across $l$, with $\E (\zeta^*_{il}) = 0$
 and $\Var (\zeta^*_{il}) = \gamma_l$.
+The asterisk is used as a reminder that the eigenfunctions in
+\eqref{kl_expansion} are orthonormal and that the scores are independent.
 
 Expansion \eqref{kl_expansion} facilitates dimension reduction by providing a best approximation for each
-curve $y_1, \dots, y_n$ in terms of the truncated sums involving the first $L$ orthonormal basis functions
-$\psi^*_1, \dots, \psi^*_L$. That is, for any choice of $L$ orthonormal basis functions $\psi_1, \dots, \psi_L$, the
+curve $y_1, \dots, y_n$ in terms of the truncated sums involving the first $L$ orthonormal eigenfunctions
+$\psi^*_1, \dots, \psi^*_L$. That is, for any choice of $L$ orthonormal eigenfunctions $\psi_1, \dots, \psi_L$, the
 minimum of
 
 \[
@@ -920,23 +922,24 @@ $y_i$ as
 \label{yhat}
 \end{equation}
 
-Next, we make some observations involving the scores and the orthonormal basis functions in \eqref{kl_expansion}
+Next, we make some observations involving the scores and the orthonormal eigenfunctions in \eqref{kl_expansion}
 and \eqref{yhat}:
 
 \begin{enumerate}
 	%
-	\item If $\gamma_l = \gamma_k$, $l \neq k$, then the corresponding eigenfunctions $\psi^*_l$ and $\psi^*_k$
+	\item If $\gamma_l = \gamma_k$, $l \neq k$, then the corresponding orthonormal
+	eigenfunctions $\psi^*_l$ and $\psi^*_k$
 	are not unique. We will simply assume that the eigenvalues are unique. This is a reasonable assumption
 	for most applications (e.g. climate data
 	and biostatistical problems), where equal eigenvalues are normally encountered after the infinite series
 	in \eqref{kl_expansion} is truncated.
 	%
-	\item If all the eigenvalues are unique, the corresponding eigenfunctions are only unique up to
+	\item If all the eigenvalues are unique, the corresponding orthonormal eigenfunctions are only unique up to
 	a change of sign. Issues of identifiability are always present when one attempts to infer eigenfunctions or
-	eigenvectors. However, choosing one eigenfunction over its opposite sign has no effect on the resulting fits or
-	the interpretation of the contribution of the eigenfunction.
+	eigenvectors. However, choosing one eigenfunction over its opposite sign has no effect on the resulting fits,
+	although one choice of sign may provide more natural interpretation of the eigenfunction.
 	Here, we simply assume that the inner product of the Bayesian estimate of an
-	eigenfunction and the eigenfunction itself is positive.
+	eigenfunction, with the desired sign, and the eigenfunction itself is positive.
 	%
 \end{enumerate}
 
@@ -951,7 +954,7 @@ and \eqref{yhat}:
 
 \begin{assumption}
 	
-	The signs of the orthonormal basis functions $\psi^*_1, \dots, \psi^*_L$ are such that if $\psihat_l$ is an
+	The signs of the orthonormal eigenfunctions $\psi^*_1, \dots, \psi^*_L$ are such that if $\psihat_l$ is an
 	estimator of $\psi^*_l$, then $\langle \psi^*_l , \psihat_l \rangle > 0$.
 	
 \label{asspn:signs}
@@ -972,8 +975,8 @@ Its proof is provided in Appendix \ref{app:proof_thm_orth_basis}.
 \begin{theorem}
 	
 	Consider Assumptions \ref{asspn:scores} and \ref{asspn:signs} and the approximations of the response
-	curves $y_1, \dots, y_n$ in \eqref{yhat_not_orthogonal}. Then, there exists a unique set of orthogonal basis
-	functions $\psihat_1, \dots, \psihat_L$ and an uncorrelated set of scores $\zetahat_{i1}, \dots, \zetahat_{iL}$,
+	curves $y_1, \dots, y_n$ in \eqref{yhat_not_orthogonal}. Then, there exists a unique set of orthonormal
+	eigenfunctions $\psihat_1, \dots, \psihat_L$ and an uncorrelated set of scores $\zetahat_{i1}, \dots, \zetahat_{iL}$,
 	$i = 1, \dots, n$, such that
 	
 	\[
@@ -983,13 +986,24 @@ Its proof is provided in Appendix \ref{app:proof_thm_orth_basis}.
 \label{thm:orth_basis}
 \end{theorem}
 
+Theorem \ref{thm:orth_basis} motivates estimation of the Karhunen-Lo\`{e}ve decomposition directly to infer
+the eigenfunctions and scores. In this approach, all components of the Karhunen-Lo\`{e}ve decomposition are
+viewed as unknown so that scores and eigenfunctions are estimated jointly.
+The other class of methods use covariance decompositions to obtain the eigenfunctions
+and subsequently estimates the scores given the eigenfunctions using the Karhunen-Lo\`{e}ve decomposition
+\cite<e.g.>{yao05, di09, xiao16}. There are several advantages in the former method in that it does not require
+estimation or smoothing of a large covariance and can more directly handle sparse or irregular functional data.
+
+Next, the Bayesian model is described in Section \ref{sec:bayes_mod}, while new fragments that are relevant
+for Bayesian FPCA are introduced in Sections \ref{sec:fpca_gauss_lik_frag} and \ref{sec:mean_fpc_gauss_pen_frag}.
+
 %%%%%%%%%%%%%% Bayesian Model Construction
 
 \subsection{Bayesian Model Construction}
 \label{sec:bayes_mod}
 
 In practice, the curves $y_1, \dots, y_n$ are indirectly observed as noisy observations at discrete points in time.
-Furthermore, the observations in time are not necessarily the same for each curve.
+Furthermore, the observation times are not necessarily the same for each curve.
 Let the set of design points for the $i$th curve be summarized by the vector
 
 \begin{equation}
