@@ -211,7 +211,9 @@ than inner products of vectors.
 
 There have been numerous developments in FPCA methodology throughout the statistical literature.
 A thorough introduction to the statistical framework and applications can be found in \citeA[Chapter~8]{ramsay05}
-and \citeA[Section~2]{wang16}. Much of this work mirrors the eigendecomposition approach to PCA, in that an eigenfuncion basis is obtained from a covariance surface. \citeA{yao05} focused on the case of sparsely observed functional data, and estimate
+and \citeA[Section~2]{wang16}. Much of this work mirrors the eigendecomposition approach to PCA, in that an
+eigenbasis is obtained from a covariance surface. \citeA{yao05} focused on the case of sparsely observed functional
+data, and estimate
 principal component scores through conditional expectations. \citeA{xiao16} developed a fast covariance estimation method for densely observed functional data. \citeA{di09} extended FPCA to multilevel functional data, extracting within and
 between subject sources of variability, and \citeA{greven2011} developed methods for longitudinal functional data. However,
 \citeA{goldsmith13} noted that these approaches implicitly condition on estimated eigenbasis to estimate scores, meaning that inference on
@@ -993,9 +995,8 @@ The other class of methods use covariance decompositions to obtain the eigenfunc
 and subsequently estimates the scores given the eigenfunctions using the Karhunen-Lo\`{e}ve decomposition
 \cite<e.g.>{yao05, di09, xiao16}. There are several advantages in the former method in that it does not require
 estimation or smoothing of a large covariance and can more directly handle sparse or irregular functional data.
-
-Next, the Bayesian model is described in Section \ref{sec:bayes_mod}, while new fragments that are relevant
-for Bayesian FPCA are introduced in Sections \ref{sec:fpca_gauss_lik_frag} and \ref{sec:mean_fpc_gauss_pen_frag}.
+The Bayesian model is described in Section \ref{sec:bayes_mod}, while new fragments that are relevant
+for FPCA via VMP are introduced in Sections \ref{sec:fpca_gauss_lik_frag} and \ref{sec:mean_fpc_gauss_pen_frag}.
 
 %%%%%%%%%%%%%% Bayesian Model Construction
 
@@ -1034,7 +1035,7 @@ for the observations on curve $y_i (t)$.
 
 We model continuous curves from discrete observations via nonparametric regression \cite{ruppert03, ruppert09},
 using the mixed model-based penalized spline basis function representation, as in \citeA{durban05}. The
-representation for the mean function and the FPCA basis functions are:
+representation for the mean function and the FPCA eigenfunctions are:
 
 \[
 	\mu (t) \approx \beta_{\mu, 0} + \beta_{\mu, 1} t + \sum_{k=1}^K u_{\mu, k} z_k (t) \quad
@@ -1170,13 +1171,15 @@ of the posterior density function
 
 \noindent but it is typically analytically intractable. The standard approach for overcoming this deficiency is to
 employ MCMC approaches. However, we propose two major arguments against this approach. First, MCMC
-simulations are very slow for model \eqref{bayes_fpca_mod}, even for moderate dimensions for $\bnu$, which
-depends on the number of FPC basis functions ($L$) and O'Sullivan penalised spline basis functions ($K$).
-Second, the mean function $\mu (t)$ and the FPC basis functions $\psi_1 (t), \dots,
+simulations are very slow for model \eqref{bayes_fpca_mod}, even for moderate dimensions of $\bnu$, which
+depends on the number of FPC eigenfunctions ($L$) and O'Sullivan penalised spline basis functions ($K$).
+Second, the mean function $\mu (t)$ and the FPC eigenfunctions $\psi_1 (t), \dots,
 \psi_L (t)$ are typically highly correlated, which is expected to lead to poor mixing. After preliminary MCMC
 simulations through \textsf{Rstan}, the \textsf{R} \cite{r20} interface to the probabilistic programming language
-\textsf{Stan} \cite{rstan20}, we found that poor mixing resulted in posterior variance and covariance estimates
-that were unreliable.
+\textsf{Stan} \cite{rstan20}, we found that poor mixing resulted in posterior covariance estimates
+that were unreliable. A possible remedy for this is to use an inverse G-Wishart prior structure that permits
+correlations amongst the spline coefficients \cite{goldsmith16}. However, this is beyond the scope of this article,
+which is not concerned with improving MCMC methods for FPCA.
 
 Alternatively, variational approximate inference for model \eqref{bayes_fpca_mod} involves
 the mean field restriction:
@@ -1864,11 +1867,11 @@ A derivation of all the relevant expectations and natural parameter vector updat
 
 The FPCA model for curve estimation \eqref{yhat}, which has its genesis in the Karhunen-Lo\`{e}ve decomposition
 \eqref{kl_expansion}, relies on orthogonal functional principal component
-basis functions and independent vectors of scores with uncorrelated entries.
+eigenfunctions and independent vectors of scores with uncorrelated entries.
 However, the variational Bayesian FPCA resulting from a VMP treatment
-does not enforce any orthogonality restrictions on the resulting basis functions. Although curve estimation is still
-valid without these constraints, interpretation of the analysis is more straightforward with orthogonal basis
-functions. Furthermore, the basis functions are not guaranteed to be normalized.
+does not enforce any orthogonality restrictions on the resulting eigenfunctions. Although curve estimation is still
+valid without these constraints, interpretation of the analysis is more straightforward with orthogonal
+eigenfunctions. Furthermore, the eigenfunctions are not guaranteed to be normalized.
 In the following sections, we outline
 a sequence of post-VMP steps that aid inference and interpretability for variational Bayes-based FPCA.
 
@@ -1878,7 +1881,7 @@ a sequence of post-VMP steps that aid inference and interpretability for variati
 \label{sec:opt_dens_funcs}
 
 We are primarily concerned with the optimal posterior density functions for the vector of spline coefficients for
-the mean function and basis functions $\bnu$ and the vectors of principal component scores $\bzeta_1, \dots,
+the mean function and eigenfunctions $\bnu$ and the vectors of principal component scores $\bzeta_1, \dots,
 \bzeta_n$. Upon convergence of the algorithm, the natural parameter vectors for these optimal posterior density
 functions are, according to \eqref{etaq},
 
@@ -1916,15 +1919,15 @@ computed from \eqref{gauss_vech_comm_params}. Note that we partition $\E_q (\bnu
 \label{sec:biorthogonal}
 
 In this section, we outline a sequence of steps to establish orthogonal
-functional principal component basis functions and uncorrelated scores.
-Note that we will treat the estimated functional principal component basis functions as fixed curves that
+functional principal component eigenfunctions and uncorrelated scores.
+Note that we will treat the estimated functional principal component eigenfunctions as fixed curves that
 are estimated from the posterior mean of the spline coefficients $\E_q (\bnu)$. As a consequence, the pointwise
 posterior variance in the response curve estimates result from the variance in the principal component scores
 alone. This treatment is in line with standard approaches to FPCA, where the randomness in the model is
 generated by the functional principal component scores  \cite<e.g.>{yao05, benko09}.
 
-Now, we outline the steps to construct orthogonal functional principal component basis functions and
-uncorrelated scores. The existence and uniqueness of the basis functions are justified by Theorem \ref{thm:orth_basis}.
+Now, we outline the steps to construct orthogonal functional principal component eigenfunctions and
+uncorrelated scores. The existence and uniqueness of the eigenfunctions are justified by Theorem \ref{thm:orth_basis}.
 First, set up an equidistant grid of design points $\bt_g = \T{(t_{g1}, \dots, t_{gn_g})}$,
 where $t_{g1} = 0$, $t_{gn_g} = 1$ and $n_g$ is the length of the grid. Then define $\bC_g$ in an analogous fashion
 to \eqref{C_mat}:
@@ -1938,7 +1941,7 @@ to \eqref{C_mat}:
 \]
 
 \noindent Establish the posterior estimates of the mean function $\E_q \{ \mu (\bt_g) \} = \bC_g \E_q (\numu)$
-and the functional principal components basis functions $\E_q \{ \psi_l (\bt_g) \} = \bC_g \E_q (\nupsi{l})$,
+and the functional principal components eigenfunctions $\E_q \{ \psi_l (\bt_g) \} = \bC_g \E_q (\nupsi{l})$,
 $l = 1, \dots, L$. Then define the matrix $\bPsi$ such that
 
 \[
@@ -1993,7 +1996,7 @@ these matrices such that
 	\end{bmatrix}
 \]
 
-\noindent The columns of $\bPsitilde$ are orthogonal vectors, but we require continuous curves that are orthonormal in
+\noindent The columns of $\bPsitilde$ are orthonormal vectors, but we require continuous curves that are orthonormal in
 $L^2 [0, 1]$. We can adjust this by finding an approximation of $|| \bpsitilde_l ||$, $l = 1, \dots, L$, through numerical
 integration. This allows us to establish estimates of the orthonormal functions $\psi^*_1, \dots, \psi^*_L$ in
 \eqref{yhat} over the vector $\bt_g$ with
@@ -2026,6 +2029,22 @@ $\bzetahat_i \equiv \T{(\zetahat_{i1}, \dots, \zetahat_{iL})}$, $i = 1, \dots, n
 	
 \label{lem:response_est}
 \end{lemma}
+
+\begin{remark}
+	
+	The posterior estimates $\yhat_1 (\bt_g), \dots, \yhat_n (\bt_g)$ in \eqref{post_curve_est} are
+	the same as those prior to the post-processing steps outlined above. That is,
+	
+	\[
+		\yhat_i (\bt_g) = \bC_g \E_q (\numu) + \sum_{l=1}^L \E_q (\zeta_{il}) \bC_g \E_q (\nupsi{l}), \quad i = 1, \dots, n,
+	\]
+	
+	\noindent where $\E_q (\numu)$ is the posterior estimate of $\numu$ from the VMP algorithm and similarly for
+	$\E_q (\zeta_{il})$ and $\E_q (\nupsi{l})$. In summary, the post processing steps simply realign the mean function,
+	orthogonalize and normalize the eigenfunctions and uncorrelate the scores, but do not affect the fits to the
+	observed data.
+	
+\end{remark}
 
 \begin{proposition}
 	
@@ -2180,7 +2199,7 @@ while the residual variance $\sigsqeps$ was set to 1. The mean function was
 \label{mean_func_gauss_sim}
 \end{equation}
 
-\noindent and the functional principal component basis functions were
+\noindent and the functional principal component eigenfunctions were
 
 \begin{equation}
 	\psi_1 (t) = \sqrt{2} \sin (2 \pi t) \quad
@@ -2222,7 +2241,7 @@ complement the standard VMP algorithm.
 We then incorporated three settings for the number of response curves: $N \in \{ 10, 50, 100 \}$. For each of these
 settings, we conducted 100 simulations of model \eqref{bayes_fpca_mod} with the aim of analysing the error of
 the posterior mean estimates of the mean curve in \eqref{mean_func_gauss_sim} and the functional principal
-component basis functions in \eqref{bf_gauss_sim}. The error of each simulation was determined via the
+component eigenfunctions in \eqref{bf_gauss_sim}. The error of each simulation was determined via the
 integrated squared error:
 
 \begin{equation}
@@ -2261,7 +2280,7 @@ represents the VMP-based variational Bayes posterior mean curve.
 	The box plots in \subref{subfig:bf_accs} are a summary of the error scores, determined by the integrated
 	squared error \eqref{ise}, for 100 simulations of each of the settings $N \in \{ 10, 50, 100 \}$.
 	In \subref{subfig:bf_sims}, we present the mean function \eqref{mean_func_gauss_sim} and the functional
-	principal component basis functions \eqref{bf_gauss_sim} in black. For the case where $N = 100$, we show
+	principal component eigenfunctions \eqref{bf_gauss_sim} in black. For the case where $N = 100$, we show
 	the resulting VMP-based posterior mean curve for each of the simulations in red. In addition, we have
 	included the pointwise mean curve and the pointwise 95\% confidence intervals resulting from the MCMC
 	posterior estimates for each of the generated datasets
@@ -2272,13 +2291,13 @@ represents the VMP-based variational Bayes posterior mean curve.
 
 The error scores in Figure \ref{fig:gauss_resp_sim_st} \subref{subfig:bf_accs} reflect the excellent results for the
 settings where $N = 50 \ \text{and} \ 100$. Overall, the results for the setting where $N = 10$ are good, however,
-there are a few simulations where the posterior estimates of the second functional principal component basis
-function $\psi_2 (\cdot)$ are poor. This is to be expected because the functional principal component scores
-associated with this basis function were generated from a $\normal (0, 0.25)$ distribution reflecting its weaker
+there are a few simulations where the posterior estimates of the second functional principal component
+eigenfunction $\psi_2 (\cdot)$ are poor. This is to be expected because the functional principal component scores
+associated with this eigenfunction were generated from a $\normal (0, 0.25)$ distribution reflecting its weaker
 contribution to the data generation process. Also, as expected, the error scores for all curves tend to decline with
 increasing $N$. In Figure \ref{fig:gauss_resp_sim_st} \subref{subfig:bf_sims}, we present all of the simulated
 posterior mean curves for the case where $N = 100$
-for the mean function and the functional principal component basis functions, which are
+for the mean function and the functional principal component eigenfunctions, which are
 overlaid with the true functions in black. These plots demonstrate the strength of the VMP algorithm for estimating
 the underlying curves that generate an observed set of functional data. In addition to each of the VMP posterior
 estimates, we have included the pointwise mean curve and the pointwise 95\% confidence interval for the MCMC
@@ -2362,7 +2381,7 @@ than the median MCMC simulation for $N = 10$, 39.5 times faster for $N = 50$ and
 	Application of the VMP algorithm for FPCA to the United States weather data. The fits in \subref{subfig:us_fits}
 	are for four randomly selected weather stations in the dataset.
 	The plots in \subref{subfig:us_mean_shift} show the estimated mean function with
-	perturbations from each functional principal component basis function: $\muhat (t) \pm \delta \psihat_l (t)$,
+	perturbations from each functional principal component eigenfunction: $\muhat (t) \pm \delta \psihat_l (t)$,
 	$l = 1, \dots, 4$.
 }
 \label{fig:us_weather_data}
@@ -2391,7 +2410,7 @@ less than 3 sites available (Rhode Island and District of Columbia), we used all
 in 145 sites used in our applications, with 365 observations for each site.
 
 Chapter 8 of \citeA{ramsay05} conducts a similar analysis of Canadian weather data from various weather
-stations. In their application, they uncovered four functional principal component basis functions.
+stations. In their application, they uncovered four functional principal component eigenfunctions.
 Similarly, we conducted VMP simulations with $L = 4$.
 The results are presented in Figure \ref{fig:us_weather_data}. In Figure \ref{fig:us_weather_data}
 \subref{subfig:us_fits}, we display the results of four randomly selected weather stations, from four different
@@ -2399,28 +2418,28 @@ states. There is relatively small residual variability in the observed dataset.
 As a consequence, the pointwise 95\% credible sets would not be visible in the plots,
 so we have only included the pointwise variational Bayesian posterior means.
 In figure \ref{fig:us_weather_data} \subref{subfig:us_mean_shift}, we show
-the effect of perturbing the estimated mean function with each basis function: $\muhat (t) \pm \delta \psihat_l (t)$,
-$l = 1, \dots, 4$. The plus (minus) signs indicate the shift that each basis function makes to the mean function
+the effect of perturbing the estimated mean function with each eigenfunction: $\muhat (t) \pm \delta \psihat_l (t)$,
+$l = 1, \dots, 4$. The plus (minus) signs indicate the shift that each eigenfunction makes to the mean function
 with a positive (negative) perturbation.
-The first functional principal component basis function, which accounts for 99.1\% of the total variation, is a mean shift
+The first functional principal component eigenfunction, which accounts for 99.1\% of the total variation, is a mean shift
 that shifts the mean function in the negative (positive) direction when it is added (subtracted).
 This effect is stronger in the Winter months than the Summer months, indicating that
 US weather is most variable in the Winter.
-The second functional principal component basis function, which accounts 7.2\% of the total variation, shifts
+The second functional principal component eigenfunction, which accounts 7.2\% of the total variation, shifts
 the mean function in the positive (negative) direction in the Summer (Winter) months when it is added. Therefore,
 it accounts for uniformity in the measured temperatures.
 As a consequence, weather stations at locations with larger discrepancies
-between Winter and Summer temperatures will have a strong and positive score for this basis function.
+between Winter and Summer temperatures will have a strong and positive score for this eigenfunction.
 The third and fourth functional principal components are harder to interpret given their weak contributions to the
-total variation. The scores associated with the first two basis functions for the displayed weather stations are
+total variation. The scores associated with the first two eigenfunctions for the displayed weather stations are
 (4.46, -0.81) for the weather station in Connecticut, (-1.56, -0.04) for the weather station in Kansas, (7.81, 2.37)
 for the weather station in North Dakota and (-2.57, -1.13) for the weather station in Texas.
-The scores for the first basis functions indicate that the
+The scores for the first eigenfunction indicates that the
 lowest temperatures are to be expected in Connecticut and North Dakota, whereas Texas and Kansas have
-warmer temperatures. Furthermore, the scores for the second basis functions show that the
+warmer temperatures. Furthermore, the scores for the second eigenfunction shows that the
 greatest variability between Summer and Winter months can be found
 in North Dakota, whereas Connecticut and Texas may appear to be more uniform in comparison to North Dakota.
-On the other hand, the contribution of the second basis function to the Kansas weather station
+On the other hand, the contribution of the second eigenfunction to the Kansas weather station
 is very weak.
 
 
@@ -2444,7 +2463,7 @@ includes the introduction of two new fragments for VMP:
 \noindent These are directly compatible with the fragment-based computational constructions of VMP outlined in
 \citeA{wand17}. This is, to our knowledge, the first VMP construction of a Bayesian FPCA model. In addition,
 we have outlined a sequence of post-VMP steps that are necessary for producing orthonormal functional
-principal component basis functions and uncorrelated scores.
+principal component eigenfunctions and uncorrelated scores.
 
 Simulations were conducted to assess the speed and accuracy of the VMP simulations against MCMC
 counterparts. The approximate variational  posterior density functions were in good agreement with the
@@ -2477,7 +2496,7 @@ We first note that
 \label{centered_kl_expansion}
 \end{equation}
 
-\noindent The existence of an orthonormal basis $\psi^*_1, \dots, \psi^*_L$ can be established via Gram-Schmidt
+\noindent The existence of an orthonormal eigenbasis $\psi^*_1, \dots, \psi^*_L$ can be established via Gram-Schmidt
 orthogonalization. We first set
 
 \[

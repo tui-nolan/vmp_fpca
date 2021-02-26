@@ -301,6 +301,35 @@ Goldsmith, J.%
 
 \bibitem [\protect \citeauthoryear {%
 Goldsmith%
+\ \BBA {} Kitago%
+}{%
+Goldsmith%
+\ \BBA {} Kitago%
+}{%
+{\protect \APACyear {2016}}%
+}]{%
+goldsmith16}
+\APACinsertmetastar {%
+goldsmith16}%
+\begin{APACrefauthors}%
+Goldsmith, J.%
+\BCBT {}\ \BBA {} Kitago, T.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2016}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Assessing systematic effects of stroke on motorcontrol
+  by using hierarchical function-on-scalar regression} {Assessing systematic
+  effects of stroke on motorcontrol by using hierarchical function-on-scalar
+  regression}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Journal of the Royal Statistical Society. Series C,
+  Applied statistics}{65}{}{215--236}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Goldsmith%
 , Zippunnikov%
 \BCBL {}\ \BBA {} Schrack%
 }{%

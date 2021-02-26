@@ -156,6 +156,7 @@
 \citation{gelman06}
 \citation{r20}
 \citation{rstan20}
+\citation{goldsmith16}
 \newlabel{C_mat}{{24}{14}}
 \newlabel{C_mat@cref}{{[equation][24][]24}{14}}
 \newlabel{partitioned_vectors}{{25}{14}}
@@ -183,8 +184,8 @@
 \newlabel{fpc_gauss_lik_factorized@cref}{{[equation][30][]30}{16}}
 \newlabel{fpc_gauss_lik_factor}{{31}{16}}
 \newlabel{fpc_gauss_lik_factor@cref}{{[equation][31][]31}{16}}
-\newlabel{msg_lik_nu}{{32}{16}}
-\newlabel{msg_lik_nu@cref}{{[equation][32][]32}{16}}
+\newlabel{msg_lik_nu}{{32}{17}}
+\newlabel{msg_lik_nu@cref}{{[equation][32][]32}{17}}
 \newlabel{np_lik_nu}{{33}{17}}
 \newlabel{np_lik_nu@cref}{{[equation][33][]33}{17}}
 \newlabel{zeta_tilde}{{34}{17}}
@@ -223,8 +224,8 @@
 \newlabel{msg_pen_sigsqmu@cref}{{[equation][46][]46}{19}}
 \newlabel{np_pen_sigsqmu}{{47}{19}}
 \newlabel{np_pen_sigsqmu@cref}{{[equation][47][]47}{19}}
-\newlabel{msg_pen_sigsqpsi}{{48}{19}}
-\newlabel{msg_pen_sigsqpsi@cref}{{[equation][48][]48}{19}}
+\newlabel{msg_pen_sigsqpsi}{{48}{20}}
+\newlabel{msg_pen_sigsqpsi@cref}{{[equation][48][]48}{20}}
 \newlabel{np_pen_sigsqpsi}{{49}{20}}
 \newlabel{np_pen_sigsqpsi@cref}{{[equation][49][]49}{20}}
 \newlabel{G_pen}{{50}{20}}
@@ -267,20 +268,18 @@
 \@writefile{toc}{\contentsline {section}{\numberline {5}Simulations}{23}}
 \newlabel{sec:sims}{{5}{23}}
 \newlabel{sec:sims@cref}{{[section][5][]5}{23}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Accuracy Assessment}{23}}
-\newlabel{sec:acc_ass}{{5.1}{23}}
-\newlabel{sec:acc_ass@cref}{{[subsection][1][5]5.1}{23}}
-\newlabel{mean_func_gauss_sim}{{55}{23}}
-\newlabel{mean_func_gauss_sim@cref}{{[equation][55][]55}{23}}
 \@writefile{loa}{\contentsline {algorithm}{\numberline {3}{\ignorespaces  Generic VMP algorithm for Gaussian response FPCA models. \relax }}{24}}
 \newlabel{alg:vmp_alg}{{3}{24}}
 \newlabel{alg:vmp_alg@cref}{{[algorithm][3][]3}{24}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Accuracy Assessment}{24}}
+\newlabel{sec:acc_ass}{{5.1}{24}}
+\newlabel{sec:acc_ass@cref}{{[subsection][1][5]5.1}{24}}
+\newlabel{mean_func_gauss_sim}{{55}{24}}
+\newlabel{mean_func_gauss_sim@cref}{{[equation][55][]55}{24}}
 \newlabel{bf_gauss_sim}{{56}{24}}
 \newlabel{bf_gauss_sim@cref}{{[equation][56][]56}{24}}
 \newlabel{score_sims}{{57}{24}}
 \newlabel{score_sims@cref}{{[equation][57][]57}{24}}
-\newlabel{ise}{{58}{24}}
-\newlabel{ise@cref}{{[equation][58][]58}{24}}
 \newlabel{subfig:gauss_response_curves}{{3(a)}{25}}
 \newlabel{subfig:gauss_response_curves@cref}{{[subfigure][1][3]3(a)}{25}}
 \newlabel{sub@subfig:gauss_response_curves}{{(a)}{25}}
@@ -292,10 +291,8 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces  The results from one simulation of the Gaussian response FPCA model in \textup  {\hbox {\mathsurround \z@ \normalfont  (\ignorespaces \ref  {bayes_fpca_mod}\unskip \@@italiccorr )}}. The simulation parameters are outlined in Section \ref  {sec:sims}. In \subref  {subfig:gauss_response_curves}, the simulated data is shown in black, while the VMP-based variational Bayes posterior estimates are presented in red and the corresponding MCMC estimates are shown in blue. In each panel, the solid lines represent the posterior mean, while the dashed line represents the 95\% pointwise credible sets for the mean. In \subref  {subfig:gauss_response_scores}, we present the vector of scores for each of the randomly selected response curves, shown in black, as well as the VMP-based variational Bayes posterior estimates, shown in red, and the MCMC-based posterior estimates, shown in blue. The red and blue dots represent the VMP-based variational Bayes posterior means and the MCMC-based posterior means, respectively. The ellipses represent the 95\% credible contours. \relax }}{25}}
 \newlabel{fig:gauss_resp_sim}{{3}{25}}
 \newlabel{fig:gauss_resp_sim@cref}{{[figure][3][]3}{25}}
-\citation{faes11}
-\citation{lee16}
-\citation{nolanmw20}
-\citation{luts15}
+\newlabel{ise}{{58}{25}}
+\newlabel{ise@cref}{{[equation][58][]58}{25}}
 \newlabel{subfig:bf_accs}{{4(a)}{26}}
 \newlabel{subfig:bf_accs@cref}{{[subfigure][1][4]4(a)}{26}}
 \newlabel{sub@subfig:bf_accs}{{(a)}{26}}
@@ -304,9 +301,13 @@
 \newlabel{subfig:bf_sims@cref}{{[subfigure][2][4]4(b)}{26}}
 \newlabel{sub@subfig:bf_sims}{{(b)}{26}}
 \newlabel{sub@subfig:bf_sims@cref}{{[subfigure][2][4]4(b)}{26}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces  The results from a simulation study of the Gaussian response FPCA model in \textup  {\hbox {\mathsurround \z@ \normalfont  (\ignorespaces \ref  {bayes_fpca_mod}\unskip \@@italiccorr )}}. The simulation parameters are outlined in Section \ref  {sec:acc_ass}. The box plots in \subref  {subfig:bf_accs} are a summary of the error scores, determined by the integrated squared error \textup  {\hbox {\mathsurround \z@ \normalfont  (\ignorespaces \ref  {ise}\unskip \@@italiccorr )}}, for 100 simulations of each of the settings $N \in \{ 10, 50, 100 \}$. In \subref  {subfig:bf_sims}, we present the mean function \textup  {\hbox {\mathsurround \z@ \normalfont  (\ignorespaces \ref  {mean_func_gauss_sim}\unskip \@@italiccorr )}} and the functional principal component basis functions \textup  {\hbox {\mathsurround \z@ \normalfont  (\ignorespaces \ref  {bf_gauss_sim}\unskip \@@italiccorr )}} in black. For the case where $N = 100$, we show the resulting VMP-based posterior mean curve for each of the simulations in red. In addition, we have included the pointwise mean curve and the pointwise 95\% confidence intervals resulting from the MCMC posterior estimates for each of the generated datasets for $N = 100$ in blue. \relax }}{26}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces  The results from a simulation study of the Gaussian response FPCA model in \textup  {\hbox {\mathsurround \z@ \normalfont  (\ignorespaces \ref  {bayes_fpca_mod}\unskip \@@italiccorr )}}. The simulation parameters are outlined in Section \ref  {sec:acc_ass}. The box plots in \subref  {subfig:bf_accs} are a summary of the error scores, determined by the integrated squared error \textup  {\hbox {\mathsurround \z@ \normalfont  (\ignorespaces \ref  {ise}\unskip \@@italiccorr )}}, for 100 simulations of each of the settings $N \in \{ 10, 50, 100 \}$. In \subref  {subfig:bf_sims}, we present the mean function \textup  {\hbox {\mathsurround \z@ \normalfont  (\ignorespaces \ref  {mean_func_gauss_sim}\unskip \@@italiccorr )}} and the functional principal component eigenfunctions \textup  {\hbox {\mathsurround \z@ \normalfont  (\ignorespaces \ref  {bf_gauss_sim}\unskip \@@italiccorr )}} in black. For the case where $N = 100$, we show the resulting VMP-based posterior mean curve for each of the simulations in red. In addition, we have included the pointwise mean curve and the pointwise 95\% confidence intervals resulting from the MCMC posterior estimates for each of the generated datasets for $N = 100$ in blue. \relax }}{26}}
 \newlabel{fig:gauss_resp_sim_st}{{4}{26}}
 \newlabel{fig:gauss_resp_sim_st@cref}{{[figure][4][]4}{26}}
+\citation{faes11}
+\citation{lee16}
+\citation{nolanmw20}
+\citation{luts15}
 \citation{rnoaa21}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces  Median (first quartile, third quartile) elapsed computing time in seconds for VMP and MCMC with $N \in (10, 50, 100)$. The fourth column presents the ratio of the median elapsed time for MCMC to the median elapsed time for VMP. \relax }}{27}}
 \newlabel{tab:speed_comp}{{1}{27}}
@@ -314,10 +315,6 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Computational Speed Comparisons}{27}}
 \newlabel{sec:speed_comp}{{5.2}{27}}
 \newlabel{sec:speed_comp@cref}{{[subsection][2][5]5.2}{27}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Application: United States Weather Data}{27}}
-\newlabel{sec:us_weather_data}{{6}{27}}
-\newlabel{sec:us_weather_data@cref}{{[section][6][]6}{27}}
-\citation{ramsay05}
 \newlabel{subfig:us_fits}{{5(a)}{28}}
 \newlabel{subfig:us_fits@cref}{{[subfigure][1][5]5(a)}{28}}
 \newlabel{sub@subfig:us_fits}{{(a)}{28}}
@@ -326,13 +323,17 @@
 \newlabel{subfig:us_mean_shift@cref}{{[subfigure][2][5]5(b)}{28}}
 \newlabel{sub@subfig:us_mean_shift}{{(b)}{28}}
 \newlabel{sub@subfig:us_mean_shift@cref}{{[subfigure][2][5]5(b)}{28}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces  Application of the VMP algorithm for FPCA to the United States weather data. The fits in \subref  {subfig:us_fits} are for four randomly selected weather stations in the dataset. The plots in \subref  {subfig:us_mean_shift} show the estimated mean function with perturbations from each functional principal component basis function: ${\setbox \z@ \hbox {\frozen@everymath \@emptytoks \mathsurround \z@ $\textstyle \mu $}\mathaccent "0362{\mu }}(t) \pm \delta {\setbox \z@ \hbox {\frozen@everymath \@emptytoks \mathsurround \z@ $\textstyle \psi $}\mathaccent "0362{\psi }}_l (t)$, $l = 1, \dots  , 4$. \relax }}{28}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces  Application of the VMP algorithm for FPCA to the United States weather data. The fits in \subref  {subfig:us_fits} are for four randomly selected weather stations in the dataset. The plots in \subref  {subfig:us_mean_shift} show the estimated mean function with perturbations from each functional principal component eigenfunction: ${\setbox \z@ \hbox {\frozen@everymath \@emptytoks \mathsurround \z@ $\textstyle \mu $}\mathaccent "0362{\mu }}(t) \pm \delta {\setbox \z@ \hbox {\frozen@everymath \@emptytoks \mathsurround \z@ $\textstyle \psi $}\mathaccent "0362{\psi }}_l (t)$, $l = 1, \dots  , 4$. \relax }}{28}}
 \newlabel{fig:us_weather_data}{{5}{28}}
 \newlabel{fig:us_weather_data@cref}{{[figure][5][]5}{28}}
-\citation{wand17}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Application: United States Weather Data}{28}}
+\newlabel{sec:us_weather_data}{{6}{28}}
+\newlabel{sec:us_weather_data@cref}{{[section][6][]6}{28}}
+\citation{ramsay05}
 \@writefile{toc}{\contentsline {section}{\numberline {7}Closing Remarks}{29}}
 \newlabel{sec:closing_remarks}{{7}{29}}
 \newlabel{sec:closing_remarks@cref}{{[section][7][]7}{29}}
+\citation{wand17}
 \bibdata{bibliography}
 \bibcite{benko09}{\citeauthoryear {Benko, H\"{a}rdle,{}\ \BBA{} Kneip}{Benko\ \BOthers {.}}{{\APACyear {2009}}}}
 \APACbibcite{benko09}{\citeauthoryear {Benko, H\"{a}rdle,{}\ \BBA{} Kneip}{Benko\ \BOthers {.}}{{\APACyear {2009}}}}
@@ -354,15 +355,17 @@
 \APACbibcite{gelman06}{\citeauthoryear {Gelman}{Gelman}{{\APACyear {2006}}}}
 \bibcite{gentle07}{\citeauthoryear {Gentle}{Gentle}{{\APACyear {2007}}}}
 \APACbibcite{gentle07}{\citeauthoryear {Gentle}{Gentle}{{\APACyear {2007}}}}
+\@writefile{toc}{\contentsline {section}{References}{30}}
 \bibcite{goldsmith13}{\citeauthoryear {Goldsmith, Greven,{}\ \BBA{} Crainiceanu}{Goldsmith\ \BOthers {.}}{{\APACyear {2013}}}}
 \APACbibcite{goldsmith13}{\citeauthoryear {Goldsmith, Greven,{}\ \BBA{} Crainiceanu}{Goldsmith\ \BOthers {.}}{{\APACyear {2013}}}}
+\bibcite{goldsmith16}{\citeauthoryear {Goldsmith\ \BBA{} Kitago}{Goldsmith\ \BBA{} Kitago}{{\APACyear {2016}}}}
+\APACbibcite{goldsmith16}{\citeauthoryear {Goldsmith\ \BBA{} Kitago}{Goldsmith\ \BBA{} Kitago}{{\APACyear {2016}}}}
 \bibcite{Goldsmith15}{\citeauthoryear {Goldsmith, Zippunnikov,{}\ \BBA{} Schrack}{Goldsmith\ \BOthers {.}}{{\APACyear {2015}}}}
 \APACbibcite{Goldsmith15}{\citeauthoryear {Goldsmith, Zippunnikov,{}\ \BBA{} Schrack}{Goldsmith\ \BOthers {.}}{{\APACyear {2015}}}}
 \bibcite{greven2011}{\citeauthoryear {Greven, Crainiceanu, Caffo,{}\ \BBA{} Reich}{Greven\ \BOthers {.}}{{\APACyear {2011}}}}
 \APACbibcite{greven2011}{\citeauthoryear {Greven, Crainiceanu, Caffo,{}\ \BBA{} Reich}{Greven\ \BOthers {.}}{{\APACyear {2011}}}}
 \bibcite{jaakkola00}{\citeauthoryear {Jaakkola\ \BBA{} Jordan}{Jaakkola\ \BBA{} Jordan}{{\APACyear {2000}}}}
 \APACbibcite{jaakkola00}{\citeauthoryear {Jaakkola\ \BBA{} Jordan}{Jaakkola\ \BBA{} Jordan}{{\APACyear {2000}}}}
-\@writefile{toc}{\contentsline {section}{References}{30}}
 \bibcite{james2000}{\citeauthoryear {James, Hastie,{}\ \BBA{} Sugar}{James\ \BOthers {.}}{{\APACyear {2000}}}}
 \APACbibcite{james2000}{\citeauthoryear {James, Hastie,{}\ \BBA{} Sugar}{James\ \BOthers {.}}{{\APACyear {2000}}}}
 \bibcite{knowles11}{\citeauthoryear {Knowles\ \BBA{} Minka}{Knowles\ \BBA{} Minka}{{\APACyear {2011}}}}
@@ -426,9 +429,9 @@
 \newlabel{app:proof_thm_orth_basis@cref}{{[appendix][1][2147483647]A}{32}}
 \newlabel{centered_kl_expansion}{{59}{32}}
 \newlabel{centered_kl_expansion@cref}{{[equation][59][2147483647]59}{32}}
-\@writefile{toc}{\contentsline {section}{\numberline {B}Proof of Lemma \ref  {lem:response_est}}{33}}
-\newlabel{app:proof_lem_response_est}{{B}{33}}
-\newlabel{app:proof_lem_response_est@cref}{{[appendix][2][2147483647]B}{33}}
+\@writefile{toc}{\contentsline {section}{\numberline {B}Proof of Lemma \ref  {lem:response_est}}{34}}
+\newlabel{app:proof_lem_response_est}{{B}{34}}
+\newlabel{app:proof_lem_response_est@cref}{{[appendix][2][2147483647]B}{34}}
 \newlabel{E_q_y}{{60}{34}}
 \newlabel{E_q_y@cref}{{[equation][60][2147483647]60}{34}}
 \@writefile{toc}{\contentsline {section}{\numberline {C}Proof of Proposition \ref  {prop:bi_orthogonal}}{34}}
@@ -445,17 +448,17 @@
 \newlabel{exp_lik_nu@cref}{{[equation][63][2147483647]63}{36}}
 \newlabel{cov_lik_nu}{{64}{36}}
 \newlabel{cov_lik_nu@cref}{{[equation][64][2147483647]64}{36}}
-\newlabel{exp_lik_zeta}{{65}{36}}
-\newlabel{exp_lik_zeta@cref}{{[equation][65][2147483647]65}{36}}
 \citation{maestrini20}
+\newlabel{exp_lik_zeta}{{65}{37}}
+\newlabel{exp_lik_zeta@cref}{{[equation][65][2147483647]65}{37}}
 \newlabel{theta_simplification}{{66}{37}}
 \newlabel{theta_simplification@cref}{{[equation][66][2147483647]66}{37}}
 \newlabel{exp_lik_zeta_tilde}{{67}{37}}
 \newlabel{exp_lik_zeta_tilde@cref}{{[equation][67][2147483647]67}{37}}
 \newlabel{E_q_outer_zeta}{{68}{37}}
 \newlabel{E_q_outer_zeta@cref}{{[equation][68][2147483647]68}{37}}
-\newlabel{zeta_simplification}{{69}{37}}
-\newlabel{zeta_simplification@cref}{{[equation][69][2147483647]69}{37}}
+\newlabel{zeta_simplification}{{69}{38}}
+\newlabel{zeta_simplification@cref}{{[equation][69][2147483647]69}{38}}
 \newlabel{E_q_Vpsi}{{70}{38}}
 \newlabel{E_q_Vpsi@cref}{{[equation][70][2147483647]70}{38}}
 \newlabel{exp_lik_hmupsi}{{71}{38}}
@@ -469,17 +472,17 @@
 \@writefile{toc}{\contentsline {section}{\numberline {E}Derivation of the Mean and FPC Gaussian Penalization Fragment}{39}}
 \newlabel{app:mean_fpc_gauss_pen_frag}{{E}{39}}
 \newlabel{app:mean_fpc_gauss_pen_frag@cref}{{[appendix][5][2147483647]E}{39}}
-\newlabel{log_mean_fpc_gauss_pen_factor}{{75}{39}}
-\newlabel{log_mean_fpc_gauss_pen_factor@cref}{{[equation][75][2147483647]75}{39}}
+\newlabel{log_mean_fpc_gauss_pen_factor}{{75}{40}}
+\newlabel{log_mean_fpc_gauss_pen_factor@cref}{{[equation][75][2147483647]75}{40}}
 \newlabel{mom_pen_nu}{{76}{40}}
 \newlabel{mom_pen_nu@cref}{{[equation][76][2147483647]76}{40}}
 \newlabel{exp_betau}{{77}{40}}
 \newlabel{exp_betau@cref}{{[equation][77][2147483647]77}{40}}
-\newlabel{cov_betau_mu}{{78}{40}}
-\newlabel{cov_betau_mu@cref}{{[equation][78][2147483647]78}{40}}
-\newlabel{cov_betau_psi}{{79}{40}}
-\newlabel{cov_betau_psi@cref}{{[equation][79][2147483647]79}{40}}
 \citation{maestrini20}
+\newlabel{cov_betau_mu}{{78}{41}}
+\newlabel{cov_betau_mu@cref}{{[equation][78][2147483647]78}{41}}
+\newlabel{cov_betau_psi}{{79}{41}}
+\newlabel{cov_betau_psi@cref}{{[equation][79][2147483647]79}{41}}
 \newlabel{exp_pen_sigsqmu}{{80}{41}}
 \newlabel{exp_pen_sigsqmu@cref}{{[equation][80][2147483647]80}{41}}
 \newlabel{exp_pen_sigsqpsi}{{81}{41}}
