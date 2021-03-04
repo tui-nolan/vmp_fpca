@@ -180,6 +180,25 @@
 
 \maketitle
 
+\section*{\centering Abstract}
+
+Functional principal components analysis is a popular tool for inference on functional data. Standard approaches
+rely on an eigendecomposition of a smoothed covariance surface in order to extract the orthonormal functions
+representing the major modes of variation. This approach can be a computationally intensive procedure, especially
+in the presence of large datasets with irregular observations. In this article, we develop a Bayesian approach,
+which aims to determine the Karhunen-Lo\`{e}ve decomposition directly without the need to smooth and estimate a
+covariance surface. More specifically, we develop a variational Bayesian algorithm via message passing over a
+factor graph, which is more commonly referred to as variational message passing.
+Message passing algorithms are a powerful tool for compartmentalizing the algebra and coding required
+for inference in hierarchical statistical models. Recently, there has been much focus on formulating variational
+inference algorithms in the message passing framework because it removes the need for rederiving approximate
+posterior density functions if there is a change to the model. Instead, model changes are handled by changing
+specific computational units, known as fragments, within the factor graph. We extend the notion variational message
+passing to functional principal components analysis. Indeed, this is the first article to address a functional data model
+via variational message passing. Our approach introduces two new fragments that a necessary for Bayesian
+functional principal components analysis. We present the computational details, a set of simultions for assessing
+accuracy and speed and an application to United States temperature data.
+
 %%%%%%%%%%%%%%  INTRODUCTION  %%%%%%%%%%%%%%%
 
 \section{Introduction}
@@ -2085,23 +2104,8 @@ and the proof of Proposition \ref{prop:bi_orthogonal} is presented in Appendix \
 \label{sec:sims}
 
 We illustrate the use of Algorithms \ref{alg:fpca_gauss_lik_frag} and \ref{alg:mean_fpc_gauss_pen_frag}
-through a series of simulations of model \eqref{bayes_fpca_mod}.
-Note that the VMP iterative loop has the following generic steps
-\cite{minka05, wand17}:
-
-\begin{enumerate}
-	%
-	\item Choose a factor.
-	%
-	\item Update the parameter vectors of the messages passed from the factor's neighbouring stochastic
-	nodes to the factor.
-	%
-	\item Update the parameter vectors of the messages passed from the factor to its neighbouring stochastic
-	nodes.
-	%
-\end{enumerate}
-
-\noindent These steps are summarized in Algorithm \ref{alg:vmp_alg}.
+through a series of simulations of model \eqref{bayes_fpca_mod}. Pseudocode for the VMP algorithm is
+provided in Algorithm \ref{alg:vmp_alg}.
 
 \begin{algorithm}
 	\caption{
@@ -2170,7 +2174,7 @@ Note that the VMP iterative loop has the following generic steps
 \caption{
 	The results from one simulation of the Gaussian response FPCA model in \eqref{bayes_fpca_mod}. The
 	simulation parameters are outlined in Section \ref{sec:sims}.
-	In \subref{subfig:gauss_response_curves}, the simulated data is shown in black, while the VMP-based
+	In \subref{subfig:gauss_response_curves}, the simulated data are shown in black, while the VMP-based
 	variational Bayes posterior estimates are presented in red and the corresponding MCMC estimates
 	are shown in blue. In each panel, the solid lines represent
 	the posterior mean, while the dashed line represents the 95\% pointwise credible sets for the mean.
@@ -2190,7 +2194,7 @@ Note that the VMP iterative loop has the following generic steps
 \label{sec:acc_ass}
 
 For model \eqref{bayes_fpca_mod}, we simulated 36 response curves with the number
-of observations $T_i$ for the $i$th curve sampled uniformly over $\{ 20, 21, \dots, 30 \}$. Furthermore, the
+of observations $T_i$ for the $i$th curve sampled uniformly over $\{ 20, 21, \dots, 30 \}$. Furthermore, the time
 observations within the $i$th curve $\{ t_{i1}, \dots, t_{i T_i} \}$ were sampled uniformly over the interval $(0, 1)$,
 while the residual variance $\sigsqeps$ was set to 1. The mean function was
 
@@ -2199,7 +2203,7 @@ while the residual variance $\sigsqeps$ was set to 1. The mean function was
 \label{mean_func_gauss_sim}
 \end{equation}
 
-\noindent and the functional principal component eigenfunctions were
+\noindent and the eigenfunctions were
 
 \begin{equation}
 	\psi_1 (t) = \sqrt{2} \sin (2 \pi t) \quad
@@ -2208,13 +2212,13 @@ while the residual variance $\sigsqeps$ was set to 1. The mean function was
 \label{bf_gauss_sim}
 \end{equation}
 
-\noindent where $L = 2$. Each vector of principal component scores were simulated according to
+\noindent Each vector of principal component scores were simulated according to
 
 \begin{equation}
 	\bzeta_i = \begin{bmatrix}
 		\zeta_{i1} \\
 		\zeta_{i2}
-	\end{bmatrix} \indsim N \left(
+	\end{bmatrix} \indsim \normal \left(
 		\begin{bmatrix}
 			0 \\
 			0
@@ -2228,7 +2232,8 @@ while the residual variance $\sigsqeps$ was set to 1. The mean function was
 \end{equation}
 
 \noindent Nonparameteric regression with O'Sullivan penalized splines for the nonlinear curves was performed
-with $K = 10$.
+with $K = 10$. Finally, the simulations were conducted by setting $L = 3$, rather
+than 2 (the number of eigenfunctions), to assess the flexibility of the VMP algorithm under slight model misspecification.
 
 The results from the simulation are presented in Figure \ref{fig:gauss_resp_sim}, where a random sample of
 four of the functional responses are selected for visual clarity. In addition, we have included the results from an MCMC
@@ -2238,7 +2243,7 @@ counterparts, as well as the simulated data.
 In particular, the post-VMP procedures that are outlined in Section \ref{sec:post_vmp_steps} neatly
 complement the standard VMP algorithm.
 
-We then incorporated three settings for the number of response curves: $N \in \{ 10, 50, 100 \}$. For each of these
+We then incorporated three settings for the number of response curves: $n \in \{ 10, 50, 100 \}$. For each of these
 settings, we conducted 100 simulations of model \eqref{bayes_fpca_mod} with the aim of analysing the error of
 the posterior mean estimates of the mean curve in \eqref{mean_func_gauss_sim} and the functional principal
 component eigenfunctions in \eqref{bf_gauss_sim}. The error of each simulation was determined via the
@@ -2278,25 +2283,25 @@ represents the VMP-based variational Bayes posterior mean curve.
 	The results from a simulation study of the Gaussian response FPCA model in \eqref{bayes_fpca_mod}. The
 	simulation parameters are outlined in Section \ref{sec:acc_ass}.
 	The box plots in \subref{subfig:bf_accs} are a summary of the error scores, determined by the integrated
-	squared error \eqref{ise}, for 100 simulations of each of the settings $N \in \{ 10, 50, 100 \}$.
+	squared error \eqref{ise}, for 100 simulations of each of the settings $n \in \{ 10, 50, 100 \}$.
 	In \subref{subfig:bf_sims}, we present the mean function \eqref{mean_func_gauss_sim} and the functional
-	principal component eigenfunctions \eqref{bf_gauss_sim} in black. For the case where $N = 100$, we show
+	principal component eigenfunctions \eqref{bf_gauss_sim} in black. For the case where $n = 100$, we show
 	the resulting VMP-based posterior mean curve for each of the simulations in red. In addition, we have
 	included the pointwise mean curve and the pointwise 95\% confidence intervals resulting from the MCMC
 	posterior estimates for each of the generated datasets
-	for $N = 100$ in blue.
+	for $n = 100$ in blue.
 }
 \label{fig:gauss_resp_sim_st}
 \end{figure}
 
 The error scores in Figure \ref{fig:gauss_resp_sim_st} \subref{subfig:bf_accs} reflect the excellent results for the
-settings where $N = 50 \ \text{and} \ 100$. Overall, the results for the setting where $N = 10$ are good, however,
+settings where $n = 50 \ \text{and} \ 100$. Overall, the results for the setting where $n = 10$ are good, however,
 there are a few simulations where the posterior estimates of the second functional principal component
 eigenfunction $\psi_2 (\cdot)$ are poor. This is to be expected because the functional principal component scores
 associated with this eigenfunction were generated from a $\normal (0, 0.25)$ distribution reflecting its weaker
 contribution to the data generation process. Also, as expected, the error scores for all curves tend to decline with
-increasing $N$. In Figure \ref{fig:gauss_resp_sim_st} \subref{subfig:bf_sims}, we present all of the simulated
-posterior mean curves for the case where $N = 100$
+increasing $n$. In Figure \ref{fig:gauss_resp_sim_st} \subref{subfig:bf_sims}, we present all of the simulated
+posterior mean curves for the case where $n = 100$
 for the mean function and the functional principal component eigenfunctions, which are
 overlaid with the true functions in black. These plots demonstrate the strength of the VMP algorithm for estimating
 the underlying curves that generate an observed set of functional data. In addition to each of the VMP posterior
@@ -2322,14 +2327,14 @@ comparison to MCMC simulations and were far superior in computational speed.
 In Table \ref{tab:speed_comp}, we present a similar set of results for the computational speed of VMP and MCMC
 for model \eqref{bayes_fpca_mod}. The simulations were identical to those that were used to generate the
 results in Figure \ref{fig:gauss_resp_sim_st}, where there were 100 simulations over three settings for the number
-of response curves $N \in \{10, 50, 100\}$. In addition, the simulations were performed on a laptop computer
+of response curves $n \in \{10, 50, 100\}$. In addition, the simulations were performed on a laptop computer
 with 8 GB of random access memory and a 1.6 GHz processor. In Table \ref{tab:speed_comp},
 we present the median elapsed computing time (in seconds),
 with the first quartile and the third quartile shown in brackets.
 Notice that most of the VMP simulations are completed within 1 minute, whereas the elapsed computing time
-for the MCMC simulations tends to vary from approximately 1 minute, for $N = 10$, to 20 minutes, for $N = 100$.
+for the MCMC simulations tends to vary from approximately 1 minute, for $n = 10$, to 20 minutes, for $n = 100$.
 The most impressive results are in the fourth column, where the median VMP simulation is 22.6 times faster
-than the median MCMC simulation for $N = 10$, 39.5 times faster for $N = 50$ and 46.9 times faster for $N = 100$.
+than the median MCMC simulation for $n = 10$, 39.5 times faster for $n = 50$ and 46.9 times faster for $n = 100$.
 
 \begin{table}
 \begin{center}
@@ -2337,12 +2342,12 @@ than the median MCMC simulation for $N = 10$, 39.5 times faster for $N = 50$ and
 \captionsetup{width=0.9\textwidth}
 \captionof{table}{
 	Median (first quartile, third quartile) elapsed computing time in seconds for VMP and MCMC  with
-	$N \in (10, 50, 100)$. The fourth column presents the ratio of the median elapsed time for MCMC
+	$n \in (10, 50, 100)$. The fourth column presents the ratio of the median elapsed time for MCMC
 	to the median elapsed time for VMP.
 }
 \begin{tabularx}{\textwidth}{X c X | X c X | X c X | X c X}
   \rowcolor[gray]{.8}
-  & $N$ & & & VMP & & & MCMC & & & MCMC/VMP & \\
+  & $n$ & & & VMP & & & MCMC & & & MCMC/VMP & \\
   \rowcolor{white!50}
   & 10 & & & 3.7 (2.3, 4.8) & & & 83.7 (75.1, 93.1) & & & 22.6 & \\
   \rowcolor{white!50}
@@ -2362,7 +2367,7 @@ than the median MCMC simulation for $N = 10$, 39.5 times faster for $N = 50$ and
 	\hbox{%
 		\begin{subfigure}{\textwidth}
 		\centering
-			\includegraphics[height=9cm, width=\textwidth]{images/us_fits.pdf}
+			\includegraphics[height=2.5in, width=6.5in]{images/us_fits.pdf}
 		\caption{}
 		\label{subfig:us_fits}
 		\end{subfigure}%
@@ -2371,77 +2376,84 @@ than the median MCMC simulation for $N = 10$, 39.5 times faster for $N = 50$ and
 	\hbox{%
 		\begin{subfigure}{\textwidth}
 		\centering
-			\includegraphics[height=9cm, width=\textwidth]{images/us_mean_shift.pdf}
+			\includegraphics[height=5in, width=6.5in]{images/us_bf.pdf}
 		\caption{}
 		\label{subfig:us_mean_shift}
 		\end{subfigure}%
 	}\cr
 }
 \caption{
-	Application of the VMP algorithm for FPCA to the United States weather data. The fits in \subref{subfig:us_fits}
+	Application of the VMP algorithm for FPCA to the United States temperature data. The fits in \subref{subfig:us_fits}
 	are for four randomly selected weather stations in the dataset.
-	The plots in \subref{subfig:us_mean_shift} show the estimated mean function with
-	perturbations from each functional principal component eigenfunction: $\muhat (t) \pm \delta \psihat_l (t)$,
+	The plots in \subref{subfig:us_mean_shift} present the pointwise posterior mean estimates of the eigenfunctions
+	(top panel) and
+	show the estimated mean function with
+	perturbations from each eigenfunction (bottom panel): $\muhat (t) \pm \delta_l \psihat_l (t)$,
 	$l = 1, \dots, 4$.
 }
 \label{fig:us_weather_data}
 \end{figure}
 
-%%%%%%%%%%%  APPLICATION:  UNITED STATES  WEATHER  DATA  %%%%%%%%%%%
+%%%%%%%%%%%  APPLICATION:  UNITED STATES  TEMPERATURE  DATA  %%%%%%%%%%%
 
-\section{Application: United States Weather Data}
+\section{Application: United States Temperature Data}
 \label{sec:us_weather_data}
 
-We now provide an illustration of our methodology with an application to weather data collected from
+We now provide an illustration of our methodology with an application to temperature data collected from
 various United
 States weather stations, which is available from the \textsf{rnoaa} package \cite{rnoaa21} in \textsf{R}.
 The \textsf{rnoaa}
-package is an interace to the National Oceanic and Atmospheric Administration's climate data.
+package is an interface to the National Oceanic and Atmospheric Administration's climate data.
 The function \textsf{ghcnd\_stations()} provides access to all available global historical climatology
 network daily weather data for each weather site from 1960 to 1994. The information includes the longitude
 and latitude for each site, and this was used to determine the state or the federal district of the site.
 Our analysis focused on
-maximum daily temperature.
+maximum daily temperature that was averaged over the 25 years of available data.
 
 From this package, we collected full data sets (data available for every day
 of the year) from 2837 weather stations, where 49 states and federal districts were represented. For each
 state or federal district, we took a random sample of 3 of the available sites. In cases where there were
 less than 3 sites available (Rhode Island and District of Columbia), we used all available sites. This resulted
-in 145 sites used in our applications, with 365 observations for each site.
+in 145 sites used in our application, with 365 observations for each site.
 
-Chapter 8 of \citeA{ramsay05} conducts a similar analysis of Canadian weather data from various weather
+Chapter 8 of \citeA{ramsay05} conducts a similar analysis of Canadian temperature data from various weather
 stations. In their application, they uncovered four functional principal component eigenfunctions.
 Similarly, we conducted VMP simulations with $L = 4$.
 The results are presented in Figure \ref{fig:us_weather_data}. In Figure \ref{fig:us_weather_data}
 \subref{subfig:us_fits}, we display the results of four randomly selected weather stations, from four different
-states. There is relatively small residual variability in the observed dataset.
+states. There is relatively small residual variability in the observed dataset because we are using long-term averages.
 As a consequence, the pointwise 95\% credible sets would not be visible in the plots,
 so we have only included the pointwise variational Bayesian posterior means.
-In figure \ref{fig:us_weather_data} \subref{subfig:us_mean_shift}, we show
-the effect of perturbing the estimated mean function with each eigenfunction: $\muhat (t) \pm \delta \psihat_l (t)$,
+In Figure \ref{fig:us_weather_data} \subref{subfig:us_mean_shift}, we present the pointwise posterior estimates
+for each eigenfunction (top panel) and the
+the effect of perturbing the estimated mean function with each eigenfunction (bottom panel):
+$\muhat (t) \pm \delta_l \psihat_l (t)$,
 $l = 1, \dots, 4$. The plus (minus) signs indicate the shift that each eigenfunction makes to the mean function
-with a positive (negative) perturbation.
-The first functional principal component eigenfunction, which accounts for 99.1\% of the total variation, is a mean shift
-that shifts the mean function in the negative (positive) direction when it is added (subtracted).
-This effect is stronger in the Winter months than the Summer months, indicating that
-US weather is most variable in the Winter.
-The second functional principal component eigenfunction, which accounts 7.2\% of the total variation, shifts
-the mean function in the positive (negative) direction in the Summer (Winter) months when it is added. Therefore,
-it accounts for uniformity in the measured temperatures.
-As a consequence, weather stations at locations with larger discrepancies
-between Winter and Summer temperatures will have a strong and positive score for this eigenfunction.
-The third and fourth functional principal components are harder to interpret given their weak contributions to the
-total variation. The scores associated with the first two eigenfunctions for the displayed weather stations are
-(4.46, -0.81) for the weather station in Connecticut, (-1.56, -0.04) for the weather station in Kansas, (7.81, 2.37)
-for the weather station in North Dakota and (-2.57, -1.13) for the weather station in Texas.
-The scores for the first eigenfunction indicates that the
-lowest temperatures are to be expected in Connecticut and North Dakota, whereas Texas and Kansas have
-warmer temperatures. Furthermore, the scores for the second eigenfunction shows that the
-greatest variability between Summer and Winter months can be found
-in North Dakota, whereas Connecticut and Texas may appear to be more uniform in comparison to North Dakota.
-On the other hand, the contribution of the second eigenfunction to the Kansas weather station
-is very weak.
+with a positive (negative) perturbation. In addition, the value of $\delta_l$ was simply selected such that the effect
+of the perturbation would be visibly apparent. Note that the top and bottom panels in Figure
+\ref{fig:us_weather_data} \subref{subfig:us_mean_shift} should be analysed concurrently when determining
+the effect of each eigenfunction.
 
+The bottom panel for the first eigenfunction (which accounts for 91.5\% of the total variation)
+shows that it is a mean shift that perturbs the mean function in the positive
+(negative) direction when it is added (subtracted). The top panel shows that this effect is stronger in the Winter months
+than the Summer months, indicating that US temperature is most variable in Winter. Similar analysis of the
+second eigenfunction (which accounts for 6.5\% of the total variation) shows that it represents uniformity in the measured
+temperatures. It perturbs the mean function in the negative (positive) direction in the Summer (Winter) months when
+it is added. As a consequence, weather stations at locations with larger discrepancies
+between Winter and Summer temperatures will have a strong and negative score for this eigenfunction.
+The third and fourth eigenfunctions are harder to interpret given their weak contributions to the
+total variation. The scores associated with the first two eigenfunctions for the displayed weather stations are
+(0.21, -1.26) for the weather station in Louisiana, (0.32, -0.30) for the weather station in Michigan, (-5.24, -0.04)
+for the weather station in Montana and (-0.66, 0.85) for the weather station in North Dakota.
+The scores for the first eigenfunction indicate that slightly higher than average temperatures
+are to be expected in Louisiana and Michigan, slightly lower than average temperatures in North Dakota and well
+below average temperatures in Montana. Furthermore, the scores for the second eigenfunction show that the
+greatest variability between Summer and Winter months can be found
+in Louisiana, whereas Montana may appear to be more uniform in comparison to Louisiana. In addition, Michigan
+experiences more than average differences in temperature between Summer and Winter, while
+the difference in Winter and Summer temperatures in Montana are close to the average differences in the
+United States.
 
 %%%%%%%%%%%  CLOSING  REMARKS  %%%%%%%%%%%
 
@@ -2468,7 +2480,7 @@ principal component eigenfunctions and uncorrelated scores.
 Simulations were conducted to assess the speed and accuracy of the VMP simulations against MCMC
 counterparts. The approximate variational  posterior density functions were in good agreement with the
 MCMC estimations, and the VMP algorithm was approximately 20 to 50 times faster than the MCMC
-algorithm depending on the number of response curves. An application to a large US weather dataset
+algorithm depending on the number of response curves. An application to a large US temperature dataset
 showed that the VMP-based FPCA algorithm can be used for strong inference in big data applications.
 
 This study could be extended to other
