@@ -161,7 +161,7 @@
 % See the ``Article customise'' template for some common customisations
 
 \title{Bayesian Functional Principal Components Analysis via Variational Message Passing}
-\author[1,2]{Tui H. Nolan \thanks{Corresponding author: thn22@cornell.edu}}
+\author[1,2]{Tui H. Nolan \thanks{Corresponding author: tui.nolan@uts.edu.au}}
 \author[3]{Jeff Goldsmith}
 \author[1,4]{David Ruppert}
 \affil[1]{School of Operations Research and Information Engineering, Cornell University}
@@ -2243,7 +2243,7 @@ counterparts, as well as the simulated data.
 In particular, the post-VMP procedures that are outlined in Section \ref{sec:post_vmp_steps} neatly
 complement the standard VMP algorithm.
 
-We then incorporated three settings for the number of response curves: $n \in \{ 10, 50, 100 \}$. For each of these
+We then incorporated five settings for the number of response curves: $n \in \{ 10, 50, 100, 250, 500 \}$. For each of these
 settings, we conducted 100 simulations of model \eqref{bayes_fpca_mod} with the aim of analysing the error of
 the posterior mean estimates of the mean curve in \eqref{mean_func_gauss_sim} and the functional principal
 component eigenfunctions in \eqref{bf_gauss_sim}. The error of each simulation was determined via the
@@ -2282,32 +2282,36 @@ represents the VMP-based variational Bayes posterior mean curve.
 \caption{
 	The results from a simulation study of the Gaussian response FPCA model in \eqref{bayes_fpca_mod}. The
 	simulation parameters are outlined in Section \ref{sec:acc_ass}.
-	The box plots in \subref{subfig:bf_accs} are a summary of the error scores, determined by the integrated
-	squared error \eqref{ise}, for 100 simulations of each of the settings $n \in \{ 10, 50, 100 \}$.
+	The box plots in \subref{subfig:bf_accs} are a summary of the integrated squared error values in \eqref{ise}
+	for 100 simulations of each of the settings $n \in \{ 10, 50, 100, 250, 500 \}$.
 	In \subref{subfig:bf_sims}, we present the mean function \eqref{mean_func_gauss_sim} and the functional
-	principal component eigenfunctions \eqref{bf_gauss_sim} in black. For the case where $n = 100$, we show
+	principal component eigenfunctions \eqref{bf_gauss_sim} in black. For the case where $n = 500$, we show
 	the resulting VMP-based posterior mean curve for each of the simulations in red. In addition, we have
 	included the pointwise mean curve and the pointwise 95\% confidence intervals resulting from the MCMC
 	posterior estimates for each of the generated datasets
-	for $n = 100$ in blue.
+	for $n = 100$ in blue. Note that, in each panel,
+	the pointwise MCMC mean curve overlaps very tightly with the true curve,
+	making it difficult to see.
 }
 \label{fig:gauss_resp_sim_st}
 \end{figure}
 
-The error scores in Figure \ref{fig:gauss_resp_sim_st} \subref{subfig:bf_accs} reflect the excellent results for the
-settings where $n = 50 \ \text{and} \ 100$. Overall, the results for the setting where $n = 10$ are good, however,
+The box plots for the integrated squared error values
+in Figure \ref{fig:gauss_resp_sim_st} \subref{subfig:bf_accs} reflect the excellent results for the
+settings where $n = 50, \ 100, \ 250 \ \text{and} \ 500$.
+Overall, the results for the setting where $n = 10$ are good, however,
 there are a few simulations where the posterior estimates of the second functional principal component
-eigenfunction $\psi_2 (\cdot)$ are poor. This is to be expected because the functional principal component scores
+eigenfunction $\psi_2 (\cdot)$ are poor. This is to be expected because the scores
 associated with this eigenfunction were generated from a $\normal (0, 0.25)$ distribution reflecting its weaker
 contribution to the data generation process. Also, as expected, the error scores for all curves tend to decline with
 increasing $n$. In Figure \ref{fig:gauss_resp_sim_st} \subref{subfig:bf_sims}, we present all of the simulated
-posterior mean curves for the case where $n = 100$
+posterior mean curves for the case where $n = 500$
 for the mean function and the functional principal component eigenfunctions, which are
 overlaid with the true functions in black. These plots demonstrate the strength of the VMP algorithm for estimating
 the underlying curves that generate an observed set of functional data. In addition to each of the VMP posterior
 estimates, we have included the pointwise mean curve and the pointwise 95\% confidence interval for the MCMC
 simulations for each of the generated data sets. Evidently, there is strong agreement between the VMP simulations
-and the MCMC simulations in this setting.
+and the MCMC simulations.
 
 %%%%%%%%%%%%%% Computational Speed Comparisons
 
@@ -2327,14 +2331,15 @@ comparison to MCMC simulations and were far superior in computational speed.
 In Table \ref{tab:speed_comp}, we present a similar set of results for the computational speed of VMP and MCMC
 for model \eqref{bayes_fpca_mod}. The simulations were identical to those that were used to generate the
 results in Figure \ref{fig:gauss_resp_sim_st}, where there were 100 simulations over three settings for the number
-of response curves $n \in \{10, 50, 100\}$. In addition, the simulations were performed on a laptop computer
+of response curves $n \in \{10, 50, 100, 250, 500\}$. In addition, the simulations were performed on a laptop computer
 with 8 GB of random access memory and a 1.6 GHz processor. In Table \ref{tab:speed_comp},
 we present the median elapsed computing time (in seconds),
 with the first quartile and the third quartile shown in brackets.
 Notice that most of the VMP simulations are completed within 1 minute, whereas the elapsed computing time
-for the MCMC simulations tends to vary from approximately 1 minute, for $n = 10$, to 20 minutes, for $n = 100$.
+for the MCMC simulations tends to vary from approximately 1 minute, for $n = 10$, to over an hour, for $n = 500$.
 The most impressive results are in the fourth column, where the median VMP simulation is 22.6 times faster
-than the median MCMC simulation for $n = 10$, 39.5 times faster for $n = 50$ and 46.9 times faster for $n = 100$.
+than the median MCMC simulation for $n = 10$, 39.5 times faster for $n = 50$, 46.9 times faster for $n = 100$,
+49.0 times faster for $n = 250$ and 59.8 times faster for $n = 500$.
 
 \begin{table}
 \begin{center}
@@ -2342,7 +2347,7 @@ than the median MCMC simulation for $n = 10$, 39.5 times faster for $n = 50$ and
 \captionsetup{width=0.9\textwidth}
 \captionof{table}{
 	Median (first quartile, third quartile) elapsed computing time in seconds for VMP and MCMC  with
-	$n \in (10, 50, 100)$. The fourth column presents the ratio of the median elapsed time for MCMC
+	$n \in (10, 50, 100, 250, 500)$. The fourth column presents the ratio of the median elapsed time for MCMC
 	to the median elapsed time for VMP.
 }
 \begin{tabularx}{\textwidth}{X c X | X c X | X c X | X c X}
@@ -2354,6 +2359,10 @@ than the median MCMC simulation for $n = 10$, 39.5 times faster for $n = 50$ and
   & 50 & & & 10.6 (6.5, 18.7) & & & 419.2 (381.3, 453.8) & & & 39.5 & \\
   \rowcolor{white!50}
   & 100 & & & 23.6 (13.1, 34.9) & & & 1107.7 (1009.3, 1179.4) & & & 46.9 & \\
+  \rowcolor{white!50}
+  & 250 & & & 33.1 (18.1, 48.6) & & & 1620.8 (1446.6, 1864.7) & & & 49.0 & \\
+  \rowcolor{white!50}
+  & 500 & & & 58.0 (32.1, 91.0) & & & 3471.2 (2832.9, 4497.8) & & & 59.8 & \\
 \end{tabularx}
 \label{tab:speed_comp}
 \end{tcolorbox}
