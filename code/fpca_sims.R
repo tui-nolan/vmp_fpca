@@ -35,7 +35,7 @@ source("logistic.r")
 source("vmp_functions.r")
 source("fpca_algs.r")
 
-N_vec <- c(10, 50, 100, 250, 500)   # number of curves
+N_vec <- c(10, 50, 100)   # number of curves
 n_int_knots <- 10                   # number of interior knots
 K <- n_int_knots + 2                # number of spline basis functions
 L <- 3                              # number of FPCA basis functions
@@ -166,7 +166,7 @@ fpca_model <- "
 
 col_names <- c("N", "sim", "VMP", "MCMC")
 n_col <- length(col_names)
-write(col_names, "comp_speed_res.txt", ncol=n_col, append=FALSE)
+write(col_names, "./res/comp_speed_res.txt", ncol=n_col, append=FALSE)
 
 psi_names <- rep(NA, L_true)
 for(l in 1: L_true) {
@@ -175,22 +175,22 @@ for(l in 1: L_true) {
 }
 col_names <- c("N", "sim", "mu", psi_names)
 n_col <- length(col_names)
-write(col_names, "gauss_fpca_acc.txt", ncol=n_col, append=FALSE)
+write(col_names, "./res/gauss_fpca_acc.txt", ncol=n_col, append=FALSE)
 
-write(seq(0, 1, length.out=n_g), "mu.txt", ncol=n_g, append=FALSE)
+write(seq(0, 1, length.out=n_g), "./res/mu.txt", ncol=n_g, append=FALSE)
 
 for(l in 1:L) {
 	
-	txt_name <- paste("psi_", l, ".txt", sep="")
+	txt_name <- paste("./res/psi_", l, ".txt", sep="")
 	
 	write(seq(0, 1, length.out=n_g), txt_name, ncol=n_g, append=FALSE)
 }
 
-write(seq(0, 1, length.out=n_g), "mu_mcmc.txt", ncol=n_g, append=FALSE)
+write(seq(0, 1, length.out=n_g), "./res/mu_mcmc.txt", ncol=n_g, append=FALSE)
 
 for(l in 1:L) {
 	
-	txt_name <- paste("psi_mcmc_", l, ".txt", sep="")
+	txt_name <- paste("./res/psi_mcmc_", l, ".txt", sep="")
 	
 	write(seq(0, 1, length.out=n_g), txt_name, ncol=n_g, append=FALSE)
 }
@@ -294,7 +294,7 @@ for(i_N in 1:length(N_vec)) {
 		# Save the results:
 		
 		speed_results <- c(N, i_sim, vmp_time, mcmc_time)
-		write(speed_results, "comp_speed_res.txt", ncol=n_col, append=TRUE)
+		write(speed_results, "./res/comp_speed_res.txt", ncol=n_col, append=TRUE)
 		
 		mu_acc <- ise(time_g, mu_g, mu_q_mu)
 		psi_acc <- rep(NA, L_true)
@@ -304,17 +304,17 @@ for(i_N in 1:length(N_vec)) {
 		}
 		
 		results <- c(N, i_sim, mu_acc, psi_acc)
-		write(results, "gauss_fpca_acc.txt", ncol=n_col, append=TRUE)
+		write(results, "./res/gauss_fpca_acc.txt", ncol=n_col, append=TRUE)
 		
 		# Save the curves for the final value of N:
 		
 		if(i_N==length(N_vec)) {
 			
-			write(mu_q_mu, "mu.txt", ncol=n_g, append=TRUE)
+			write(mu_q_mu, "./res/mu.txt", ncol=n_g, append=TRUE)
 			
 			for(l in 1:L_true) {
 				
-				txt_name <- paste("psi_", l, ".txt", sep="")
+				txt_name <- paste("./res/psi_", l, ".txt", sep="")
 				
 				write(M_q_Psi[,l], txt_name, ncol=n_g, append=TRUE)
 			}
@@ -324,11 +324,11 @@ for(i_N in 1:length(N_vec)) {
 			mu_g_mcmc <- gbl_mcmc_summary[,1]
 			Psi_g_mcmc <- gbl_mcmc_summary[,2:(L_true+1)]
 			
-			write(mu_g_mcmc, "mu_mcmc.txt", ncol=n_g, append=TRUE)
+			write(mu_g_mcmc, "./res/mu_mcmc.txt", ncol=n_g, append=TRUE)
 			
 			for(l in 1:L_true) {
 				
-				txt_name <- paste("psi_mcmc_", l, ".txt", sep="")
+				txt_name <- paste("./res/psi_mcmc_", l, ".txt", sep="")
 				
 				write(Psi_g_mcmc[,l], txt_name, ncol=n_g, append=TRUE)
 			}
