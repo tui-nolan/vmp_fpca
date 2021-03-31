@@ -1630,7 +1630,7 @@ A derivation of all the relevant expectations and natural parameter vector updat
 
 \begin{algorithm}
 	\caption{
-		Functional Principal Component Gaussian Likelihood Fragment
+		Pseudocode for the functional principal component Gaussian likelihood fragment.
 	}
 	\label{alg:fpca_gauss_lik_frag}
 	\begin{algorithmic}[1]
@@ -1827,7 +1827,7 @@ A derivation of all the relevant expectations and natural parameter vector updat
 
 \begin{algorithm}
 	\caption{
-		Functional Principal Component Gaussian Penalization Fragment
+		Pseudocode for the functional principal component Gaussian penalization fragment.
 	}
 	\label{alg:mean_fpc_gauss_pen_frag}
 	\begin{algorithmic}[1]
@@ -2009,7 +2009,7 @@ these matrices such that
 	\bXitilde = \begin{bmatrix}
 		\zetatilde_{11} & \cdots & \zetatilde_{1L} \\
 		\vdots & \ddots & \vdots \\
-		\zetatilde_{N1} & \cdots & \zetatilde_{NL}
+		\zetatilde_{n1} & \cdots & \zetatilde_{nL}
 	\end{bmatrix}
 \]
 
@@ -2107,7 +2107,8 @@ provided in Algorithm \ref{alg:vmp_alg}.
 
 \begin{algorithm}
 	\caption{
-		Generic VMP algorithm for Gaussian response FPCA models.
+		Generic VMP algorithm for the Gaussian response FPCA model \eqref{bayes_fpca_mod} with
+		mean field restriction \eqref{fpca_mf_restrn}.
 	}
 	\label{alg:vmp_alg}
 	\begin{algorithmic}[1]
@@ -2326,9 +2327,11 @@ compromise the accuracy of variational Bayesian inference for FPCA. However,
 the major advantage offered by variational Bayesian inference via VMP is fast approximate inference in 
 comparison to MCMC simulations. Several published articles have addressed the computational speed gains
 from using variational Bayesian inference. \citeA{faes11} presented speed gains for parametric and nonparametric
-regression with missing data, \citeA{lee16} and \citeA{nolanmw20} established speed gains for multilevel data models
-with streamlined matrix algebraic results and \citeA{luts15} presented timing comparisons for semiparametric regression
-models with count responses. In all cases, the variational Bayesian inference algorithms had strong accuracy in
+regression with missing data, \citeA{luts15} presented timing comparisons for semiparametric regression
+models with count responses, and
+\citeA{lee16} and \citeA{nolanmw20} established speed gains for multilevel data models
+with streamlined matrix algebraic results.
+In all cases, the variational Bayesian inference algorithms had strong accuracy in
 comparison to MCMC simulations and were far superior in computational speed.
 
 In Table \ref{tab:speed_comp}, we present a similar set of results for the computational speed of VMP and MCMC
@@ -2340,8 +2343,8 @@ we present the median elapsed computing time (in seconds),
 with the first quartile and the third quartile shown in brackets.
 Notice that most of the VMP simulations are completed within 1 minute, whereas the elapsed computing time
 for the MCMC simulations tends to vary from approximately 1 minute, for $n = 10$, to over an hour, for $n = 500$.
-The most impressive results are in the fourth column, where the median VMP simulation is 22.6 times faster
-than the median MCMC simulation for $n = 10$, 39.5 times faster for $n = 50$, 46.9 times faster for $n = 100$,
+The most impressive results are in the fourth column, where the median VMP simulation is 19.6 times faster
+than the median MCMC simulation for $n = 10$, 34.3 times faster for $n = 50$, 37.9 times faster for $n = 100$,
 49.0 times faster for $n = 250$ and 59.8 times faster for $n = 500$.
 
 \begin{table}
@@ -2357,11 +2360,11 @@ than the median MCMC simulation for $n = 10$, 39.5 times faster for $n = 50$, 46
   \rowcolor[gray]{.8}
   & $n$ & & & VMP & & & MCMC & & & MCMC/VMP & \\
   \rowcolor{white!50}
-  & 10 & & & 3.7 (2.3, 4.8) & & & 83.7 (75.1, 93.1) & & & 22.6 & \\
+  & 10 & & & 2.1 (1.3, 2.8) & & & 41.2 (37.3, 45.6) & & & 19.6 & \\
   \rowcolor{white!50}
-  & 50 & & & 10.6 (6.5, 18.7) & & & 419.2 (381.3, 453.8) & & & 39.5 & \\
+  & 50 & & & 5.5 (3.4, 9.9) & & & 188.4 (178.8, 213.9) & & & 34.3 & \\
   \rowcolor{white!50}
-  & 100 & & & 23.6 (13.1, 34.9) & & & 1107.7 (1009.3, 1179.4) & & & 46.9 & \\
+  & 100 & & & 11.8 (7.0, 18.2) & & & 446.7 (415.1, 475.7) & & & 37.9 & \\
   \rowcolor{white!50}
   & 250 & & & 33.1 (18.1, 48.6) & & & 1620.8 (1446.6, 1864.7) & & & 49.0 & \\
   \rowcolor{white!50}
