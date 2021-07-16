@@ -239,7 +239,7 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Establishing the Optimal Posterior Density Functions}{21}}
 \newlabel{sec:opt_dens_funcs}{{4.1}{21}}
 \newlabel{sec:opt_dens_funcs@cref}{{[subsection][1][4]4.1}{21}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Establishing a Vector Version of the Karhunen-Lo\`{e}ve Decomposition}{22}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Establishing a Multivariate Version of the Karhunen-Lo\`{e}ve Decomposition}{22}}
 \newlabel{sec:biorthogonal}{{4.2}{22}}
 \newlabel{sec:biorthogonal@cref}{{[subsection][2][4]4.2}{22}}
 \newlabel{mu_shift}{{51}{22}}
@@ -272,8 +272,6 @@
 \newlabel{sec:acc_ass@cref}{{[subsection][1][5]5.1}{24}}
 \newlabel{mean_func_gauss_sim}{{55}{24}}
 \newlabel{mean_func_gauss_sim@cref}{{[equation][55][]55}{24}}
-\newlabel{bf_gauss_sim}{{56}{24}}
-\newlabel{bf_gauss_sim@cref}{{[equation][56][]56}{24}}
 \citation{r20}
 \citation{rstan20}
 \newlabel{subfig:gauss_response_curves}{{3(a)}{25}}
@@ -287,6 +285,8 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces  The results from one simulation of the Gaussian response FPCA model in \textup  {\hbox {\mathsurround \z@ \normalfont  (\ignorespaces \ref  {bayes_fpca_mod}\unskip \@@italiccorr )}}. The simulation parameters are outlined in Section \ref  {sec:sims}. In \subref  {subfig:gauss_response_curves}, the simulated data are shown in black, while the VMP-based variational Bayes posterior estimates are presented in red and the corresponding MCMC estimates are shown in blue. In each panel, the solid lines represent the posterior mean, while the dashed line represents the 95\% pointwise credible sets for the mean. In \subref  {subfig:gauss_response_scores}, we present the vector of scores for each of the randomly selected response curves, shown in black, as well as the VMP-based variational Bayes posterior estimates, shown in red, and the MCMC-based posterior estimates, shown in blue. The red and blue dots represent the VMP-based variational Bayes posterior means and the MCMC-based posterior means, respectively. The ellipses represent the 95\% credible contours. \relax }}{25}}
 \newlabel{fig:gauss_resp_sim}{{3}{25}}
 \newlabel{fig:gauss_resp_sim@cref}{{[figure][3][]3}{25}}
+\newlabel{bf_gauss_sim}{{56}{25}}
+\newlabel{bf_gauss_sim@cref}{{[equation][56][]56}{25}}
 \newlabel{score_sims}{{57}{25}}
 \newlabel{score_sims@cref}{{[equation][57][]57}{25}}
 \citation{faes11}
@@ -349,6 +349,7 @@
 \APACbibcite{durban05}{\citeauthoryear {Durb\'{a}n, Harezlak, Wand,{}\ \BBA{} Carroll}{Durb\'{a}n\ \BOthers {.}}{{\APACyear {2005}}}}
 \bibcite{faes11}{\citeauthoryear {Faes, Ormerod,{}\ \BBA{} Wand}{Faes\ \BOthers {.}}{{\APACyear {2011}}}}
 \APACbibcite{faes11}{\citeauthoryear {Faes, Ormerod,{}\ \BBA{} Wand}{Faes\ \BOthers {.}}{{\APACyear {2011}}}}
+\@writefile{toc}{\contentsline {section}{References}{31}}
 \bibcite{gelman06}{\citeauthoryear {Gelman}{Gelman}{{\APACyear {2006}}}}
 \APACbibcite{gelman06}{\citeauthoryear {Gelman}{Gelman}{{\APACyear {2006}}}}
 \bibcite{gentle07}{\citeauthoryear {Gentle}{Gentle}{{\APACyear {2007}}}}
@@ -359,7 +360,6 @@
 \APACbibcite{goldsmith16}{\citeauthoryear {Goldsmith\ \BBA{} Kitago}{Goldsmith\ \BBA{} Kitago}{{\APACyear {2016}}}}
 \bibcite{Goldsmith15}{\citeauthoryear {Goldsmith, Zippunnikov,{}\ \BBA{} Schrack}{Goldsmith\ \BOthers {.}}{{\APACyear {2015}}}}
 \APACbibcite{Goldsmith15}{\citeauthoryear {Goldsmith, Zippunnikov,{}\ \BBA{} Schrack}{Goldsmith\ \BOthers {.}}{{\APACyear {2015}}}}
-\@writefile{toc}{\contentsline {section}{References}{31}}
 \bibcite{greven2011}{\citeauthoryear {Greven, Crainiceanu, Caffo,{}\ \BBA{} Reich}{Greven\ \BOthers {.}}{{\APACyear {2011}}}}
 \APACbibcite{greven2011}{\citeauthoryear {Greven, Crainiceanu, Caffo,{}\ \BBA{} Reich}{Greven\ \BOthers {.}}{{\APACyear {2011}}}}
 \bibcite{jaakkola00}{\citeauthoryear {Jaakkola\ \BBA{} Jordan}{Jaakkola\ \BBA{} Jordan}{{\APACyear {2000}}}}
@@ -425,58 +425,58 @@
 \@writefile{toc}{\contentsline {section}{\numberline {A}Proof of Theorem \ref  {thm:orth_basis}}{33}}
 \newlabel{app:proof_thm_orth_basis}{{A}{33}}
 \newlabel{app:proof_thm_orth_basis@cref}{{[appendix][1][2147483647]A}{33}}
-\newlabel{centered_kl_expansion}{{59}{33}}
-\newlabel{centered_kl_expansion@cref}{{[equation][59][2147483647]59}{33}}
+\newlabel{centered_kl_expansion}{{59}{34}}
+\newlabel{centered_kl_expansion@cref}{{[equation][59][2147483647]59}{34}}
 \@writefile{toc}{\contentsline {section}{\numberline {B}Proof of Lemma \ref  {lem:response_est}}{35}}
 \newlabel{app:proof_lem_response_est}{{B}{35}}
 \newlabel{app:proof_lem_response_est@cref}{{[appendix][2][2147483647]B}{35}}
 \newlabel{E_q_y}{{60}{35}}
 \newlabel{E_q_y@cref}{{[equation][60][2147483647]60}{35}}
-\@writefile{toc}{\contentsline {section}{\numberline {C}Proof of Proposition \ref  {prop:bi_orthogonal}}{35}}
-\newlabel{app:proof_prop_bi_eigenfunctions}{{C}{35}}
-\newlabel{app:proof_prop_bi_eigenfunctions@cref}{{[appendix][3][2147483647]C}{35}}
-\@writefile{toc}{\contentsline {section}{\numberline {D}Derivation of the Functional Principal Component Gaussian Likelihood Fragment}{36}}
-\newlabel{app:fpca_gauss_lik_frag}{{D}{36}}
-\newlabel{app:fpca_gauss_lik_frag@cref}{{[appendix][4][2147483647]D}{36}}
-\newlabel{log_fpc_gauss_lik_factor}{{61}{36}}
-\newlabel{log_fpc_gauss_lik_factor@cref}{{[equation][61][2147483647]61}{36}}
+\@writefile{toc}{\contentsline {section}{\numberline {C}Proof of Proposition \ref  {prop:bi_orthogonal}}{36}}
+\newlabel{app:proof_prop_bi_eigenfunctions}{{C}{36}}
+\newlabel{app:proof_prop_bi_eigenfunctions@cref}{{[appendix][3][2147483647]C}{36}}
+\@writefile{toc}{\contentsline {section}{\numberline {D}Derivation of the Functional Principal Component Gaussian Likelihood Fragment}{37}}
+\newlabel{app:fpca_gauss_lik_frag}{{D}{37}}
+\newlabel{app:fpca_gauss_lik_frag@cref}{{[appendix][4][2147483647]D}{37}}
+\newlabel{log_fpc_gauss_lik_factor}{{61}{37}}
+\newlabel{log_fpc_gauss_lik_factor@cref}{{[equation][61][2147483647]61}{37}}
 \newlabel{mom_lik_nu}{{62}{37}}
 \newlabel{mom_lik_nu@cref}{{[equation][62][2147483647]62}{37}}
 \newlabel{exp_lik_nu}{{63}{37}}
 \newlabel{exp_lik_nu@cref}{{[equation][63][2147483647]63}{37}}
-\newlabel{cov_lik_nu}{{64}{37}}
-\newlabel{cov_lik_nu@cref}{{[equation][64][2147483647]64}{37}}
 \citation{maestrini20}
+\newlabel{cov_lik_nu}{{64}{38}}
+\newlabel{cov_lik_nu@cref}{{[equation][64][2147483647]64}{38}}
 \newlabel{exp_lik_zeta}{{65}{38}}
 \newlabel{exp_lik_zeta@cref}{{[equation][65][2147483647]65}{38}}
 \newlabel{theta_simplification}{{66}{38}}
 \newlabel{theta_simplification@cref}{{[equation][66][2147483647]66}{38}}
-\newlabel{exp_lik_zeta_tilde}{{67}{38}}
-\newlabel{exp_lik_zeta_tilde@cref}{{[equation][67][2147483647]67}{38}}
-\newlabel{E_q_outer_zeta}{{68}{38}}
-\newlabel{E_q_outer_zeta@cref}{{[equation][68][2147483647]68}{38}}
+\newlabel{exp_lik_zeta_tilde}{{67}{39}}
+\newlabel{exp_lik_zeta_tilde@cref}{{[equation][67][2147483647]67}{39}}
+\newlabel{E_q_outer_zeta}{{68}{39}}
+\newlabel{E_q_outer_zeta@cref}{{[equation][68][2147483647]68}{39}}
 \newlabel{zeta_simplification}{{69}{39}}
 \newlabel{zeta_simplification@cref}{{[equation][69][2147483647]69}{39}}
 \newlabel{E_q_Vpsi}{{70}{39}}
 \newlabel{E_q_Vpsi@cref}{{[equation][70][2147483647]70}{39}}
 \newlabel{exp_lik_hmupsi}{{71}{39}}
 \newlabel{exp_lik_hmupsi@cref}{{[equation][71][2147483647]71}{39}}
-\newlabel{exp_lik_Hpsi}{{72}{39}}
-\newlabel{exp_lik_Hpsi@cref}{{[equation][72][2147483647]72}{39}}
+\newlabel{exp_lik_Hpsi}{{72}{40}}
+\newlabel{exp_lik_Hpsi@cref}{{[equation][72][2147483647]72}{40}}
 \newlabel{H_mat}{{73}{40}}
 \newlabel{H_mat@cref}{{[equation][73][2147483647]73}{40}}
 \newlabel{hmu_vec}{{74}{40}}
 \newlabel{hmu_vec@cref}{{[equation][74][2147483647]74}{40}}
-\@writefile{toc}{\contentsline {section}{\numberline {E}Derivation of the Functional Principal Component Gaussian Penalization Fragment}{40}}
-\newlabel{app:mean_fpc_gauss_pen_frag}{{E}{40}}
-\newlabel{app:mean_fpc_gauss_pen_frag@cref}{{[appendix][5][2147483647]E}{40}}
+\@writefile{toc}{\contentsline {section}{\numberline {E}Derivation of the Functional Principal Component Gaussian Penalization Fragment}{41}}
+\newlabel{app:mean_fpc_gauss_pen_frag}{{E}{41}}
+\newlabel{app:mean_fpc_gauss_pen_frag@cref}{{[appendix][5][2147483647]E}{41}}
 \newlabel{log_mean_fpc_gauss_pen_factor}{{75}{41}}
 \newlabel{log_mean_fpc_gauss_pen_factor@cref}{{[equation][75][2147483647]75}{41}}
-\newlabel{mom_pen_nu}{{76}{41}}
-\newlabel{mom_pen_nu@cref}{{[equation][76][2147483647]76}{41}}
-\newlabel{exp_betau}{{77}{41}}
-\newlabel{exp_betau@cref}{{[equation][77][2147483647]77}{41}}
 \citation{maestrini20}
+\newlabel{mom_pen_nu}{{76}{42}}
+\newlabel{mom_pen_nu@cref}{{[equation][76][2147483647]76}{42}}
+\newlabel{exp_betau}{{77}{42}}
+\newlabel{exp_betau@cref}{{[equation][77][2147483647]77}{42}}
 \newlabel{cov_betau_mu}{{78}{42}}
 \newlabel{cov_betau_mu@cref}{{[equation][78][2147483647]78}{42}}
 \newlabel{cov_betau_psi}{{79}{42}}

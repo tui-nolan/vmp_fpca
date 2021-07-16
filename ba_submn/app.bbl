@@ -1,0 +1,24 @@
+\begin{thebibliography}{2}
+\newcommand{\enquote}[1]{``#1''}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{{\tt #1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+\ifx\endbibitem\undefined \let\endbibitem\relax\fi
+
+\bibitem[{Maestrini and Wand(2020)}]{maestrini20}
+Maestrini, L. and Wand, M.~P. (2020).
+\newblock \enquote{The {Inverse G-Wishart} distribution and variational message
+  passing.}
+\newblock {\em arXiv e-prints\/}, arXiv:2005.09876.
+\endbibitem
+
+\bibitem[{Wand(2017)}]{wand17}
+Wand, M.~P. (2017).
+\newblock \enquote{Fast approximate inference for arbitrarily large
+  semiparametric regression models via message passing (with discussion).}
+\newblock {\em Journal of the {American} Statistical Association\/}, 112:
+  137--168.
+\endbibitem
+
+\end{thebibliography}

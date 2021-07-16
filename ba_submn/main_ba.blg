@@ -1,0 +1,57 @@
+This is BibTeX, Version 0.99d (TeX Live 2021)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main_ba.aux
+The style file: ba.bst
+Database file #1: bibliography.bib
+Warning--I didn't find a database entry for "akaike"
+Warning--I didn't find a database entry for "akivarsq"
+Warning--I didn't find a database entry for "dyke"
+Warning--I didn't find a database entry for "greene"
+Warning--I didn't find a database entry for "kstuart"
+Warning--I didn't find a database entry for "hilbetech"
+Warning--I didn't find a database entry for "hilbe"
+Warning--I didn't find a database entry for "hilbeglm"
+Warning--I didn't find a database entry for "maddalacntrsq"
+Warning--I didn't find a database entry for "companion"
+You've used 36 entries,
+            2760 wiz_defined-function locations,
+            795 strings with 9941 characters,
+and the built_in function-call counts, 21057 in all, are:
+= -- 1773
+> -- 836
+< -- 20
++ -- 305
+- -- 267
+* -- 1577
+:= -- 3309
+add.period$ -- 141
+call.type$ -- 36
+change.case$ -- 240
+chr.to.int$ -- 36
+cite$ -- 36
+duplicate$ -- 1479
+empty$ -- 1543
+format.name$ -- 375
+if$ -- 4116
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 323
+newline$ -- 228
+num.names$ -- 144
+pop$ -- 611
+preamble$ -- 1
+purify$ -- 233
+quote$ -- 0
+skip$ -- 587
+stack$ -- 0
+substring$ -- 1051
+swap$ -- 805
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 312
+warning$ -- 0
+while$ -- 160
+width$ -- 0
+write$ -- 511
+(There were 10 warnings)

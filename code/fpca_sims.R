@@ -21,6 +21,8 @@ set.seed(0)
 
 # Required functions:
 
+setwd("functions")
+
 source("X_design.r")
 source("ZOSull.r")
 source("OmegaOSull.r")
@@ -35,7 +37,9 @@ source("logistic.r")
 source("vmp_functions.r")
 source("fpca_algs.r")
 
-N_vec <- c(10, 50, 100)   # number of curves
+setwd("..")
+
+N_vec <- c(10, 50, 100, 250, 500)   # number of curves
 n_int_knots <- 10                   # number of interior knots
 K <- n_int_knots + 2                # number of spline basis functions
 L <- 3                              # number of FPCA basis functions
@@ -43,7 +47,6 @@ criterion <- 1e-5                   # convergence criterion
 d <- (K+2)*(L+1)                    # dimension of spline vector
 
 n_vmp <- 500                        # number of VMP iterations
-n_mc <- 100                         # number of MC samples for MFVB CI
 n_g <- 1000                         # length of the plotting grid
 
 n_burnin <- 1000                    # Length of burn-in.
@@ -74,6 +77,10 @@ psi_1 <- function(t) return(sqrt(2)*sin(2*pi*t))
 psi_2 <- function(t) return(sqrt(2)*cos(2*pi*t))
 psi_3 <- function(t) return(0)
 Psi_func <- list(psi_1, psi_2, psi_3)
+
+plot_dim <- c(3, 1)                    # c(ncol, nrow)
+plot_height <- 3.5                       # plot height
+plot_width <- 2.8                      # plot width
 
 L_true <- 2                            # true number of basis functions
 
@@ -271,7 +278,7 @@ for(i_N in 1:length(N_vec)) {
 		eta_vec <- vmp_gauss_fpca(
 			n_vmp, N, L, C, Y, sigma_zeta, mu_beta,
 			Sigma_beta, A, time_g, C_g, Psi_g,
-			criterion, n_mc=100, plot_elbo=FALSE
+			criterion, plot_elbo=FALSE
 		)
 		
 		# Get the posterior estimates
@@ -335,5 +342,28 @@ for(i_N in 1:length(N_vec)) {
 		}
 	}
 }
+
+box_plot_fpca_sims("./res/gauss_fpca_acc.txt", plot_width, plot_height, save_pdf=FALSE, log_acc=TRUE)
+
+wait()
+
+vmp_files <- rep(NA, L_true+1)
+mcmc_files <- rep(NA, L_true+1)
+vmp_files[1] <- "./res/mu.txt"
+mcmc_files[1] <- "./res/mu_mcmc.txt"
+for(l in 1:L_true) {
+	
+	vmp_files[l+1] <- paste("./res/psi_", l, ".txt", sep="")
+	mcmc_files[l+1] <- paste("./res/psi_mcmc_", l, ".txt", sep="")
+}
+
+mu_func <- mu
+Psi_func <- list(psi_1, psi_2)
+
+panel_plots(
+	vmp_files, mcmc_files, mu_func, Psi_func,
+	plot_dim, plot_height, plot_width,
+	save_pdf=FALSE, logistic_mod=FALSE
+)
 
 ############ End of fpca_sims.R ############

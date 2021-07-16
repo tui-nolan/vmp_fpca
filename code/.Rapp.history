@@ -341,3 +341,2454 @@ col_names <- c("N", "sim", "VMP", "MCMC")#
 n_col <- length(col_names)#
 write(col_names, "comp_speed_res.txt", ncol=n_col, append=FALSE)
 source("test.R")
+######### R script: fpca_vmp_vs_mcmc_7.R ###########
+#
+# For performing a simple functional principal#
+# components analysis via MCMC to determine#
+# the FPCA basis functions. The FPCA basis functions#
+# are determined via semiparametric regression.#
+#
+# Created: 29 SEP 2020#
+# Last changed: 02 NOV 2020#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(rstan)#
+rstan_options(auto_write = TRUE)#
+library(lattice)#
+library(ellipse)#
+#
+# Required functions:#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+# Establish simulation variables:#
+#
+N <- 36                             # number of curves#
+n_sample <- 4                       # number of curves for the plots#
+N_sample <- sort(sample(1:N, n_sample))   # specific curves for the plots#
+T_vec <- round(runif(N, 20, 30))    # number of time observations for each curve#
+n_int_knots <- 10                   # number of interior knots#
+K <- n_int_knots + 2                # number of spline basis functions#
+L <- 3                              # guess of the number of FPCA basis functions#
+data_col <- "black"                 # colour of the data in the plots#
+criterion <- 1e-5                   # convergence criterion#
+d <- (K+2)*(L+1)              # dimension of spline vector#
+#
+n_vmp <- 500                        # number of VMP iterations#
+n_mc <- 100                         # number of MC samples for MFVB CI#
+n_g <- 1000                         # length of the plotting grid#
+vmp_col <- "red"                    # colour of the VMP plots#
+vmp_lwd <- 1                        # line width for vmp plots#
+#
+n_burnin <- 1000                    # Length of burn-in.#
+n_mcmc <- 1000                      # Size of the kept sample.#
+n_thin <- 1                         # Thinning factor. #
+tolerance <- 1e-10#
+mcmc_col <- "deepskyblue2"          # colour of the MCMC lines in the plots#
+mcmc_lwd <- 2                       # line width for mcmc plots#
+#
+sigma_zeta_vec <- c(1, 0.5, 0)      # sd for the scores#
+sigma_eps <- 1                      # sd of the residuals#
+sigsq_eps <- sigma_eps^2
+# Set up plotting variables:#
+#
+plot_dim <- c(4, 1)                 # (ncol, nrow) for curve plots#
+plot_gbl_dim <- c(3, 1)             # (ncol, nrow) for the mean and basis function plots#
+#
+n_g <- 1000                         # length of plotting grid#
+#
+plot_width <- 6.5#
+plot_height <- 2.5#
+#
+print_pdf <- TRUE#
+#
+# Establish hyperparameters:#
+#
+sigsq_beta <- 1e10#
+Sigma_beta <- sigsq_beta*diag(2)#
+mu_beta <- rep(0, 2)#
+A <- 1e5#
+sigsq_zeta <- 1#
+sigma_zeta <- sqrt(sigsq_zeta)#
+Sigma_zeta <- sigsq_zeta*diag(L)#
+#
+# Set the mean function and the FPCA basis functions:#
+#
+mu <- function(t) return(3*sin(pi*t))#
+psi_1 <- function(t) return(sqrt(2)*sin(2*pi*t))#
+psi_2 <- function(t) return(sqrt(2)*cos(2*pi*t))#
+psi_3 <- function(t) return(0)#
+#
+L_true <- 2                            # true number of basis functions
+# Generate FPCA data:#
+#
+fpca_data <- gauss_fpca_data(#
+	T_vec, N, K, n_g, sigma_zeta_vec, sigma_eps,#
+	mu, list(psi_1, psi_2, psi_3)#
+)
+time_obs <- fpca_data$"time_obs"#
+time_g <- fpca_data$"time_g"#
+int_knots <- fpca_data$"int_knots"#
+X <- fpca_data$"X"#
+Z <- fpca_data$"Z"#
+C <- fpca_data$"C"#
+X_g <- fpca_data$"X_g"#
+Z_g <- fpca_data$"Z_g"#
+C_g <- fpca_data$"C_g"#
+zeta <- fpca_data$"zeta"#
+mu_t <- fpca_data$"mu_t"#
+Psi_t <- fpca_data$"Psi_t"#
+mu_g <- fpca_data$"mu_g"#
+Psi_g <- fpca_data$"Psi_g"#
+Y <- fpca_data$"Y"#
+#
+Y_vec <- Reduce(c, Y)
+print_pdf
+pdf("raw_gauss_data.pdf",width=plot_width, height=plot_height)
+plot_fpca_data(N_sample, time_obs, Y, plot_dim, data_col)
+dev.off()
+source("fpca_vmp_vs_mcmc.R")
+source("fpca_us_weather_vmp.R")
+plot_fpca_data(N_sample, time_obs, Y, plot_dim, data_col)
+print(basis_plots)
+getwd()
+setwd("res")
+getwd()
+setwd("..")
+getwd()
+source("fpca_vmp_vs_mcmc.R")
+print_pdf
+source("fpca_vmp_vs_mcmc.R")
+print_pdf <- TRUE
+#####################################################
+##
+#  PLOT  OF  COMPARISONS#
+##
+#####################################################
+#
+# Plot the fitted curves:#
+#
+if(print_pdf) {#
+	pdf("./res/response_curves.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+} else {#
+	wait()#
+}#
+#
+# Set up the plot of the scores:#
+#
+if(print_pdf) {#
+	pdf("./res/scores.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_score_comparisons(#
+	N_sample, zeta, zeta_vmp_summary, zeta_mcmc_summary,#
+	data_col, vmp_col, mcmc_col, plot_dim,#
+	vmp_lwd = 1, mcmc_lwd = 2#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+source("fpca_vmp_vs_mcmc.R")
+warnings()
+plot_dim <- c(2, 2)                 # (ncol, nrow) for curve plots
+plot_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)
+plot_score_comparisons(#
+	N_sample, zeta, zeta_vmp_summary, zeta_mcmc_summary,#
+	data_col, vmp_col, mcmc_col, plot_dim,#
+	vmp_lwd = 1, mcmc_lwd = 2#
+)
+plot_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)
+plot_score_comparisons(#
+	N_sample, zeta, zeta_vmp_summary, zeta_mcmc_summary,#
+	data_col, vmp_col, mcmc_col, plot_dim,#
+	vmp_lwd = 1, mcmc_lwd = 2#
+)
+plot_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)
+plot_score_comparisons(#
+	N_sample, zeta, zeta_vmp_summary, zeta_mcmc_summary,#
+	data_col, vmp_col, mcmc_col, plot_dim,#
+	vmp_lwd = 1, mcmc_lwd = 2#
+)
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")
+plot_score_comparisons(#
+	N_sample, zeta, zeta_vmp_summary, zeta_mcmc_summary,#
+	data_col, vmp_col, mcmc_col, plot_dim,#
+	vmp_lwd = 1, mcmc_lwd = 2#
+)
+plot_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)
+plot_score_comparisons(#
+	N_sample, zeta, zeta_vmp_summary, zeta_mcmc_summary,#
+	data_col, vmp_col, mcmc_col, plot_dim,#
+	vmp_lwd = 1, mcmc_lwd = 2#
+)
+plot_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)
+plot_score_comparisons(#
+	N_sample, zeta, zeta_vmp_summary, zeta_mcmc_summary,#
+	data_col, vmp_col, mcmc_col, plot_dim,#
+	vmp_lwd = 1, mcmc_lwd = 2#
+)
+plot_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)
+plot_dim
+plot_width
+plot_height
+plot_width <- 3
+plot_height <- 2.5
+plot_width <- 2.9
+plot_height <- 2.5
+# Plot the fitted curves:#
+#
+if(print_pdf) {#
+	pdf("./res/response_curves.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+} else {#
+	wait()#
+}#
+#
+# Set up the plot of the scores:#
+#
+if(print_pdf) {#
+	pdf("./res/scores.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_score_comparisons(#
+	N_sample, zeta, zeta_vmp_summary, zeta_mcmc_summary,#
+	data_col, vmp_col, mcmc_col, plot_dim,#
+	vmp_lwd = 1, mcmc_lwd = 2#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+source("fpca_vmp_vs_mcmc.R")
+n_vmp
+source("fpca_vmp_vs_mcmc.R")
+zeta_vmp_summary
+names(zeta_vmp_summary)
+typeof(zeta_vmp_summary)
+length(zeta_vmp_summary)
+zeta_vmp_summary[[1]]
+zeta_vmp_summary[[2]]
+zeta_vmp_summary[[2]]$mean
+source("fpca_vmp_vs_mcmc.R")
+plot_width <- 2.9
+plot_height <- 4.5
+print_pdf <- TRUE
+# Plot the fitted curves:#
+#
+if(print_pdf) {#
+	pdf("./res/response_curves.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+} else {#
+	wait()#
+}#
+#
+# Set up the plot of the scores:#
+#
+if(print_pdf) {#
+	pdf("./res/scores.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_score_comparisons(#
+	N_sample, zeta, zeta_vmp_summary, zeta_mcmc_summary,#
+	data_col, vmp_col, mcmc_col, plot_dim,#
+	vmp_lwd = 1, mcmc_lwd = 2#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+source("fpca_vmp_vs_mcmc.R")
+print_pdf <- TRUE
+# Plot the fitted curves:#
+#
+if(print_pdf) {#
+	pdf("./res/response_curves.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+} else {#
+	wait()#
+}#
+#
+# Set up the plot of the scores:#
+#
+if(print_pdf) {#
+	pdf("./res/scores.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_score_comparisons(#
+	N_sample, zeta, zeta_vmp_summary, zeta_mcmc_summary,#
+	data_col, vmp_col, mcmc_col, plot_dim,#
+	vmp_lwd = 1, mcmc_lwd = 2#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+source("fpca_us_weather_vmp.R")
+gbl_plot_vec
+fpc_bf_mat
+plot_dim <- c(2, 2)                       # (ncol, nrow) for curve plots
+plot_width <- 2.9
+plot_height <- 3.5
+L_present
+L_present <- 2                            # number of basis functions to present
+basis_plots <- xyplot(#
+	gbl_plot_vec ~ time_plot_vec | gbl_plot_labels, groups = gbl_plot_labels,#
+	data=data.frame(#
+		time_plot_vec = time_plot_vec, gbl_plot_vec = gbl_plot_vec,#
+		gbl_plot_labels = gbl_plot_labels#
+	),#
+	layout=c(4, 2), main="",#
+	strip=strip.math, col=vmp_col, type=c("l", "g"), lwd=2,#
+	scales = list(x = list(tick.number = 3), y = list(relation = "free", limits = y_lims)),#
+	par.strip.text=list(cex=0.8),#
+	par.settings = list(layout.heights = list(strip = 1.2)),#
+	xlab="time (years)",#
+	ylab="temperature (\u00B0C)",#
+	as.table=TRUE,#
+	panel=function(x, y, subscripts, groups) {#
+		lPan <- panel.number()#
+		l <- rep((1:(2*L_present)), each=1)[lPan]#
+		panel.grid()#
+		panel.superpose(#
+			x[order(x)], y[order(x)], subscripts, groups,#
+			type="l", col=vmp_col, lwd=2#
+		)#
+		panel.xyplot(#
+			time_g_sample, mean_pos_shift_mat[,l],#
+			col="black", pch="+", cex=1#
+		)#
+		panel.xyplot(#
+			time_g_sample, mean_neg_shift_mat[,l],#
+			col="black", pch="-", cex=1#
+		)#
+	}#
+)#
+#
+print(basis_plots)
+L_present
+basis_plots <- xyplot(#
+	gbl_plot_vec ~ time_plot_vec | gbl_plot_labels, groups = gbl_plot_labels,#
+	data=data.frame(#
+		time_plot_vec = time_plot_vec, gbl_plot_vec = gbl_plot_vec,#
+		gbl_plot_labels = gbl_plot_labels#
+	),#
+	layout=c(2, 2), main="",#
+	strip=strip.math, col=vmp_col, type=c("l", "g"), lwd=2,#
+	scales = list(x = list(tick.number = 3), y = list(relation = "free", limits = y_lims)),#
+	par.strip.text=list(cex=0.8),#
+	par.settings = list(layout.heights = list(strip = 1.2)),#
+	xlab="time (years)",#
+	ylab="temperature (\u00B0C)",#
+	as.table=TRUE,#
+	panel=function(x, y, subscripts, groups) {#
+		lPan <- panel.number()#
+		l <- rep((1:(2*L_present)), each=1)[lPan]#
+		panel.grid()#
+		panel.superpose(#
+			x[order(x)], y[order(x)], subscripts, groups,#
+			type="l", col=vmp_col, lwd=2#
+		)#
+		panel.xyplot(#
+			time_g_sample, mean_pos_shift_mat[,l],#
+			col="black", pch="+", cex=1#
+		)#
+		panel.xyplot(#
+			time_g_sample, mean_neg_shift_mat[,l],#
+			col="black", pch="-", cex=1#
+		)#
+	}#
+)#
+#
+print(basis_plots)
+basis_plots <- xyplot(#
+	gbl_plot_vec ~ time_plot_vec | gbl_plot_labels, groups = gbl_plot_labels,#
+	data=data.frame(#
+		time_plot_vec = time_plot_vec, gbl_plot_vec = gbl_plot_vec,#
+		gbl_plot_labels = gbl_plot_labels#
+	),#
+	layout=c(4, 2), main="",#
+	strip=strip.math, col=vmp_col, type=c("l", "g"), lwd=2,#
+	scales = list(x = list(tick.number = 3), y = list(relation = "free", limits = y_lims)),#
+	par.strip.text=list(cex=0.8),#
+	par.settings = list(layout.heights = list(strip = 1.2)),#
+	xlab="time (years)",#
+	ylab="temperature (\u00B0C)",#
+	as.table=TRUE,#
+	panel=function(x, y, subscripts, groups) {#
+		lPan <- panel.number()#
+		l <- rep((1:(2*L_present)), each=1)[lPan]#
+		panel.grid()#
+		panel.superpose(#
+			x[order(x)], y[order(x)], subscripts, groups,#
+			type="l", col=vmp_col, lwd=2#
+		)#
+		panel.xyplot(#
+			time_g_sample, mean_pos_shift_mat[,l],#
+			col="black", pch="+", cex=1#
+		)#
+		panel.xyplot(#
+			time_g_sample, mean_neg_shift_mat[,l],#
+			col="black", pch="-", cex=1#
+		)#
+	}#
+)#
+#
+print(basis_plots)
+L_present <- 2                            # number of basis functions to present#
+#
+plot_dim <- c(2, 2)                       # (ncol, nrow) for curve plots#
+plot_gbl_dim <- c(4, 1)                   # (ncol, nrow) for basis function plots#
+#
+plot_width <- 2.9#
+plot_height <- 3.5
+# Get the posterior estimates#
+#
+eta_in <- list(#
+	eta_vec$"p(nu|Sigma_nu)->nu", eta_vec $"p(Y|nu,zeta,sigsq_eps)->nu",#
+	eta_vec $"p(zeta)->zeta", eta_vec $"p(Y|nu,zeta,sigsq_eps)->zeta"#
+)#
+#
+eta_nu <- list(eta_in[[1]], eta_in[[2]])#
+q_nu <- gauss_q(eta_nu, use_vech=FALSE)#
+mu_q_nu <- q_nu[[1]]#
+Sigma_q_nu <- q_nu[[2]]#
+#
+mu_inds <- 1:(K+2)#
+psi_inds <- (1:d)[-mu_inds]#
+psi_groups <- ceiling(psi_inds/(K+2))-1#
+psi_inds <- split(psi_inds, psi_groups)#
+#
+mu_q_nu_mu <- mu_q_nu[mu_inds]#
+Sigma_q_nu_mu <- Sigma_q_nu[mu_inds, mu_inds]#
+mu_q_mu <- as.vector(C_g%*%mu_q_nu_mu)#
+#
+mu_q_nu_psi <- vector("list", length=L)#
+Sigma_q_nu_psi <- vector("list", length=L)#
+for(l in 1:L) {#
+	psi_l_inds <- psi_inds[[l]]#
+	mu_q_nu_psi[[l]] <- mu_q_nu[psi_l_inds]#
+	Sigma_q_nu_psi[[l]] <- Sigma_q_nu[psi_l_inds, psi_l_inds]#
+}#
+#
+M_q_V_psi <- Reduce(cbind, mu_q_nu_psi)#
+M_q_Psi <- C_g%*%M_q_V_psi#
+#
+mu_q_zeta <- vector("list", length=N)#
+Sigma_q_zeta <- vector("list", length=N)#
+for(i in 1:N) {#
+	eta_zeta <- list(eta_in[[3]][,i], eta_in[[4]][,i])#
+	q_zeta <- gauss_q(eta_zeta, use_vech=TRUE)#
+	mu_q_zeta[[i]] <- q_zeta[[1]]#
+	Sigma_q_zeta[[i]] <- q_zeta[[2]]#
+}#
+#
+M_q_Zeta <- Reduce(rbind, mu_q_zeta)#
+#
+one_N <- rep(1, N)#
+mu_mat <- tcrossprod(mu_q_mu, one_N)#
+Y_mat <- mu_mat + tcrossprod(M_q_Psi, M_q_Zeta)#
+#
+M_q_Psi_svd <- svd(M_q_Psi)#
+U_orth <- M_q_Psi_svd$u#
+D_diag <- diag(M_q_Psi_svd$d)#
+V_orth <- M_q_Psi_svd$v#
+#
+M_q_Zeta_rotn <- M_q_Zeta%*%V_orth%*%D_diag#
+mu_Zeta_rotn <- apply(M_q_Zeta_rotn, 2, mean)#
+#
+mu_q_mu <- mu_q_mu + U_orth%*%mu_Zeta_rotn#
+M_q_Zeta_shift <- M_q_Zeta_rotn - tcrossprod(one_N, mu_Zeta_rotn)#
+#
+eigen_M_q_Zeta_shift <- eigen(cov(M_q_Zeta_shift))#
+Q <- eigen_M_q_Zeta_shift$vectors#
+Lambda <- diag(eigen_M_q_Zeta_shift$values + 1e-10)#
+Lambda_inv <- diag(1/(eigen_M_q_Zeta_shift$values + 1e-10))#
+S <- Q%*%sqrt(Lambda)#
+S_inv <- tcrossprod(sqrt(Lambda_inv), Q)#
+#
+Psi_hat <- U_orth%*%S#
+Zeta_hat <- tcrossprod(M_q_Zeta_shift, S_inv)#
+#
+norm_const <- rep(NA, L)#
+for(l in 1:L) {#
+	norm_const[l] <- sqrt(trapint(time_g, (Psi_hat[,l])^2))#
+	if(norm_const[l]!=0) {#
+		Psi_hat[,l] <- Psi_hat[,l]/norm_const[l]#
+		Zeta_hat[,l] <- norm_const[l]*Zeta_hat[,l]#
+	}#
+}#
+#
+mu_q_zeta <- split(Zeta_hat, row(Zeta_hat))#
+#
+scale_mat <- diag(norm_const)#
+for(i in 1:N) {#
+	mat_transform <- S_inv%*%tcrossprod(D_diag, V_orth)#
+	Sigma_q_zeta[[i]] <- tcrossprod(mat_transform%*%Sigma_q_zeta[[i]], mat_transform)#
+	Sigma_q_zeta[[i]] <- tcrossprod(scale_mat%*%Sigma_q_zeta[[i]], scale_mat)#
+}#
+#
+Y_summary <- vector("list", length=N)#
+for(i in 1:N) {#
+	sd_vec <- sqrt(diag(tcrossprod(Psi_hat%*%Sigma_q_zeta[[i]], Psi_hat)))#
+	Y_summary[[i]] <- matrix(NA, nrow=n_g, ncol=3)#
+	Y_summary[[i]][,1] <- Y_mat[,i] + qnorm(0.025)*sd_vec#
+	Y_summary[[i]][,2] <- Y_mat[,i]#
+	Y_summary[[i]][,3] <- Y_mat[,i] + qnorm(0.975)*sd_vec#
+}#
+#
+zeta_summary <- vector("list", length=N)#
+for(i in 1:N) {#
+	zeta_mean <- Zeta_hat[i,][1:2]#
+	zeta_ellipse <- ellipse(#
+		Sigma_q_zeta[[i]][1:2, 1:2],#
+		centre=zeta_mean,#
+		level=0.95#
+	)#
+	zeta_summary[[i]] <- list(zeta_mean, zeta_ellipse)#
+	names(zeta_summary[[i]]) <- c("mean", "credible boundary")#
+}#
+#
+gbl_summary <- cbind(mu_q_mu, Psi_hat)#
+gbl_summary[,2] <- -gbl_summary[,2]#
+function_names <- c("mu", rep("NA", L_present))#
+for(l in 1:L_present) {#
+	function_names[l+1] <- paste("psi_", l, sep="")#
+}#
+write(function_names, "./res/us_gbl_funcs.txt", ncol = L_present + 1, append = FALSE)#
+write(gbl_summary, "./res/us_gbl_funcs.txt", ncol = L_present + 1, append=TRUE)#
+#
+zeta_hat_results <- t(Reduce(cbind, mu_q_zeta[N_sample]))#
+zeta_hat_results[,1] <- -zeta_hat_results[,1]#
+write(sample_states, "./res/us_zeta_post.txt", ncol = n_sample, append = FALSE)#
+write(zeta_hat_results, "./res/us_zeta_post.txt", ncol = n_sample, append=TRUE)#
+#
+post_fit <- do.call(cbind, lapply(Y_summary, `[`, ,2))[,N_sample]#
+write(sample_states, "./res/us_fits.txt", ncol = n_sample, append = FALSE)#
+write(post_fit, "./res/us_fits.txt", ncol = n_sample, append=TRUE)
+# Plot the fitted curves:#
+#
+Y_sample <- Y[N_sample]#
+time_obs_sample <- time_obs[N_sample]#
+T_sample <- sapply(Y_sample, length)#
+length_N <- length(N_sample)#
+#
+Y_vec <- Reduce(c, Y_sample)#
+time_vec <- Reduce(c, time_obs_sample)#
+#
+curve_id <- sample_states#
+curve_labels <- vector("list", length=length_N)#
+for(i in 1:length_N) {#
+	curve_val <- curve_id[i]#
+	curve_labels[[i]] <- rep(curve_val, T_sample[i])#
+}#
+curve_labels <- do.call(c, curve_labels)#
+curve_labels <- factor(curve_labels, levels=curve_id)#
+#
+strip.math <- function(#
+	which.given, which.panel, var.name, factor.levels, ...#
+) {#
+	fl <- curve_id#
+	strip.default(which.given,which.panel,var.name,fl,...)#
+}#
+#
+if(print_pdf) {#
+	pdf(#
+		"./res/us_fits.pdf",#
+		width=plot_width, height=2.5#
+	)#
+}#
+#
+fitted_data_plots <- xyplot(#
+	Y_vec ~ time_vec | curve_labels, groups=curve_labels,#
+	data=data.frame(#
+		time_vec=time_vec, Y_vec=Y_vec,#
+		curve_labels=curve_labels#
+	),#
+	layout=plot_dim, main="", type = c("p", "g"),#
+	strip=strip.math,#
+	par.strip.text=list(cex=0.8),#
+	par.settings = list(layout.heights = list(strip = 1.2)),#
+	xlab="time (years)",#
+	ylab="temperature (\u00B0C)",#
+	as.table=TRUE,#
+	panel=function(x, y, subscripts, groups) {#
+		iPan <- panel.number()#
+		i <- rep(N_sample, each=1)[iPan]#
+		panel.grid()#
+		panel.superpose(#
+			x[order(x)], y[order(x)], subscripts, groups,#
+			type="p", col=data_col, pch=16, cex=0.4#
+		)#
+		panel.xyplot(#
+			time_g, Y_summary[[i]][,2],#
+			col=vmp_col, type="l", lwd=2#
+		)#
+#		panel.xyplot(#
+#			time_g, Y_summary[[i]][,1],#
+#			col=vmp_col, type="l", lwd=1, lty=2#
+#		)#
+#		panel.xyplot(#
+#			time_g, Y_summary[[i]][,3],#
+#			col=vmp_col, type="l", lwd=1, lty=2#
+#		)#
+	}#
+)#
+#
+print(fitted_data_plots)#
+#
+if(print_pdf) {#
+	dev.off()#
+} else {#
+	wait()#
+}
+# Construct plots of the global functions:#
+#
+var_cont <- round(norm_const^2/sum(norm_const^2), 3)*100#
+var_cont <- var_cont[1:L_present]#
+#
+time_g_gbl <- rep(time_g, L_present)#
+#
+gbl_g_vec <- as.vector(gbl_summary[,2:(L_present+1)])#
+gbl_labels <- vector("list", length=L_present)#
+gbl_id <- rep(NA, L_present)#
+#
+mu_g_gbl <- rep(mu_q_mu, L_present)#
+mu_labels <- vector("list", length=L_present)#
+mu_id <- rep(NA, L_present)#
+#
+mean_mat <- matrix(rep(mu_q_mu[time_g_sample_points,], L_present), ncol=L_present)#
+fpc_bf_mat <- gbl_summary[time_g_sample_points, 2:(L_present+1)]#
+scale_mat <- diag(c(3, 1.2, 1.8, 1.5))#
+mean_plus_fpc_mat <- mean_mat + fpc_bf_mat%*%scale_mat#
+mean_minus_fpc_mat <- mean_mat - fpc_bf_mat%*%scale_mat#
+#
+for(l in 1:L_present) {#
+	gbl_id[l] <- parse(text=paste0("psi[", l, "] (t) : ", var_cont[l], "*\'%\'"))#
+	gbl_labels[[l]] <- rep(gbl_id[l], n_g)#
+	mu_id[l] <- parse(text=paste0("mu (t) %+-% delta[", l, "] *\ psi[", l, "] (t)"))#
+	mu_labels[[l]] <- rep(mu_id[l], n_g)#
+}#
+#
+gbl_plot_id <- c(gbl_id, mu_id)#
+gbl_plot_labels <- c(do.call(c, gbl_labels), do.call(c, mu_labels))#
+gbl_plot_labels <- factor(gbl_plot_labels, levels = gbl_plot_id)#
+#
+gbl_plot_vec <- c(gbl_g_vec, mu_g_gbl)#
+time_plot_vec <- rep(time_g_gbl, 2)#
+mean_pos_shift_mat <- cbind(matrix(NA, n_points, L_present), mean_plus_fpc_mat)#
+mean_neg_shift_mat <- cbind(matrix(NA, n_points, L_present), mean_minus_fpc_mat)#
+write(#
+	c("time", function_names[2:(L_present + 1)]),#
+	"./res/us_pos_shift.txt", ncol = L_present + 1, append = FALSE#
+)#
+write(#
+	cbind(time_g_sample, mean_plus_fpc_mat),#
+	"./res/us_pos_shift.txt", ncol = L_present + 1, append=TRUE#
+)#
+write(#
+	c("time", function_names[2:(L_present + 1)]),#
+	"./res/us_neg_shift.txt", ncol = L_present + 1, append = FALSE#
+)#
+write(#
+	cbind(time_g_sample, mean_minus_fpc_mat),#
+	"./res/us_neg_shift.txt", ncol = L_present + 1, append=TRUE#
+)#
+#
+y_lims <- rep(list(c(-2, 2), c(0, 32)), each = L_present)#
+#
+strip.math <- function(#
+	which.given, which.panel, var.name, factor.levels, ...#
+) {#
+	fl <- gbl_plot_id#
+	strip.default(which.given,which.panel,var.name,fl,...)#
+}#
+#
+if(print_pdf) {#
+	pdf("./res/us_bf.pdf",width=plot_width, height=5)#
+}#
+#
+basis_plots <- xyplot(#
+	gbl_plot_vec ~ time_plot_vec | gbl_plot_labels, groups = gbl_plot_labels,#
+	data=data.frame(#
+		time_plot_vec = time_plot_vec, gbl_plot_vec = gbl_plot_vec,#
+		gbl_plot_labels = gbl_plot_labels#
+	),#
+	layout=c(4, 2), main="",#
+	strip=strip.math, col=vmp_col, type=c("l", "g"), lwd=2,#
+	scales = list(x = list(tick.number = 3), y = list(relation = "free", limits = y_lims)),#
+	par.strip.text=list(cex=0.8),#
+	par.settings = list(layout.heights = list(strip = 1.2)),#
+	xlab="time (years)",#
+	ylab="temperature (\u00B0C)",#
+	as.table=TRUE,#
+	panel=function(x, y, subscripts, groups) {#
+		lPan <- panel.number()#
+		l <- rep((1:(2*L_present)), each=1)[lPan]#
+		panel.grid()#
+		panel.superpose(#
+			x[order(x)], y[order(x)], subscripts, groups,#
+			type="l", col=vmp_col, lwd=2#
+		)#
+		panel.xyplot(#
+			time_g_sample, mean_pos_shift_mat[,l],#
+			col="black", pch="+", cex=1#
+		)#
+		panel.xyplot(#
+			time_g_sample, mean_neg_shift_mat[,l],#
+			col="black", pch="-", cex=1#
+		)#
+	}#
+)#
+#
+print(basis_plots)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+var_cont <- round(norm_const^2/sum(norm_const^2), 3)*100#
+var_cont <- var_cont[1:L_present]#
+#
+time_g_gbl <- rep(time_g, L_present)#
+#
+gbl_g_vec <- as.vector(gbl_summary[,2:(L_present+1)])#
+gbl_labels <- vector("list", length=L_present)#
+gbl_id <- rep(NA, L_present)#
+#
+mu_g_gbl <- rep(mu_q_mu, L_present)#
+mu_labels <- vector("list", length=L_present)#
+mu_id <- rep(NA, L_present)#
+#
+mean_mat <- matrix(rep(mu_q_mu[time_g_sample_points,], L_present), ncol=L_present)#
+fpc_bf_mat <- gbl_summary[time_g_sample_points, 2:(L_present+1)]#
+scale_mat <- diag(c(3, 1.2))#
+mean_plus_fpc_mat <- mean_mat + fpc_bf_mat%*%scale_mat#
+mean_minus_fpc_mat <- mean_mat - fpc_bf_mat%*%scale_mat
+for(l in 1:L_present) {#
+	gbl_id[l] <- parse(text=paste0("psi[", l, "] (t) : ", var_cont[l], "*\'%\'"))#
+	gbl_labels[[l]] <- rep(gbl_id[l], n_g)#
+	mu_id[l] <- parse(text=paste0("mu (t) %+-% delta[", l, "] *\ psi[", l, "] (t)"))#
+	mu_labels[[l]] <- rep(mu_id[l], n_g)#
+}#
+#
+gbl_plot_id <- c(gbl_id, mu_id)#
+gbl_plot_labels <- c(do.call(c, gbl_labels), do.call(c, mu_labels))#
+gbl_plot_labels <- factor(gbl_plot_labels, levels = gbl_plot_id)#
+#
+gbl_plot_vec <- c(gbl_g_vec, mu_g_gbl)#
+time_plot_vec <- rep(time_g_gbl, 2)#
+mean_pos_shift_mat <- cbind(matrix(NA, n_points, L_present), mean_plus_fpc_mat)#
+mean_neg_shift_mat <- cbind(matrix(NA, n_points, L_present), mean_minus_fpc_mat)#
+write(#
+	c("time", function_names[2:(L_present + 1)]),#
+	"./res/us_pos_shift.txt", ncol = L_present + 1, append = FALSE#
+)#
+write(#
+	cbind(time_g_sample, mean_plus_fpc_mat),#
+	"./res/us_pos_shift.txt", ncol = L_present + 1, append=TRUE#
+)#
+write(#
+	c("time", function_names[2:(L_present + 1)]),#
+	"./res/us_neg_shift.txt", ncol = L_present + 1, append = FALSE#
+)#
+write(#
+	cbind(time_g_sample, mean_minus_fpc_mat),#
+	"./res/us_neg_shift.txt", ncol = L_present + 1, append=TRUE#
+)#
+#
+y_lims <- rep(list(c(-2, 2), c(0, 32)), each = L_present)#
+#
+strip.math <- function(#
+	which.given, which.panel, var.name, factor.levels, ...#
+) {#
+	fl <- gbl_plot_id#
+	strip.default(which.given,which.panel,var.name,fl,...)#
+}
+if(print_pdf) {#
+	pdf("./res/us_bf.pdf",width=plot_width, height=5)#
+}#
+#
+basis_plots <- xyplot(#
+	gbl_plot_vec ~ time_plot_vec | gbl_plot_labels, groups = gbl_plot_labels,#
+	data=data.frame(#
+		time_plot_vec = time_plot_vec, gbl_plot_vec = gbl_plot_vec,#
+		gbl_plot_labels = gbl_plot_labels#
+	),#
+	layout=c(L_present, 2), main="",#
+	strip=strip.math, col=vmp_col, type=c("l", "g"), lwd=2,#
+	scales = list(x = list(tick.number = 3), y = list(relation = "free", limits = y_lims)),#
+	par.strip.text=list(cex=0.8),#
+	par.settings = list(layout.heights = list(strip = 1.2)),#
+	xlab="time (years)",#
+	ylab="temperature (\u00B0C)",#
+	as.table=TRUE,#
+	panel=function(x, y, subscripts, groups) {#
+		lPan <- panel.number()#
+		l <- rep((1:(2*L_present)), each=1)[lPan]#
+		panel.grid()#
+		panel.superpose(#
+			x[order(x)], y[order(x)], subscripts, groups,#
+			type="l", col=vmp_col, lwd=2#
+		)#
+		panel.xyplot(#
+			time_g_sample, mean_pos_shift_mat[,l],#
+			col="black", pch="+", cex=1#
+		)#
+		panel.xyplot(#
+			time_g_sample, mean_neg_shift_mat[,l],#
+			col="black", pch="-", cex=1#
+		)#
+	}#
+)#
+#
+print(basis_plots)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+plot_height
+print_pdf <- TRUE
+# Plot the fitted curves:#
+#
+Y_sample <- Y[N_sample]#
+time_obs_sample <- time_obs[N_sample]#
+T_sample <- sapply(Y_sample, length)#
+length_N <- length(N_sample)#
+#
+Y_vec <- Reduce(c, Y_sample)#
+time_vec <- Reduce(c, time_obs_sample)#
+#
+curve_id <- sample_states#
+curve_labels <- vector("list", length=length_N)#
+for(i in 1:length_N) {#
+	curve_val <- curve_id[i]#
+	curve_labels[[i]] <- rep(curve_val, T_sample[i])#
+}#
+curve_labels <- do.call(c, curve_labels)#
+curve_labels <- factor(curve_labels, levels=curve_id)#
+#
+strip.math <- function(#
+	which.given, which.panel, var.name, factor.levels, ...#
+) {#
+	fl <- curve_id#
+	strip.default(which.given,which.panel,var.name,fl,...)#
+}#
+#
+if(print_pdf) {#
+	pdf(#
+		"./res/us_fits.pdf",#
+		width=plot_width, height=plot_height#
+	)#
+}#
+#
+fitted_data_plots <- xyplot(#
+	Y_vec ~ time_vec | curve_labels, groups=curve_labels,#
+	data=data.frame(#
+		time_vec=time_vec, Y_vec=Y_vec,#
+		curve_labels=curve_labels#
+	),#
+	layout=plot_dim, main="", type = c("p", "g"),#
+	strip=strip.math,#
+	par.strip.text=list(cex=0.8),#
+	par.settings = list(layout.heights = list(strip = 1.2)),#
+	xlab="time (years)",#
+	ylab="temperature (\u00B0C)",#
+	as.table=TRUE,#
+	panel=function(x, y, subscripts, groups) {#
+		iPan <- panel.number()#
+		i <- rep(N_sample, each=1)[iPan]#
+		panel.grid()#
+		panel.superpose(#
+			x[order(x)], y[order(x)], subscripts, groups,#
+			type="p", col=data_col, pch=16, cex=0.4#
+		)#
+		panel.xyplot(#
+			time_g, Y_summary[[i]][,2],#
+			col=vmp_col, type="l", lwd=2#
+		)#
+#		panel.xyplot(#
+#			time_g, Y_summary[[i]][,1],#
+#			col=vmp_col, type="l", lwd=1, lty=2#
+#		)#
+#		panel.xyplot(#
+#			time_g, Y_summary[[i]][,3],#
+#			col=vmp_col, type="l", lwd=1, lty=2#
+#		)#
+	}#
+)#
+#
+print(fitted_data_plots)#
+#
+if(print_pdf) {#
+	dev.off()#
+} else {#
+	wait()#
+}#
+#
+# Construct plots of the global functions:#
+#
+var_cont <- round(norm_const^2/sum(norm_const^2), 3)*100#
+var_cont <- var_cont[1:L_present]#
+#
+time_g_gbl <- rep(time_g, L_present)#
+#
+gbl_g_vec <- as.vector(gbl_summary[,2:(L_present+1)])#
+gbl_labels <- vector("list", length=L_present)#
+gbl_id <- rep(NA, L_present)#
+#
+mu_g_gbl <- rep(mu_q_mu, L_present)#
+mu_labels <- vector("list", length=L_present)#
+mu_id <- rep(NA, L_present)#
+#
+mean_mat <- matrix(rep(mu_q_mu[time_g_sample_points,], L_present), ncol=L_present)#
+fpc_bf_mat <- gbl_summary[time_g_sample_points, 2:(L_present+1)]#
+scale_mat <- diag(c(3, 1.2))#
+mean_plus_fpc_mat <- mean_mat + fpc_bf_mat%*%scale_mat#
+mean_minus_fpc_mat <- mean_mat - fpc_bf_mat%*%scale_mat#
+#
+for(l in 1:L_present) {#
+	gbl_id[l] <- parse(text=paste0("psi[", l, "] (t) : ", var_cont[l], "*\'%\'"))#
+	gbl_labels[[l]] <- rep(gbl_id[l], n_g)#
+	mu_id[l] <- parse(text=paste0("mu (t) %+-% delta[", l, "] *\ psi[", l, "] (t)"))#
+	mu_labels[[l]] <- rep(mu_id[l], n_g)#
+}#
+#
+gbl_plot_id <- c(gbl_id, mu_id)#
+gbl_plot_labels <- c(do.call(c, gbl_labels), do.call(c, mu_labels))#
+gbl_plot_labels <- factor(gbl_plot_labels, levels = gbl_plot_id)#
+#
+gbl_plot_vec <- c(gbl_g_vec, mu_g_gbl)#
+time_plot_vec <- rep(time_g_gbl, 2)#
+mean_pos_shift_mat <- cbind(matrix(NA, n_points, L_present), mean_plus_fpc_mat)#
+mean_neg_shift_mat <- cbind(matrix(NA, n_points, L_present), mean_minus_fpc_mat)#
+write(#
+	c("time", function_names[2:(L_present + 1)]),#
+	"./res/us_pos_shift.txt", ncol = L_present + 1, append = FALSE#
+)#
+write(#
+	cbind(time_g_sample, mean_plus_fpc_mat),#
+	"./res/us_pos_shift.txt", ncol = L_present + 1, append=TRUE#
+)#
+write(#
+	c("time", function_names[2:(L_present + 1)]),#
+	"./res/us_neg_shift.txt", ncol = L_present + 1, append = FALSE#
+)#
+write(#
+	cbind(time_g_sample, mean_minus_fpc_mat),#
+	"./res/us_neg_shift.txt", ncol = L_present + 1, append=TRUE#
+)#
+#
+y_lims <- rep(list(c(-2, 2), c(0, 32)), each = L_present)#
+#
+strip.math <- function(#
+	which.given, which.panel, var.name, factor.levels, ...#
+) {#
+	fl <- gbl_plot_id#
+	strip.default(which.given,which.panel,var.name,fl,...)#
+}#
+#
+if(print_pdf) {#
+	pdf("./res/us_bf.pdf",width=plot_width, height=plot_height)#
+}#
+#
+basis_plots <- xyplot(#
+	gbl_plot_vec ~ time_plot_vec | gbl_plot_labels, groups = gbl_plot_labels,#
+	data=data.frame(#
+		time_plot_vec = time_plot_vec, gbl_plot_vec = gbl_plot_vec,#
+		gbl_plot_labels = gbl_plot_labels#
+	),#
+	layout=c(L_present, 2), main="",#
+	strip=strip.math, col=vmp_col, type=c("l", "g"), lwd=2,#
+	scales = list(x = list(tick.number = 3), y = list(relation = "free", limits = y_lims)),#
+	par.strip.text=list(cex=0.8),#
+	par.settings = list(layout.heights = list(strip = 1.2)),#
+	xlab="time (years)",#
+	ylab="temperature (\u00B0C)",#
+	as.table=TRUE,#
+	panel=function(x, y, subscripts, groups) {#
+		lPan <- panel.number()#
+		l <- rep((1:(2*L_present)), each=1)[lPan]#
+		panel.grid()#
+		panel.superpose(#
+			x[order(x)], y[order(x)], subscripts, groups,#
+			type="l", col=vmp_col, lwd=2#
+		)#
+		panel.xyplot(#
+			time_g_sample, mean_pos_shift_mat[,l],#
+			col="black", pch="+", cex=1#
+		)#
+		panel.xyplot(#
+			time_g_sample, mean_neg_shift_mat[,l],#
+			col="black", pch="-", cex=1#
+		)#
+	}#
+)#
+#
+print(basis_plots)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+source("fpca_us_weather_vmp.R")
+n_g
+n_g_sample
+# Set up sampled points for FPC plots:#
+#
+n_points <- 20#
+n_g_sample <- n_g/n_points#
+time_g_sample_points <- seq((n_g_sample/2), n_g, by=n_g_sample)#
+time_g_sample <- time_g[time_g_sample_points]
+# Get the posterior estimates#
+#
+eta_in <- list(#
+	eta_vec$"p(nu|Sigma_nu)->nu", eta_vec $"p(Y|nu,zeta,sigsq_eps)->nu",#
+	eta_vec $"p(zeta)->zeta", eta_vec $"p(Y|nu,zeta,sigsq_eps)->zeta"#
+)#
+#
+eta_nu <- list(eta_in[[1]], eta_in[[2]])#
+q_nu <- gauss_q(eta_nu, use_vech=FALSE)#
+mu_q_nu <- q_nu[[1]]#
+Sigma_q_nu <- q_nu[[2]]#
+#
+mu_inds <- 1:(K+2)#
+psi_inds <- (1:d)[-mu_inds]#
+psi_groups <- ceiling(psi_inds/(K+2))-1#
+psi_inds <- split(psi_inds, psi_groups)#
+#
+mu_q_nu_mu <- mu_q_nu[mu_inds]#
+Sigma_q_nu_mu <- Sigma_q_nu[mu_inds, mu_inds]#
+mu_q_mu <- as.vector(C_g%*%mu_q_nu_mu)#
+#
+mu_q_nu_psi <- vector("list", length=L)#
+Sigma_q_nu_psi <- vector("list", length=L)#
+for(l in 1:L) {#
+	psi_l_inds <- psi_inds[[l]]#
+	mu_q_nu_psi[[l]] <- mu_q_nu[psi_l_inds]#
+	Sigma_q_nu_psi[[l]] <- Sigma_q_nu[psi_l_inds, psi_l_inds]#
+}#
+#
+M_q_V_psi <- Reduce(cbind, mu_q_nu_psi)#
+M_q_Psi <- C_g%*%M_q_V_psi#
+#
+mu_q_zeta <- vector("list", length=N)#
+Sigma_q_zeta <- vector("list", length=N)#
+for(i in 1:N) {#
+	eta_zeta <- list(eta_in[[3]][,i], eta_in[[4]][,i])#
+	q_zeta <- gauss_q(eta_zeta, use_vech=TRUE)#
+	mu_q_zeta[[i]] <- q_zeta[[1]]#
+	Sigma_q_zeta[[i]] <- q_zeta[[2]]#
+}#
+#
+M_q_Zeta <- Reduce(rbind, mu_q_zeta)#
+#
+one_N <- rep(1, N)#
+mu_mat <- tcrossprod(mu_q_mu, one_N)#
+Y_mat <- mu_mat + tcrossprod(M_q_Psi, M_q_Zeta)#
+#
+M_q_Psi_svd <- svd(M_q_Psi)#
+U_orth <- M_q_Psi_svd$u#
+D_diag <- diag(M_q_Psi_svd$d)#
+V_orth <- M_q_Psi_svd$v#
+#
+M_q_Zeta_rotn <- M_q_Zeta%*%V_orth%*%D_diag#
+mu_Zeta_rotn <- apply(M_q_Zeta_rotn, 2, mean)#
+#
+mu_q_mu <- mu_q_mu + U_orth%*%mu_Zeta_rotn#
+M_q_Zeta_shift <- M_q_Zeta_rotn - tcrossprod(one_N, mu_Zeta_rotn)#
+#
+eigen_M_q_Zeta_shift <- eigen(cov(M_q_Zeta_shift))#
+Q <- eigen_M_q_Zeta_shift$vectors#
+Lambda <- diag(eigen_M_q_Zeta_shift$values + 1e-10)#
+Lambda_inv <- diag(1/(eigen_M_q_Zeta_shift$values + 1e-10))#
+S <- Q%*%sqrt(Lambda)#
+S_inv <- tcrossprod(sqrt(Lambda_inv), Q)#
+#
+Psi_hat <- U_orth%*%S#
+Zeta_hat <- tcrossprod(M_q_Zeta_shift, S_inv)#
+#
+norm_const <- rep(NA, L)#
+for(l in 1:L) {#
+	norm_const[l] <- sqrt(trapint(time_g, (Psi_hat[,l])^2))#
+	if(norm_const[l]!=0) {#
+		Psi_hat[,l] <- Psi_hat[,l]/norm_const[l]#
+		Zeta_hat[,l] <- norm_const[l]*Zeta_hat[,l]#
+	}#
+}#
+#
+mu_q_zeta <- split(Zeta_hat, row(Zeta_hat))#
+#
+scale_mat <- diag(norm_const)#
+for(i in 1:N) {#
+	mat_transform <- S_inv%*%tcrossprod(D_diag, V_orth)#
+	Sigma_q_zeta[[i]] <- tcrossprod(mat_transform%*%Sigma_q_zeta[[i]], mat_transform)#
+	Sigma_q_zeta[[i]] <- tcrossprod(scale_mat%*%Sigma_q_zeta[[i]], scale_mat)#
+}#
+#
+Y_summary <- vector("list", length=N)#
+for(i in 1:N) {#
+	sd_vec <- sqrt(diag(tcrossprod(Psi_hat%*%Sigma_q_zeta[[i]], Psi_hat)))#
+	Y_summary[[i]] <- matrix(NA, nrow=n_g, ncol=3)#
+	Y_summary[[i]][,1] <- Y_mat[,i] + qnorm(0.025)*sd_vec#
+	Y_summary[[i]][,2] <- Y_mat[,i]#
+	Y_summary[[i]][,3] <- Y_mat[,i] + qnorm(0.975)*sd_vec#
+}#
+#
+zeta_summary <- vector("list", length=N)#
+for(i in 1:N) {#
+	zeta_mean <- Zeta_hat[i,][1:2]#
+	zeta_ellipse <- ellipse(#
+		Sigma_q_zeta[[i]][1:2, 1:2],#
+		centre=zeta_mean,#
+		level=0.95#
+	)#
+	zeta_summary[[i]] <- list(zeta_mean, zeta_ellipse)#
+	names(zeta_summary[[i]]) <- c("mean", "credible boundary")#
+}#
+#
+gbl_summary <- cbind(mu_q_mu, Psi_hat)#
+gbl_summary[,2] <- -gbl_summary[,2]#
+function_names <- c("mu", rep("NA", L_present))#
+for(l in 1:L_present) {#
+	function_names[l+1] <- paste("psi_", l, sep="")#
+}#
+write(function_names, "./res/us_gbl_funcs.txt", ncol = L_present + 1, append = FALSE)#
+write(gbl_summary, "./res/us_gbl_funcs.txt", ncol = L_present + 1, append=TRUE)#
+#
+zeta_hat_results <- t(Reduce(cbind, mu_q_zeta[N_sample]))#
+zeta_hat_results[,1] <- -zeta_hat_results[,1]#
+write(sample_states, "./res/us_zeta_post.txt", ncol = n_sample, append = FALSE)#
+write(zeta_hat_results, "./res/us_zeta_post.txt", ncol = n_sample, append=TRUE)#
+#
+post_fit <- do.call(cbind, lapply(Y_summary, `[`, ,2))[,N_sample]#
+write(sample_states, "./res/us_fits.txt", ncol = n_sample, append = FALSE)#
+write(post_fit, "./res/us_fits.txt", ncol = n_sample, append=TRUE)
+# Plot the fitted curves:#
+#
+Y_sample <- Y[N_sample]#
+time_obs_sample <- time_obs[N_sample]#
+T_sample <- sapply(Y_sample, length)#
+length_N <- length(N_sample)#
+#
+Y_vec <- Reduce(c, Y_sample)#
+time_vec <- Reduce(c, time_obs_sample)#
+#
+curve_id <- sample_states#
+curve_labels <- vector("list", length=length_N)#
+for(i in 1:length_N) {#
+	curve_val <- curve_id[i]#
+	curve_labels[[i]] <- rep(curve_val, T_sample[i])#
+}#
+curve_labels <- do.call(c, curve_labels)#
+curve_labels <- factor(curve_labels, levels=curve_id)#
+#
+strip.math <- function(#
+	which.given, which.panel, var.name, factor.levels, ...#
+) {#
+	fl <- curve_id#
+	strip.default(which.given,which.panel,var.name,fl,...)#
+}#
+#
+if(print_pdf) {#
+	pdf(#
+		"./res/us_fits.pdf",#
+		width=plot_width, height=plot_height#
+	)#
+}#
+#
+fitted_data_plots <- xyplot(#
+	Y_vec ~ time_vec | curve_labels, groups=curve_labels,#
+	data=data.frame(#
+		time_vec=time_vec, Y_vec=Y_vec,#
+		curve_labels=curve_labels#
+	),#
+	layout=plot_dim, main="", type = c("p", "g"),#
+	strip=strip.math,#
+	par.strip.text=list(cex=0.8),#
+	par.settings = list(layout.heights = list(strip = 1.2)),#
+	xlab="time (years)",#
+	ylab="temperature (\u00B0C)",#
+	as.table=TRUE,#
+	panel=function(x, y, subscripts, groups) {#
+		iPan <- panel.number()#
+		i <- rep(N_sample, each=1)[iPan]#
+		panel.grid()#
+		panel.superpose(#
+			x[order(x)], y[order(x)], subscripts, groups,#
+			type="p", col=data_col, pch=16, cex=0.4#
+		)#
+		panel.xyplot(#
+			time_g, Y_summary[[i]][,2],#
+			col=vmp_col, type="l", lwd=2#
+		)#
+#		panel.xyplot(#
+#			time_g, Y_summary[[i]][,1],#
+#			col=vmp_col, type="l", lwd=1, lty=2#
+#		)#
+#		panel.xyplot(#
+#			time_g, Y_summary[[i]][,3],#
+#			col=vmp_col, type="l", lwd=1, lty=2#
+#		)#
+	}#
+)#
+#
+print(fitted_data_plots)#
+#
+if(print_pdf) {#
+	dev.off()#
+} else {#
+	wait()#
+}
+fitted_data_plots <- xyplot(#
+	Y_vec ~ time_vec | curve_labels, groups=curve_labels,#
+	data=data.frame(#
+		time_vec=time_vec, Y_vec=Y_vec,#
+		curve_labels=curve_labels#
+	),#
+	layout=plot_dim, main="", type = c("p", "g"),#
+	strip=strip.math,#
+	par.strip.text=list(cex=0.8),#
+	par.settings = list(layout.heights = list(strip = 1.2)),#
+	xlab="time (years)",#
+	ylab="temperature (\u00B0C)",#
+	as.table=TRUE,#
+	panel=function(x, y, subscripts, groups) {#
+		iPan <- panel.number()#
+		i <- rep(N_sample, each=1)[iPan]#
+		panel.grid()#
+		panel.superpose(#
+			x[order(x)], y[order(x)], subscripts, groups,#
+			type="p", col=data_col, pch=16, cex=0.4#
+		)#
+		panel.xyplot(#
+			time_g, Y_summary[[i]][,2],#
+			col=vmp_col, type="l", lwd=2#
+		)#
+#		panel.xyplot(#
+#			time_g, Y_summary[[i]][,1],#
+#			col=vmp_col, type="l", lwd=1, lty=2#
+#		)#
+#		panel.xyplot(#
+#			time_g, Y_summary[[i]][,3],#
+#			col=vmp_col, type="l", lwd=1, lty=2#
+#		)#
+	}#
+)
+print(fitted_data_plots)
+# Plot the fitted curves:#
+#
+Y_sample <- Y[N_sample]#
+time_obs_sample <- time_obs[N_sample]#
+T_sample <- sapply(Y_sample, length)#
+length_N <- length(N_sample)#
+#
+Y_vec <- Reduce(c, Y_sample)#
+time_vec <- Reduce(c, time_obs_sample)#
+#
+curve_id <- sample_states#
+curve_labels <- vector("list", length=length_N)#
+for(i in 1:length_N) {#
+	curve_val <- curve_id[i]#
+	curve_labels[[i]] <- rep(curve_val, T_sample[i])#
+}#
+curve_labels <- do.call(c, curve_labels)#
+curve_labels <- factor(curve_labels, levels=curve_id)#
+#
+strip.math <- function(#
+	which.given, which.panel, var.name, factor.levels, ...#
+) {#
+	fl <- curve_id#
+	strip.default(which.given,which.panel,var.name,fl,...)#
+}#
+#
+if(print_pdf) {#
+	pdf(#
+		"./res/us_fits.pdf",#
+		width=plot_width, height=plot_height#
+	)#
+}#
+#
+fitted_data_plots <- xyplot(#
+	Y_vec ~ time_vec | curve_labels, groups=curve_labels,#
+	data=data.frame(#
+		time_vec=time_vec, Y_vec=Y_vec,#
+		curve_labels=curve_labels#
+	),#
+	layout=plot_dim, main="", type = c("p", "g"),#
+	strip=strip.math,#
+	par.strip.text=list(cex=0.8),#
+	par.settings = list(layout.heights = list(strip = 1.2)),#
+	xlab="time (years)",#
+	ylab="temperature (\u00B0C)",#
+	as.table=TRUE,#
+	panel=function(x, y, subscripts, groups) {#
+		iPan <- panel.number()#
+		i <- rep(N_sample, each=1)[iPan]#
+		panel.grid()#
+		panel.superpose(#
+			x[order(x)], y[order(x)], subscripts, groups,#
+			type="p", col=data_col, pch=16, cex=0.4#
+		)#
+		panel.xyplot(#
+			time_g, Y_summary[[i]][,2],#
+			col=vmp_col, type="l", lwd=2#
+		)#
+#		panel.xyplot(#
+#			time_g, Y_summary[[i]][,1],#
+#			col=vmp_col, type="l", lwd=1, lty=2#
+#		)#
+#		panel.xyplot(#
+#			time_g, Y_summary[[i]][,3],#
+#			col=vmp_col, type="l", lwd=1, lty=2#
+#		)#
+	}#
+)#
+#
+print(fitted_data_plots)#
+#
+if(print_pdf) {#
+	dev.off()#
+} else {#
+	wait()#
+}
+print_pdf <- TRUE
+# Plot the fitted curves:#
+#
+Y_sample <- Y[N_sample]#
+time_obs_sample <- time_obs[N_sample]#
+T_sample <- sapply(Y_sample, length)#
+length_N <- length(N_sample)#
+#
+Y_vec <- Reduce(c, Y_sample)#
+time_vec <- Reduce(c, time_obs_sample)#
+#
+curve_id <- sample_states#
+curve_labels <- vector("list", length=length_N)#
+for(i in 1:length_N) {#
+	curve_val <- curve_id[i]#
+	curve_labels[[i]] <- rep(curve_val, T_sample[i])#
+}#
+curve_labels <- do.call(c, curve_labels)#
+curve_labels <- factor(curve_labels, levels=curve_id)#
+#
+strip.math <- function(#
+	which.given, which.panel, var.name, factor.levels, ...#
+) {#
+	fl <- curve_id#
+	strip.default(which.given,which.panel,var.name,fl,...)#
+}#
+#
+if(print_pdf) {#
+	pdf(#
+		"./res/us_fits.pdf",#
+		width=plot_width, height=plot_height#
+	)#
+}#
+#
+fitted_data_plots <- xyplot(#
+	Y_vec ~ time_vec | curve_labels, groups=curve_labels,#
+	data=data.frame(#
+		time_vec=time_vec, Y_vec=Y_vec,#
+		curve_labels=curve_labels#
+	),#
+	layout=plot_dim, main="", type = c("p", "g"),#
+	strip=strip.math,#
+	par.strip.text=list(cex=0.8),#
+	par.settings = list(layout.heights = list(strip = 1.2)),#
+	xlab="time (years)",#
+	ylab="temperature (\u00B0C)",#
+	as.table=TRUE,#
+	panel=function(x, y, subscripts, groups) {#
+		iPan <- panel.number()#
+		i <- rep(N_sample, each=1)[iPan]#
+		panel.grid()#
+		panel.superpose(#
+			x[order(x)], y[order(x)], subscripts, groups,#
+			type="p", col=data_col, pch=16, cex=0.4#
+		)#
+		panel.xyplot(#
+			time_g, Y_summary[[i]][,2],#
+			col=vmp_col, type="l", lwd=2#
+		)#
+#		panel.xyplot(#
+#			time_g, Y_summary[[i]][,1],#
+#			col=vmp_col, type="l", lwd=1, lty=2#
+#		)#
+#		panel.xyplot(#
+#			time_g, Y_summary[[i]][,3],#
+#			col=vmp_col, type="l", lwd=1, lty=2#
+#		)#
+	}#
+)#
+#
+print(fitted_data_plots)#
+#
+if(print_pdf) {#
+	dev.off()#
+} else {#
+	wait()#
+}#
+#
+# Construct plots of the global functions:#
+#
+var_cont <- round(norm_const^2/sum(norm_const^2), 3)*100#
+var_cont <- var_cont[1:L_present]#
+#
+time_g_gbl <- rep(time_g, L_present)#
+#
+gbl_g_vec <- as.vector(gbl_summary[,2:(L_present+1)])#
+gbl_labels <- vector("list", length=L_present)#
+gbl_id <- rep(NA, L_present)#
+#
+mu_g_gbl <- rep(mu_q_mu, L_present)#
+mu_labels <- vector("list", length=L_present)#
+mu_id <- rep(NA, L_present)#
+#
+mean_mat <- matrix(rep(mu_q_mu[time_g_sample_points,], L_present), ncol=L_present)#
+fpc_bf_mat <- gbl_summary[time_g_sample_points, 2:(L_present+1)]#
+scale_mat <- diag(c(3, 1.2))#
+mean_plus_fpc_mat <- mean_mat + fpc_bf_mat%*%scale_mat#
+mean_minus_fpc_mat <- mean_mat - fpc_bf_mat%*%scale_mat#
+#
+for(l in 1:L_present) {#
+	gbl_id[l] <- parse(text=paste0("psi[", l, "] (t) : ", var_cont[l], "*\'%\'"))#
+	gbl_labels[[l]] <- rep(gbl_id[l], n_g)#
+	mu_id[l] <- parse(text=paste0("mu (t) %+-% delta[", l, "] *\ psi[", l, "] (t)"))#
+	mu_labels[[l]] <- rep(mu_id[l], n_g)#
+}#
+#
+gbl_plot_id <- c(gbl_id, mu_id)#
+gbl_plot_labels <- c(do.call(c, gbl_labels), do.call(c, mu_labels))#
+gbl_plot_labels <- factor(gbl_plot_labels, levels = gbl_plot_id)#
+#
+gbl_plot_vec <- c(gbl_g_vec, mu_g_gbl)#
+time_plot_vec <- rep(time_g_gbl, 2)#
+mean_pos_shift_mat <- cbind(matrix(NA, n_points, L_present), mean_plus_fpc_mat)#
+mean_neg_shift_mat <- cbind(matrix(NA, n_points, L_present), mean_minus_fpc_mat)#
+write(#
+	c("time", function_names[2:(L_present + 1)]),#
+	"./res/us_pos_shift.txt", ncol = L_present + 1, append = FALSE#
+)#
+write(#
+	cbind(time_g_sample, mean_plus_fpc_mat),#
+	"./res/us_pos_shift.txt", ncol = L_present + 1, append=TRUE#
+)#
+write(#
+	c("time", function_names[2:(L_present + 1)]),#
+	"./res/us_neg_shift.txt", ncol = L_present + 1, append = FALSE#
+)#
+write(#
+	cbind(time_g_sample, mean_minus_fpc_mat),#
+	"./res/us_neg_shift.txt", ncol = L_present + 1, append=TRUE#
+)#
+#
+y_lims <- rep(list(c(-2, 2), c(0, 32)), each = L_present)#
+#
+strip.math <- function(#
+	which.given, which.panel, var.name, factor.levels, ...#
+) {#
+	fl <- gbl_plot_id#
+	strip.default(which.given,which.panel,var.name,fl,...)#
+}#
+#
+if(print_pdf) {#
+	pdf("./res/us_bf.pdf",width=plot_width, height=plot_height)#
+}#
+#
+basis_plots <- xyplot(#
+	gbl_plot_vec ~ time_plot_vec | gbl_plot_labels, groups = gbl_plot_labels,#
+	data=data.frame(#
+		time_plot_vec = time_plot_vec, gbl_plot_vec = gbl_plot_vec,#
+		gbl_plot_labels = gbl_plot_labels#
+	),#
+	layout=c(L_present, 2), main="",#
+	strip=strip.math, col=vmp_col, type=c("l", "g"), lwd=2,#
+	scales = list(x = list(tick.number = 3), y = list(relation = "free", limits = y_lims)),#
+	par.strip.text=list(cex=0.8),#
+	par.settings = list(layout.heights = list(strip = 1.2)),#
+	xlab="time (years)",#
+	ylab="temperature (\u00B0C)",#
+	as.table=TRUE,#
+	panel=function(x, y, subscripts, groups) {#
+		lPan <- panel.number()#
+		l <- rep((1:(2*L_present)), each=1)[lPan]#
+		panel.grid()#
+		panel.superpose(#
+			x[order(x)], y[order(x)], subscripts, groups,#
+			type="l", col=vmp_col, lwd=2#
+		)#
+		panel.xyplot(#
+			time_g_sample, mean_pos_shift_mat[,l],#
+			col="black", pch="+", cex=1#
+		)#
+		panel.xyplot(#
+			time_g_sample, mean_neg_shift_mat[,l],#
+			col="black", pch="-", cex=1#
+		)#
+	}#
+)#
+#
+print(basis_plots)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+source("fpca_us_weather_vmp.R")
+print_pdf <- TRUE
+# Plot the fitted curves:#
+#
+Y_sample <- Y[N_sample]#
+time_obs_sample <- time_obs[N_sample]#
+T_sample <- sapply(Y_sample, length)#
+length_N <- length(N_sample)#
+#
+Y_vec <- Reduce(c, Y_sample)#
+time_vec <- Reduce(c, time_obs_sample)#
+#
+curve_id <- sample_states#
+curve_labels <- vector("list", length=length_N)#
+for(i in 1:length_N) {#
+	curve_val <- curve_id[i]#
+	curve_labels[[i]] <- rep(curve_val, T_sample[i])#
+}#
+curve_labels <- do.call(c, curve_labels)#
+curve_labels <- factor(curve_labels, levels=curve_id)#
+#
+strip.math <- function(#
+	which.given, which.panel, var.name, factor.levels, ...#
+) {#
+	fl <- curve_id#
+	strip.default(which.given,which.panel,var.name,fl,...)#
+}#
+#
+if(print_pdf) {#
+	pdf(#
+		"./res/us_fits.pdf",#
+		width=plot_width, height=plot_height#
+	)#
+}#
+#
+fitted_data_plots <- xyplot(#
+	Y_vec ~ time_vec | curve_labels, groups=curve_labels,#
+	data=data.frame(#
+		time_vec=time_vec, Y_vec=Y_vec,#
+		curve_labels=curve_labels#
+	),#
+	layout=plot_dim, main="", type = c("p", "g"),#
+	strip=strip.math,#
+	par.strip.text=list(cex=0.8),#
+	par.settings = list(layout.heights = list(strip = 1.2)),#
+	xlab="time (years)",#
+	ylab="temperature (\u00B0C)",#
+	as.table=TRUE,#
+	panel=function(x, y, subscripts, groups) {#
+		iPan <- panel.number()#
+		i <- rep(N_sample, each=1)[iPan]#
+		panel.grid()#
+		panel.superpose(#
+			x[order(x)], y[order(x)], subscripts, groups,#
+			type="p", col=data_col, pch=16, cex=0.4#
+		)#
+		panel.xyplot(#
+			time_g, Y_summary[[i]][,2],#
+			col=vmp_col, type="l", lwd=2#
+		)#
+#		panel.xyplot(#
+#			time_g, Y_summary[[i]][,1],#
+#			col=vmp_col, type="l", lwd=1, lty=2#
+#		)#
+#		panel.xyplot(#
+#			time_g, Y_summary[[i]][,3],#
+#			col=vmp_col, type="l", lwd=1, lty=2#
+#		)#
+	}#
+)#
+#
+print(fitted_data_plots)#
+#
+if(print_pdf) {#
+	dev.off()#
+} else {#
+	wait()#
+}#
+#
+# Construct plots of the global functions:#
+#
+var_cont <- round(norm_const^2/sum(norm_const^2), 3)*100#
+var_cont <- var_cont[1:L_present]#
+#
+time_g_gbl <- rep(time_g, L_present)#
+#
+gbl_g_vec <- as.vector(gbl_summary[,2:(L_present+1)])#
+gbl_labels <- vector("list", length=L_present)#
+gbl_id <- rep(NA, L_present)#
+#
+mu_g_gbl <- rep(mu_q_mu, L_present)#
+mu_labels <- vector("list", length=L_present)#
+mu_id <- rep(NA, L_present)#
+#
+mean_mat <- matrix(rep(mu_q_mu[time_g_sample_points,], L_present), ncol=L_present)#
+fpc_bf_mat <- gbl_summary[time_g_sample_points, 2:(L_present+1)]#
+scale_mat <- diag(c(3, 1.2))#
+mean_plus_fpc_mat <- mean_mat + fpc_bf_mat%*%scale_mat#
+mean_minus_fpc_mat <- mean_mat - fpc_bf_mat%*%scale_mat#
+#
+for(l in 1:L_present) {#
+	gbl_id[l] <- parse(text=paste0("psi[", l, "] (t) : ", var_cont[l], "*\'%\'"))#
+	gbl_labels[[l]] <- rep(gbl_id[l], n_g)#
+	mu_id[l] <- parse(text=paste0("mu (t) %+-% delta[", l, "] *\ psi[", l, "] (t)"))#
+	mu_labels[[l]] <- rep(mu_id[l], n_g)#
+}#
+#
+gbl_plot_id <- c(gbl_id, mu_id)#
+gbl_plot_labels <- c(do.call(c, gbl_labels), do.call(c, mu_labels))#
+gbl_plot_labels <- factor(gbl_plot_labels, levels = gbl_plot_id)#
+#
+gbl_plot_vec <- c(gbl_g_vec, mu_g_gbl)#
+time_plot_vec <- rep(time_g_gbl, 2)#
+mean_pos_shift_mat <- cbind(matrix(NA, n_points, L_present), mean_plus_fpc_mat)#
+mean_neg_shift_mat <- cbind(matrix(NA, n_points, L_present), mean_minus_fpc_mat)#
+write(#
+	c("time", function_names[2:(L_present + 1)]),#
+	"./res/us_pos_shift.txt", ncol = L_present + 1, append = FALSE#
+)#
+write(#
+	cbind(time_g_sample, mean_plus_fpc_mat),#
+	"./res/us_pos_shift.txt", ncol = L_present + 1, append=TRUE#
+)#
+write(#
+	c("time", function_names[2:(L_present + 1)]),#
+	"./res/us_neg_shift.txt", ncol = L_present + 1, append = FALSE#
+)#
+write(#
+	cbind(time_g_sample, mean_minus_fpc_mat),#
+	"./res/us_neg_shift.txt", ncol = L_present + 1, append=TRUE#
+)#
+#
+y_lims <- rep(list(c(-2, 2), c(0, 32)), each = L_present)#
+#
+strip.math <- function(#
+	which.given, which.panel, var.name, factor.levels, ...#
+) {#
+	fl <- gbl_plot_id#
+	strip.default(which.given,which.panel,var.name,fl,...)#
+}#
+#
+if(print_pdf) {#
+	pdf("./res/us_bf.pdf",width=plot_width, height=plot_height)#
+}#
+#
+basis_plots <- xyplot(#
+	gbl_plot_vec ~ time_plot_vec | gbl_plot_labels, groups = gbl_plot_labels,#
+	data=data.frame(#
+		time_plot_vec = time_plot_vec, gbl_plot_vec = gbl_plot_vec,#
+		gbl_plot_labels = gbl_plot_labels#
+	),#
+	layout=c(L_present, 2), main="",#
+	strip=strip.math, col=vmp_col, type=c("l", "g"), lwd=2,#
+	scales = list(x = list(tick.number = 3), y = list(relation = "free", limits = y_lims)),#
+	par.strip.text=list(cex=0.8),#
+	par.settings = list(layout.heights = list(strip = 1.2)),#
+	xlab="time (years)",#
+	ylab="temperature (\u00B0C)",#
+	as.table=TRUE,#
+	panel=function(x, y, subscripts, groups) {#
+		lPan <- panel.number()#
+		l <- rep((1:(2*L_present)), each=1)[lPan]#
+		panel.grid()#
+		panel.superpose(#
+			x[order(x)], y[order(x)], subscripts, groups,#
+			type="l", col=vmp_col, lwd=2#
+		)#
+		panel.xyplot(#
+			time_g_sample, mean_pos_shift_mat[,l],#
+			col="black", pch="+", cex=1#
+		)#
+		panel.xyplot(#
+			time_g_sample, mean_neg_shift_mat[,l],#
+			col="black", pch="-", cex=1#
+		)#
+	}#
+)#
+#
+print(basis_plots)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+source("fpca_us_weather_vmp.R")
+Y
+sample_states
+source("fpca_us_weather_vmp.R")
+print_pdf
+print_pdf <- TRUE
+# Plot the fitted curves:#
+#
+Y_sample <- Y[N_sample]#
+time_obs_sample <- time_obs[N_sample]#
+T_sample <- sapply(Y_sample, length)#
+length_N <- length(N_sample)#
+#
+Y_vec <- Reduce(c, Y_sample)#
+time_vec <- Reduce(c, time_obs_sample)#
+#
+curve_id <- sample_states#
+curve_labels <- vector("list", length=length_N)#
+for(i in 1:length_N) {#
+	curve_val <- curve_id[i]#
+	curve_labels[[i]] <- rep(curve_val, T_sample[i])#
+}#
+curve_labels <- do.call(c, curve_labels)#
+curve_labels <- factor(curve_labels, levels=curve_id)#
+#
+strip.math <- function(#
+	which.given, which.panel, var.name, factor.levels, ...#
+) {#
+	fl <- curve_id#
+	strip.default(which.given,which.panel,var.name,fl,...)#
+}#
+#
+if(print_pdf) {#
+	pdf(#
+		"./res/us_fits.pdf",#
+		width=plot_width, height=plot_height#
+	)#
+}#
+#
+fitted_data_plots <- xyplot(#
+	Y_vec ~ time_vec | curve_labels, groups=curve_labels,#
+	data=data.frame(#
+		time_vec=time_vec, Y_vec=Y_vec,#
+		curve_labels=curve_labels#
+	),#
+	layout=plot_dim, main="", type = c("p", "g"),#
+	strip=strip.math,#
+	par.strip.text=list(cex=0.8),#
+	par.settings = list(layout.heights = list(strip = 1.2)),#
+	xlab="time (years)",#
+	ylab="temperature (\u00B0C)",#
+	as.table=TRUE,#
+	panel=function(x, y, subscripts, groups) {#
+		iPan <- panel.number()#
+		i <- rep(N_sample, each=1)[iPan]#
+		panel.grid()#
+		panel.superpose(#
+			x[order(x)], y[order(x)], subscripts, groups,#
+			type="p", col=data_col, pch=16, cex=0.4#
+		)#
+		panel.xyplot(#
+			time_g, Y_summary[[i]][,2],#
+			col=vmp_col, type="l", lwd=2#
+		)#
+#		panel.xyplot(#
+#			time_g, Y_summary[[i]][,1],#
+#			col=vmp_col, type="l", lwd=1, lty=2#
+#		)#
+#		panel.xyplot(#
+#			time_g, Y_summary[[i]][,3],#
+#			col=vmp_col, type="l", lwd=1, lty=2#
+#		)#
+	}#
+)#
+#
+print(fitted_data_plots)#
+#
+if(print_pdf) {#
+	dev.off()#
+} else {#
+	wait()#
+}#
+#
+# Construct plots of the global functions:#
+#
+var_cont <- round(norm_const^2/sum(norm_const^2), 3)*100#
+var_cont <- var_cont[1:L_present]#
+#
+time_g_gbl <- rep(time_g, L_present)#
+#
+gbl_g_vec <- as.vector(gbl_summary[,2:(L_present+1)])#
+gbl_labels <- vector("list", length=L_present)#
+gbl_id <- rep(NA, L_present)#
+#
+mu_g_gbl <- rep(mu_q_mu, L_present)#
+mu_labels <- vector("list", length=L_present)#
+mu_id <- rep(NA, L_present)#
+#
+mean_mat <- matrix(rep(mu_q_mu[time_g_sample_points,], L_present), ncol=L_present)#
+fpc_bf_mat <- gbl_summary[time_g_sample_points, 2:(L_present+1)]#
+scale_mat <- diag(c(3, 1.2))#
+mean_plus_fpc_mat <- mean_mat + fpc_bf_mat%*%scale_mat#
+mean_minus_fpc_mat <- mean_mat - fpc_bf_mat%*%scale_mat#
+#
+for(l in 1:L_present) {#
+	gbl_id[l] <- parse(text=paste0("psi[", l, "] (t) : ", var_cont[l], "*\'%\'"))#
+	gbl_labels[[l]] <- rep(gbl_id[l], n_g)#
+	mu_id[l] <- parse(text=paste0("mu (t) %+-% delta[", l, "] *\ psi[", l, "] (t)"))#
+	mu_labels[[l]] <- rep(mu_id[l], n_g)#
+}#
+#
+gbl_plot_id <- c(gbl_id, mu_id)#
+gbl_plot_labels <- c(do.call(c, gbl_labels), do.call(c, mu_labels))#
+gbl_plot_labels <- factor(gbl_plot_labels, levels = gbl_plot_id)#
+#
+gbl_plot_vec <- c(gbl_g_vec, mu_g_gbl)#
+time_plot_vec <- rep(time_g_gbl, 2)#
+mean_pos_shift_mat <- cbind(matrix(NA, n_points, L_present), mean_plus_fpc_mat)#
+mean_neg_shift_mat <- cbind(matrix(NA, n_points, L_present), mean_minus_fpc_mat)#
+write(#
+	c("time", function_names[2:(L_present + 1)]),#
+	"./res/us_pos_shift.txt", ncol = L_present + 1, append = FALSE#
+)#
+write(#
+	cbind(time_g_sample, mean_plus_fpc_mat),#
+	"./res/us_pos_shift.txt", ncol = L_present + 1, append=TRUE#
+)#
+write(#
+	c("time", function_names[2:(L_present + 1)]),#
+	"./res/us_neg_shift.txt", ncol = L_present + 1, append = FALSE#
+)#
+write(#
+	cbind(time_g_sample, mean_minus_fpc_mat),#
+	"./res/us_neg_shift.txt", ncol = L_present + 1, append=TRUE#
+)#
+#
+y_lims <- rep(list(c(-2, 2), c(0, 32)), each = L_present)#
+#
+strip.math <- function(#
+	which.given, which.panel, var.name, factor.levels, ...#
+) {#
+	fl <- gbl_plot_id#
+	strip.default(which.given,which.panel,var.name,fl,...)#
+}#
+#
+if(print_pdf) {#
+	pdf("./res/us_bf.pdf",width=plot_width, height=plot_height)#
+}#
+#
+basis_plots <- xyplot(#
+	gbl_plot_vec ~ time_plot_vec | gbl_plot_labels, groups = gbl_plot_labels,#
+	data=data.frame(#
+		time_plot_vec = time_plot_vec, gbl_plot_vec = gbl_plot_vec,#
+		gbl_plot_labels = gbl_plot_labels#
+	),#
+	layout=c(L_present, 2), main="",#
+	strip=strip.math, col=vmp_col, type=c("l", "g"), lwd=2,#
+	scales = list(x = list(tick.number = 3), y = list(relation = "free", limits = y_lims)),#
+	par.strip.text=list(cex=0.8),#
+	par.settings = list(layout.heights = list(strip = 1.2)),#
+	xlab="time (years)",#
+	ylab="temperature (\u00B0C)",#
+	as.table=TRUE,#
+	panel=function(x, y, subscripts, groups) {#
+		lPan <- panel.number()#
+		l <- rep((1:(2*L_present)), each=1)[lPan]#
+		panel.grid()#
+		panel.superpose(#
+			x[order(x)], y[order(x)], subscripts, groups,#
+			type="l", col=vmp_col, lwd=2#
+		)#
+		panel.xyplot(#
+			time_g_sample, mean_pos_shift_mat[,l],#
+			col="black", pch="+", cex=1#
+		)#
+		panel.xyplot(#
+			time_g_sample, mean_neg_shift_mat[,l],#
+			col="black", pch="-", cex=1#
+		)#
+	}#
+)#
+#
+print(basis_plots)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+######### R script: fpca_sims.R ###########
+#
+# For running a speed comparison between the variational#
+# Bayesian approach and the MCMC approach.#
+#
+# Created: 16 OCT 2020#
+# Last changed: 23 FEB 2020#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(rstan)#
+rstan_options(auto_write = TRUE)#
+library(lattice)#
+library(ellipse)#
+library(matrixcalc)#
+library(pracma)#
+#
+set.seed(0)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("ise.r")#
+source("logistic.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")#
+#
+N_vec <- c(10, 50, 100)             # number of curves#
+n_int_knots <- 10                   # number of interior knots#
+K <- n_int_knots + 2                # number of spline basis functions#
+L <- 3                              # number of FPCA basis functions#
+criterion <- 1e-5                   # convergence criterion#
+d <- (K+2)*(L+1)                    # dimension of spline vector#
+#
+n_vmp <- 500                        # number of VMP iterations#
+n_g <- 1000                         # length of the plotting grid#
+#
+n_burnin <- 1000                    # Length of burn-in.#
+n_mcmc <- 1000                      # Size of the kept sample.#
+n_thin <- 1                         # Thinning factor. #
+tolerance <- 1e-10#
+#
+sigma_zeta_vec <- c(1, 0.5, 0)      # sd for the scores#
+sigma_eps <- 1                      # sd of the residuals#
+sigsq_eps <- sigma_eps^2#
+#
+n_sims <- 100                       # number of simulations#
+#
+# Establish hyperparameters:#
+#
+sigsq_beta <- 1e10#
+Sigma_beta <- sigsq_beta*diag(2)#
+mu_beta <- rep(0, 2)#
+A <- 1e5#
+sigsq_zeta <- 1#
+sigma_zeta <- sqrt(sigsq_zeta)#
+Sigma_zeta <- sigsq_zeta*diag(L)#
+#
+# Set the mean function and the FPCA basis functions:#
+#
+mu <- function(t) return(3*sin(pi*t))#
+psi_1 <- function(t) return(sqrt(2)*sin(2*pi*t))#
+psi_2 <- function(t) return(sqrt(2)*cos(2*pi*t))#
+psi_3 <- function(t) return(0)#
+Psi_func <- list(psi_1, psi_2, psi_3)#
+#
+plot_dim <- c(3, 1)                    # c(ncol, nrow)#
+plot_height <- 2.5                       # plot height#
+plot_width <- 6.5                      # plot width#
+#
+L_true <- 2                            # true number of basis functions
+box_plot_fpca_sims("./res/gauss_fpca_acc.txt", plot_width, plot_height, save_pdf=FALSE, log_acc=TRUE)
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("ise.r")#
+source("logistic.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")
+box_plot_fpca_sims("./res/gauss_fpca_acc.txt", plot_width, plot_height, save_pdf=FALSE, log_acc=TRUE)
+vmp_files <- rep(NA, L_true+1)#
+mcmc_files <- rep(NA, L_true+1)#
+vmp_files[1] <- "./res/mu.txt"#
+mcmc_files[1] <- "./res/mu_mcmc.txt"#
+for(l in 1:L_true) {#
+	vmp_files[l+1] <- paste("./res/psi_", l, ".txt", sep="")#
+	mcmc_files[l+1] <- paste("./res/psi_mcmc_", l, ".txt", sep="")#
+}#
+#
+mu_func <- mu#
+Psi_func <- list(psi_1, psi_2)#
+#
+panel_plots(#
+	vmp_files, mcmc_files, mu_func, Psi_func,#
+	plot_dim, plot_height, plot_width,#
+	save_pdf=FALSE, logistic_mod=FALSE#
+)
+vmp_files <- rep(NA, L_true+1)#
+mcmc_files <- rep(NA, L_true+1)#
+vmp_files[1] <- "./res_500/mu.txt"#
+mcmc_files[1] <- "./res_500/mu_mcmc.txt"#
+for(l in 1:L_true) {#
+	vmp_files[l+1] <- paste("./res_500/psi_", l, ".txt", sep="")#
+	mcmc_files[l+1] <- paste("./res_500/psi_mcmc_", l, ".txt", sep="")#
+}#
+#
+mu_func <- mu#
+Psi_func <- list(psi_1, psi_2)#
+#
+panel_plots(#
+	vmp_files, mcmc_files, mu_func, Psi_func,#
+	plot_dim, plot_height, plot_width,#
+	save_pdf=FALSE, logistic_mod=FALSE#
+)
+vmp_files <- rep(NA, L_true+1)#
+mcmc_files <- rep(NA, L_true+1)#
+vmp_files[1] <- "./res/mu.txt"#
+mcmc_files[1] <- "./res/mu_mcmc.txt"#
+for(l in 1:L_true) {#
+	vmp_files[l+1] <- paste("./res/psi_", l, ".txt", sep="")#
+	mcmc_files[l+1] <- paste("./res/psi_mcmc_", l, ".txt", sep="")#
+}#
+#
+mu_func <- mu#
+Psi_func <- list(psi_1, psi_2)#
+#
+panel_plots(#
+	vmp_files, mcmc_files, mu_func, Psi_func,#
+	plot_dim, plot_height, plot_width,#
+	save_pdf=FALSE, logistic_mod=FALSE#
+)
+######### R script: fpca_sims.R ###########
+#
+# For running a speed comparison between the variational#
+# Bayesian approach and the MCMC approach.#
+#
+# Created: 16 OCT 2020#
+# Last changed: 23 FEB 2020#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(rstan)#
+rstan_options(auto_write = TRUE)#
+library(lattice)#
+library(ellipse)#
+library(matrixcalc)#
+library(pracma)#
+#
+set.seed(0)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("ise.r")#
+source("logistic.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")#
+#
+N_vec <- c(10, 50, 100, 250, 500)   # number of curves#
+n_int_knots <- 10                   # number of interior knots#
+K <- n_int_knots + 2                # number of spline basis functions#
+L <- 3                              # number of FPCA basis functions#
+criterion <- 1e-5                   # convergence criterion#
+d <- (K+2)*(L+1)                    # dimension of spline vector#
+#
+n_vmp <- 500                        # number of VMP iterations#
+n_g <- 1000                         # length of the plotting grid#
+#
+n_burnin <- 1000                    # Length of burn-in.#
+n_mcmc <- 1000                      # Size of the kept sample.#
+n_thin <- 1                         # Thinning factor. #
+tolerance <- 1e-10#
+#
+sigma_zeta_vec <- c(1, 0.5, 0)      # sd for the scores#
+sigma_eps <- 1                      # sd of the residuals#
+sigsq_eps <- sigma_eps^2#
+#
+n_sims <- 100                       # number of simulations#
+#
+# Establish hyperparameters:#
+#
+sigsq_beta <- 1e10#
+Sigma_beta <- sigsq_beta*diag(2)#
+mu_beta <- rep(0, 2)#
+A <- 1e5#
+sigsq_zeta <- 1#
+sigma_zeta <- sqrt(sigsq_zeta)#
+Sigma_zeta <- sigsq_zeta*diag(L)#
+#
+# Set the mean function and the FPCA basis functions:#
+#
+mu <- function(t) return(3*sin(pi*t))#
+psi_1 <- function(t) return(sqrt(2)*sin(2*pi*t))#
+psi_2 <- function(t) return(sqrt(2)*cos(2*pi*t))#
+psi_3 <- function(t) return(0)#
+Psi_func <- list(psi_1, psi_2, psi_3)#
+#
+plot_dim <- c(3, 1)                    # c(ncol, nrow)#
+plot_height <- 2.5                       # plot height#
+plot_width <- 1.9                      # plot width#
+#
+L_true <- 2                            # true number of basis functions
+######### R script: fpca_sims.R ###########
+#
+# For running a speed comparison between the variational#
+# Bayesian approach and the MCMC approach.#
+#
+# Created: 16 OCT 2020#
+# Last changed: 23 FEB 2020#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(rstan)#
+rstan_options(auto_write = TRUE)#
+library(lattice)#
+library(ellipse)#
+library(matrixcalc)#
+library(pracma)#
+#
+set.seed(0)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("ise.r")#
+source("logistic.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")#
+#
+N_vec <- c(10, 50, 100, 250, 500)   # number of curves#
+n_int_knots <- 10                   # number of interior knots#
+K <- n_int_knots + 2                # number of spline basis functions#
+L <- 3                              # number of FPCA basis functions#
+criterion <- 1e-5                   # convergence criterion#
+d <- (K+2)*(L+1)                    # dimension of spline vector#
+#
+n_vmp <- 500                        # number of VMP iterations#
+n_g <- 1000                         # length of the plotting grid#
+#
+n_burnin <- 1000                    # Length of burn-in.#
+n_mcmc <- 1000                      # Size of the kept sample.#
+n_thin <- 1                         # Thinning factor. #
+tolerance <- 1e-10#
+#
+sigma_zeta_vec <- c(1, 0.5, 0)      # sd for the scores#
+sigma_eps <- 1                      # sd of the residuals#
+sigsq_eps <- sigma_eps^2#
+#
+n_sims <- 100                       # number of simulations#
+#
+# Establish hyperparameters:#
+#
+sigsq_beta <- 1e10#
+Sigma_beta <- sigsq_beta*diag(2)#
+mu_beta <- rep(0, 2)#
+A <- 1e5#
+sigsq_zeta <- 1#
+sigma_zeta <- sqrt(sigsq_zeta)#
+Sigma_zeta <- sigsq_zeta*diag(L)#
+#
+# Set the mean function and the FPCA basis functions:#
+#
+mu <- function(t) return(3*sin(pi*t))#
+psi_1 <- function(t) return(sqrt(2)*sin(2*pi*t))#
+psi_2 <- function(t) return(sqrt(2)*cos(2*pi*t))#
+psi_3 <- function(t) return(0)#
+Psi_func <- list(psi_1, psi_2, psi_3)#
+#
+plot_dim <- c(3, 1)                    # c(ncol, nrow)#
+plot_height <- 3.5                       # plot height#
+plot_width <- 1.9                      # plot width#
+#
+L_true <- 2                            # true number of basis functions
+box_plot_fpca_sims("./res/gauss_fpca_acc.txt", plot_width, plot_height, save_pdf=FALSE, log_acc=TRUE)
+box_plot_fpca_sims("./res/gauss_fpca_acc.txt", plot_width, plot_height, save_pdf=TRUE, log_acc=TRUE)
+######### R script: fpca_sims.R ###########
+#
+# For running a speed comparison between the variational#
+# Bayesian approach and the MCMC approach.#
+#
+# Created: 16 OCT 2020#
+# Last changed: 23 FEB 2020#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(rstan)#
+rstan_options(auto_write = TRUE)#
+library(lattice)#
+library(ellipse)#
+library(matrixcalc)#
+library(pracma)#
+#
+set.seed(0)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("ise.r")#
+source("logistic.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")#
+#
+N_vec <- c(10, 50, 100, 250, 500)   # number of curves#
+n_int_knots <- 10                   # number of interior knots#
+K <- n_int_knots + 2                # number of spline basis functions#
+L <- 3                              # number of FPCA basis functions#
+criterion <- 1e-5                   # convergence criterion#
+d <- (K+2)*(L+1)                    # dimension of spline vector#
+#
+n_vmp <- 500                        # number of VMP iterations#
+n_g <- 1000                         # length of the plotting grid#
+#
+n_burnin <- 1000                    # Length of burn-in.#
+n_mcmc <- 1000                      # Size of the kept sample.#
+n_thin <- 1                         # Thinning factor. #
+tolerance <- 1e-10#
+#
+sigma_zeta_vec <- c(1, 0.5, 0)      # sd for the scores#
+sigma_eps <- 1                      # sd of the residuals#
+sigsq_eps <- sigma_eps^2#
+#
+n_sims <- 100                       # number of simulations#
+#
+# Establish hyperparameters:#
+#
+sigsq_beta <- 1e10#
+Sigma_beta <- sigsq_beta*diag(2)#
+mu_beta <- rep(0, 2)#
+A <- 1e5#
+sigsq_zeta <- 1#
+sigma_zeta <- sqrt(sigsq_zeta)#
+Sigma_zeta <- sigsq_zeta*diag(L)#
+#
+# Set the mean function and the FPCA basis functions:#
+#
+mu <- function(t) return(3*sin(pi*t))#
+psi_1 <- function(t) return(sqrt(2)*sin(2*pi*t))#
+psi_2 <- function(t) return(sqrt(2)*cos(2*pi*t))#
+psi_3 <- function(t) return(0)#
+Psi_func <- list(psi_1, psi_2, psi_3)#
+#
+plot_dim <- c(3, 1)                    # c(ncol, nrow)#
+plot_height <- 3.5                       # plot height#
+plot_width <- 2.5                      # plot width#
+#
+L_true <- 2                            # true number of basis functions
+box_plot_fpca_sims("./res/gauss_fpca_acc.txt", plot_width, plot_height, save_pdf=FALSE, log_acc=TRUE)
+box_plot_fpca_sims("./res/gauss_fpca_acc.txt", plot_width, plot_height, save_pdf=TRUE, log_acc=TRUE)
+######### R script: fpca_sims.R ###########
+#
+# For running a speed comparison between the variational#
+# Bayesian approach and the MCMC approach.#
+#
+# Created: 16 OCT 2020#
+# Last changed: 23 FEB 2020#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(rstan)#
+rstan_options(auto_write = TRUE)#
+library(lattice)#
+library(ellipse)#
+library(matrixcalc)#
+library(pracma)#
+#
+set.seed(0)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("ise.r")#
+source("logistic.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")#
+#
+N_vec <- c(10, 50, 100, 250, 500)   # number of curves#
+n_int_knots <- 10                   # number of interior knots#
+K <- n_int_knots + 2                # number of spline basis functions#
+L <- 3                              # number of FPCA basis functions#
+criterion <- 1e-5                   # convergence criterion#
+d <- (K+2)*(L+1)                    # dimension of spline vector#
+#
+n_vmp <- 500                        # number of VMP iterations#
+n_g <- 1000                         # length of the plotting grid#
+#
+n_burnin <- 1000                    # Length of burn-in.#
+n_mcmc <- 1000                      # Size of the kept sample.#
+n_thin <- 1                         # Thinning factor. #
+tolerance <- 1e-10#
+#
+sigma_zeta_vec <- c(1, 0.5, 0)      # sd for the scores#
+sigma_eps <- 1                      # sd of the residuals#
+sigsq_eps <- sigma_eps^2#
+#
+n_sims <- 100                       # number of simulations#
+#
+# Establish hyperparameters:#
+#
+sigsq_beta <- 1e10#
+Sigma_beta <- sigsq_beta*diag(2)#
+mu_beta <- rep(0, 2)#
+A <- 1e5#
+sigsq_zeta <- 1#
+sigma_zeta <- sqrt(sigsq_zeta)#
+Sigma_zeta <- sigsq_zeta*diag(L)#
+#
+# Set the mean function and the FPCA basis functions:#
+#
+mu <- function(t) return(3*sin(pi*t))#
+psi_1 <- function(t) return(sqrt(2)*sin(2*pi*t))#
+psi_2 <- function(t) return(sqrt(2)*cos(2*pi*t))#
+psi_3 <- function(t) return(0)#
+Psi_func <- list(psi_1, psi_2, psi_3)#
+#
+plot_dim <- c(3, 1)                    # c(ncol, nrow)#
+plot_height <- 3.5                       # plot height#
+plot_width <- 2.8                      # plot width#
+#
+L_true <- 2                            # true number of basis functions
+box_plot_fpca_sims("./res/gauss_fpca_acc.txt", plot_width, plot_height, save_pdf=TRUE, log_acc=TRUE)

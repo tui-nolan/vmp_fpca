@@ -1,0 +1,56 @@
+\begin{thebibliography}{}
+
+\bibitem [\protect \citeauthoryear {%
+Maestrini%
+\ \BBA {} Wand%
+}{%
+Maestrini%
+\ \BBA {} Wand%
+}{%
+{\protect \APACyear {2020}}%
+}]{%
+maestrini20}
+\APACinsertmetastar {%
+maestrini20}%
+\begin{APACrefauthors}%
+Maestrini, L.%
+\BCBT {}\ \BBA {} Wand, M\BPBI P.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2020}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {The {Inverse G-Wishart} distribution and variational
+  message passing} {The {Inverse G-Wishart} distribution and variational
+  message passing}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{arXiv e-prints}{}{}{arXiv:2005.09876}.
+\PrintBackRefs{\CurrentBib}
+
+\bibitem [\protect \citeauthoryear {%
+Wand%
+}{%
+Wand%
+}{%
+{\protect \APACyear {2017}}%
+}]{%
+wand17}
+\APACinsertmetastar {%
+wand17}%
+\begin{APACrefauthors}%
+Wand, M\BPBI P.%
+\end{APACrefauthors}%
+\unskip\
+\newblock
+\APACrefYearMonthDay{2017}{}{}.
+\newblock
+{\BBOQ}\APACrefatitle {Fast approximate inference for arbitrarily large
+  semiparametric regression models via message passing (with discussion)} {Fast
+  approximate inference for arbitrarily large semiparametric regression models
+  via message passing (with discussion)}.{\BBCQ}
+\newblock
+\APACjournalVolNumPages{Journal of the {American} Statistical
+  Association}{112}{}{137--168}.
+\PrintBackRefs{\CurrentBib}
+
+\end{thebibliography}

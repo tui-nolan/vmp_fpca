@@ -1,0 +1,1082 @@
+\documentclass[12pt]{article}
+
+\usepackage{geometry} % see geometry.pdf on how to lay out the page. There's lots.
+%\geometry{a4paper} % or letter or a5paper or ... etc
+% \geometry{landscape} % rotated page geometry
+
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=20mm,
+ top=20mm,
+ }
+
+%\usepackage{fontspec}
+%\setmainfont{Times New Roman}
+
+% For general mathematical display:
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{amsbsy}
+\usepackage{bigints} % Control the size of integral symbols.
+\usepackage{relsize}
+\usepackage{mathrsfs}
+\usepackage{mathtools}
+\usepackage{accents}
+\usepackage{enumitem}
+\usepackage{amsfonts}
+%\usepackage{paralist}
+\allowdisplaybreaks
+
+% For referencing an external document:
+\usepackage{xr}
+\externaldocument{main}
+
+% New commands and operators:
+\def\sigsqeps{\sigma^2_{\epsilon}}
+\def\aeps{a_{\epsilon}}
+\def\Asqeps{A_{\epsilon}^2}
+\def\Sigmanu{\bSigma_{\nu}}
+\def\munu{\bmu_{\nu}}
+\def\sigsqmu{\sigma^2_{\mu}}
+\def\amu{a_{\mu}}
+\def\Asqmu{A_{\mu}^2}
+\def\const{\text{const.}}
+\def\rest{\text{rest}}
+\def\mumu{\bmu_\mu}
+\def\betamu{\bbeta_\mu}
+\def\umu{\bu_\mu}
+\def\numu{\bnu_\mu}
+\def\Vpsi{\bV_\psi}
+\newcommand{\sigsqb}[1]{\sigma^2_{b_{#1}}}
+\newcommand{\ab}[1]{a_{b_{#1}}}
+\newcommand\betapsi[1]{\bbeta_{\psi_{#1}}}
+\newcommand\upsi[1]{\bu_{\psi_{#1}}}
+\newcommand\nupsi[1]{\bnu_{\psi_{#1}}}
+\newcommand\sigsqpsi[1]{\sigma^2_{\psi_{#1}}}
+\newcommand\apsi[1]{a_{\psi_{#1}}}
+\newcommand\Asqpsi[1]{A_{\psi_{#1}}^2}
+\newcommand\hmu[1]{h_{\mu, i}}
+\newcommand\hmupsi[1]{\bh_{\mu \psi, i}}
+\newcommand\Hpsi[1]{\bH_{\psi, i}}
+\newcommand\mupsi[1]{\bmu_{\psi_#1}}
+\newcommand\tni[1]{\text{terms not involving $#1$}}
+
+% Linespacing:
+\usepackage{setspace}
+%\singlespacing
+\onehalfspacing
+%\doublespacing
+
+% Let top 85% of a page contain a figure
+\renewcommand{\topfraction}{0.85}
+
+% Default amount of minimum text on page (Set to 10%)
+\renewcommand{\textfraction}{0.1}
+
+% Only place figures by themselves if they take up more than 75% of the page
+\renewcommand{\floatpagefraction}{0.75}
+
+% For chapter quotes:
+\usepackage{epigraph}
+
+% For author list:
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{authblk}
+
+% For theorems and so on:
+\usepackage[english]{babel}
+\makeatletter
+\def\thmhead@plain#1#2#3{%
+  \thmname{#1}\thmnumber{\@ifnotempty{#1}{ }\@upn{#2}}%
+  \thmnote{ {\the\thm@notefont#3}}}
+\let\thmhead\thmhead@plain
+\makeatother
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{result}{Result}[section]
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{assumption}{Assumption}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{conjecture}{Conjecture}[section]
+\newtheorem{example}{Example}[section]
+
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+\newtheorem*{note}{Note}
+
+% For creating figures, tables and drawing graphs:
+\usepackage[font={small}]{caption}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{cleveref}
+\usepackage[labelformat=simple]{subcaption}
+\renewcommand\thesubfigure{(\alph{subfigure})}
+\usepackage{tikz}
+\usetikzlibrary{arrows,positioning,calc,fit}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{automata}
+\usepackage{tkz-euclide}
+\renewcommand{\arraystretch}{1} % Adjust value for vertical spacing in tables
+\usepackage[bottom]{footmisc} % Keeps floats above footnotes
+\usepackage{booktabs}
+\usepackage{siunitx}
+\usepackage{tabularx}
+\usepackage{colortbl}
+\usepackage{rotating}
+\usepackage{tcolorbox}
+\usepackage{pgffor}
+
+% For adding to do notes:
+\usepackage{xcolor}
+\newcommand\extra[1]{\textcolor{red}{#1}}
+
+% For Bibliography:
+\usepackage{cite}
+\usepackage{pslatex,apacite} 
+\bibliographystyle{apacite}
+
+% For Appendices:
+\usepackage{etoolbox}
+\pretocmd{\chapter}{\renewcommand\thesection{\thechapter.\arabic{section}}}{}{}
+\newcommand\appsection{%
+  \setcounter{section}{0}%
+  \renewcommand\thesection{\thechapter.\Alph{section}}}
+
+% For macros:
+\usepackage{import}
+\import{}{macros}
+
+% For choosing which chapter to compile:
+%\includeonly{Introduction, VariationalBayesianInference}
+
+% For hyphenating words that may break the right-hand margin:
+
+% See the ``Article customise'' template for some common customisations
+
+\title{Supplementary Material for Bayesian Functional Principal Components Analysis via Variational Message Passing}
+\author{}
+%\author[1,2,3]{Tui H. Nolan \thanks{Corresponding author: tn352@cam.ac.uk}}
+%\author[4]{Jeff Goldsmith}
+%\author[1,5]{David Ruppert}
+%\affil[1]{School of Operations Research and Information Engineering, Cornell University}
+%\affil[2]{Medical Research Council Biostatistics Unit, The University of Cambridge}
+%\affil[3]{School of Mathematical and Physical Sciences, University of Technology Sydney}
+%\affil[4]{Department of Biostatistics, Mailman School of Public Health, Columbia University}
+%\affil[5]{Department of Statistics and Data Science, Cornell University}
+
+\pdfminorversion=4
+
+%%% BEGIN DOCUMENT
+\begin{document}
+
+\maketitle
+
+%%%%%%%%%%%%%%  APPENDICES  %%%%%%%%%%%%%%%
+
+\appendix
+\numberwithin{equation}{section}
+
+%%%%%%%%%%%%%%  PROOF  OF  THEOREM  \ref{thm:orth_basis}  %%%%%%%%%%%%%%%
+
+\section{Proof of Theorem \ref{thm:orth_basis}}
+\label{app:proof_thm_orth_basis}
+
+We first note that
+
+\begin{equation}
+	y_i (t) - \mu (t) = \sum_{l=1}^L \zeta_{il} \psi_l (t), \quad i = 1, \dots, n.
+\label{centered_kl_expansion}
+\end{equation}
+
+\noindent The existence of an orthonormal eigenbasis $\psi^*_1, \dots, \psi^*_L$ can be established via Gram-Schmidt
+orthogonalization. We first set
+
+\[
+	\phi_1 \equiv \psi_1, \quad
+	\phi_j \equiv \psi_j - \sum_{l=1}^{j-1} \frac{\langle \phi_l, \psi_j \rangle}{|| \phi_l ||^2} \phi_l, \quad j = 2, \dots, L.
+\]
+
+\noindent Next, set
+
+\[
+	\phi^*_j = \frac{\phi_j}{|| \phi_j ||}, \quad j = 1, \dots, L.
+\]
+
+\noindent Then $\phi^*_1, \dots, \phi^*_L$ form an orthonormal basis for the span of $\psi_1, \dots, \psi_L$. Therefore,
+\eqref{centered_kl_expansion} can be re-written as
+
+\[
+	y_i (t) - \mu (t) = \sum_{l=1}^L \iota_{il} \phi^*_l (t), \quad i = 1, \dots, n,
+\]
+
+\noindent where
+
+\[
+	\iota_{il} \equiv \zeta_{il} ||\phi_l|| + \sum_{j=l+1}^L \zeta_{ij} \frac{\langle \phi_l , \psi_j \rangle}{||\phi_l||}, \quad
+	l = 1, \dots, L-1, \quad
+	\iota_{iL} \equiv \zeta_{iL} ||\phi_L||.
+\]
+
+\noindent Note that $\iota_{i1}, \dots, \iota_{iL}$ are correlated.
+
+Now, define $\biota_i \equiv \T{(\iota_{i1}, \dots, \iota_{iL})}$, $i = 1, \dots, n$. Since the curves $y_1, \dots, y_n$ are
+random observations of a Gaussian process, we have
+
+\[
+	\biota_i \indsim \normal (0, \bSigma_\iota), \quad i = 1, \dots, n.
+\]
+
+\noindent Next, establish the eigendecomposition of $\Sigma_\iota$, such
+that $\bSigma_\iota = \bQ_\iota \bLambda_\iota \T{\bQ_\iota}$, where $\bLambda_\iota$
+is a diagonal matrix consisting of the eigenvalues of
+$\bSigma_\iota$ in descending order, and the columns of $\bQ_\iota$
+are the corresponding eigenvectors. Then, it can be easily seen that
+
+\[
+	\bzeta^*_i \equiv \T{\bQ_\iota} \iota_i \indsim \normal (0, \bLambda_\iota), \quad i = 1, \dots, n.
+\]
+
+\noindent That is, the elements of $\bzeta^*_i$ are uncorrelated and $\bzeta^*_1, \dots, \bzeta^*_n$ are independent.
+
+Next, define the eigenvectors of $\bSigma_\iota$ as $\bq_1, \dots, \bq_L$, such that $\bQ = \bigl[
+\begin{smallmatrix} \bq_1 & \cdots & \bq_L \end{smallmatrix} \bigr]$. Furthermore, define the elements of each of
+the eigenvectors such that $\bq_l = \T{( q_{l1}, \dots, q_{lL} )}$, $l = 1, \dots, L$. Then, set
+
+\[
+	\psi^*_l \equiv \sum_{j=1}^L q_{lj} \phi^*_j, \quad l = 1, \dots, L.
+\]
+
+\noindent The orthonormality of $\psi^*_1, \dots, \psi^*_L$ is easily verified:
+
+\begin{align*}
+	\langle \psi^*_l , \psi^*_j \rangle
+		&= \biggl\langle \sum_{m=1}^L q_{lm} \phi^*_m , \sum_{k=1}^L q_{jk} \phi^*_k \biggr\rangle
+		= \sum_{m=1}^L \sum_{k=1}^L q_{lm} q_{jk} \langle \phi^*_m , \phi^*_k \rangle
+		= \sum_{k=1}^L q_{lk} q_{jk}
+		= \T{\bq_l} \bq_j
+		= \ind (l = j),
+\end{align*}
+
+\noindent where $\ind (\cdot)$ is the indicator function.
+
+Finally, we have
+
+\[
+	y_i (t) - \mu (t)
+		= \sum_{l=1}^L \iota_{il} \phi^*_l (t)
+		= \sum_{l=1}^L \sum_{j=1}^L \zeta^*_{ij} q_{jl} \phi^*_l (t)
+		= \sum_{j=1}^L \zeta^*_{ij} \sum_{l=1}^L q_{jl} \phi^*_l (t)
+		= \sum_{j=1}^L \zeta^*_{ij} \ \psi^*_j (t).
+\]
+
+\noindent The assumptions in the text ensure that this decomposition is unique.
+
+%%%%%%%%%%%%%%  PROOF  OF  LEMMA  \ref{lem:response_est}  %%%%%%%%%%%%%%%
+
+\section{Proof of Lemma \ref{lem:response_est}}
+\label{app:proof_lem_response_est}
+
+To prove \eqref{post_curve_est}, we first note that posterior curve estimates from the VMP algorithm satisfy
+
+\begin{align}
+\begin{split}
+	\yhat_i (\bt_g)
+		&= \bC_g \E_q (\numu) + \sum_{l=1}^L \E_q (\zeta_{il}) \bC_g \E_q (\nupsi{l}) \\
+		&= \E_q \{ \mu (\bt_g) \} + \sum_{l=1}^L \E_q (\zeta_{il}) \E_q \{ \psi_l (\bt_g) \} \\
+		&= \E_q \{ \mu (\bt_g) \} + \bPsi \E_q (\bzeta_i) \\
+		&= \E_q \{ \mu (\bt_g) \} + \bU_\psi \bD_\psi \T{\bV_\psi} \E_q (\bzeta_i) \\
+		&= [ \E_q \{ \mu (\bt_g) \} + \bU_\psi \bm_\zeta ]
+			+ \bU_\psi \{ \bD_\psi \T{\bV_\psi} \E_q (\bzeta_i) - \bm_\zeta \} \\
+		&= \muhat (\bt_g) + \bU_\psi \bQ \bLambda^{1/2} \bLambda^{-1/2} \T{\bQ} \{
+			\bD_\psi \T{\bV_\psi} \E_q (\bzeta_i) - \bm_\zeta
+		\} \\
+		&= \muhat (\bt_g) + \bPsitilde \bzetatilde_i,
+\end{split}
+\label{E_q_y}
+\end{align}
+
+\noindent where $\bzetatilde_i \equiv \T{(\zetatilde_{i1}, \dots, \zetatilde_{iL})}$, $i = 1, \dots, n$. Next, define
+
+\[
+	\bY \equiv \begin{bmatrix} \yhat_1 (\bt_g) & \dots & \yhat_n (\bt_g) \end{bmatrix}
+\]
+
+\noindent Then, \eqref{E_q_y} implies
+
+\[
+	\bY - \mu^* (\bt_g) \T{\bone_N} = \bPsitilde \T{\bXitilde}.
+\]
+
+\noindent Now, let $\bc$ be the $L \times 1$ vector, with $|| \psitilde_l ||$ as the $l$th entry, $l = 1, \dots, L$.
+Furthermore, let $1/\bc$ be the $L \times 1$ vector, with $1/|| \psitilde_l ||$ as the $l$th entry, $l = 1, \dots, L$.
+Recall that we can approximate these values through numerical integration. Then,
+
+\[
+	\bY - \mu^* (\bt_g) \T{\bone_N} = \bPsitilde \diag (1/\bc) \diag (\bc) \T{\bXitilde}.
+\]
+
+\noindent It is easy to see that this implies \eqref{post_curve_est}.
+
+%%%%%%%%%%%%%%  PROOF  OF  PROPOSITION  \ref{prop:bi_orthogonal}  %%%%%%%%%%%%%%%
+
+\section{Proof of Proposition \ref{prop:bi_orthogonal}}
+\label{app:proof_prop_bi_eigenfunctions}
+
+The independence of $\bzetahat_1, \dots, \bzetahat_n$ is a consequence of the independence assumption in
+\eqref{fpca_mf_min_restrn}. Let $\bc$ and $1/\bc$ retain their definitions from Appendix
+\ref{app:proof_lem_response_est}. Then, note that
+
+\[
+	\bzetahat_i
+		= \diag (\bc) \bzetatilde_i
+		= \diag (\bc) \bLambda^{-1/2} \T{\bQ} \{ \bD_\psi \T{\bV_\psi} \E_q (\bzeta_i) - \bm_\zeta \}.
+\]
+
+\noindent Recall that $\bm_\zeta$ is the mean vector of the columns of $\bD_\psi \T{\bV_\psi} \T{\bXi}$.
+Then, it is easy to see that $\sum_{i=1}^n \bzetahat_i = \bzero$. Next,
+
+\begin{align*}
+	\sum_{i=1}^n \bzetahat_i \bzetahat^{\intercal}_i
+		&= \diag (\bc) \bLambda^{-1/2} \T{\bQ}
+			\sum_{i=1}^n \left[
+				\{ \bD_\psi \T{\bV_\psi} \E_q (\bzeta_i) - \bm_\zeta \}
+					\T{\{ \bD_\psi \T{\bV_\psi} \E_q (\bzeta_i) - \bm_\zeta \}}
+			\right]
+			\bQ \bLambda^{-1/2} \diag (\bc) \\
+		&= (n - 1) \diag (\bc) \bLambda^{-1/2} \T{\bQ} \bC_\zeta \bQ \bLambda^{-1/2} \diag (\bc) \\
+		&= (n - 1) \diag (\bc) \bLambda^{-1/2} \T{\bQ} \bQ \bLambda \T{\bQ} \bQ \bLambda^{-1/2} \diag (\bc) \\
+		&= (n - 1) \diag (\bc^2),
+\end{align*}
+
+\noindent which proves the results for the estimated scores.
+
+From Lemma \ref{lem:response_est}, we have
+
+\[
+	\sum_{i=1}^n \yhat_i (\bt_g)
+		= \sum_{i=1}^n \left\{ \muhat (\bt_g) + \sum_{l=1}^L \zetahat_{il} \psihat_l (\bt_g) \right\}
+		= \sum_{i=1}^n \left\{ \muhat (\bt_g) + \bPsihat \bzetahat_i \right\}
+		= n \muhat (\bt_g),
+\]
+
+\noindent where $\bPsihat \equiv \bigl[ \begin{smallmatrix} \psihat_1 (\bt_g) & \cdots & \psihat_L (\bt_g)
+\end{smallmatrix} \bigr]$.
+Therefore, the sample covariance matrix of $\yhat_1 (\bt_g), \dots, \yhat_n (\bt_g)$ is such that
+
+\begin{align*}
+	\sum_{i=1}^n \left[ \yhat_i (\bt_g) - \muhat (\bt_g) \right] & \T{\left[ \yhat_i (\bt_g) - \muhat (\bt_g) \right]} \\
+		&= \sum_{i=1}^n \left(
+			\sum_{l=1}^L \zetahat_{il} \psihat_l (\bt_g)
+		\right) \T{\left(
+			\sum_{l=1}^L \zetahat_{il} \psihat_l (\bt_g)
+		\right)} \\
+		&= \sum_{i=1}^n \left( \bPsihat \bzetahat_i \right) \T{\left( \bPsihat \bzetahat_i \right)} \\
+		&= \bPsihat \left\{ \sum_{i=1}^n \left( \bzetahat_i \bzeta^{*\intercal}_i \right) \right\} \bPsihat^{\intercal} \\
+		&= (n - 1) \bPsihat \diag (\bc^2) \bPsihat^{\intercal}.
+\end{align*}
+
+\noindent Simple rearrangement confirms that this is the eigenvalue decomposition of
+the sample covariance matrix of $\yhat_1 (\bt_g), \dots, \yhat_n (\bt_g)$, proving the result for the vectors
+$\psihat_1 (\bt_g), \dots, \psihat_L (\bt_g)$.
+
+%%%%%%%%%%%%%%  DERIVATION  OF FPCA  GAUSSIAN  %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%  LIKELIHOOD  FRAGMENT                 %%%%%%%%%%%%%%%
+
+\section{Derivation of the Functional Principal Component Gaussian Likelihood Fragment}
+\label{app:fpca_gauss_lik_frag}
+
+From \eqref{bayes_fpca_mod}, we have, for $i = 1, \dots, n$, 
+
+\begin{equation}
+	\log p (\by_i | \bnu, \bzeta_i, \sigsqeps) =
+		-\frac{T_i}{2} \log (\sigsqeps)
+		- \frac{1}{2\sigsqeps} \left|\left|
+			\by_i - \bC_i \left( \numu - \sum_{l=1}^L \zeta_{il} \nupsi{l} \right)
+		\right|\right|^2
+		+ \const
+\label{log_bayes_fpca_mod}
+\end{equation}
+
+First, we establish the natural parameter vector for each of the optimal posterior density functions. These natural
+parameter vectors are essential for determining expectations with respect to the optimal posterior distribution.
+From equation (10) of \citeA{wand17}, we deduce that the natural parameter vector for $q (\bnu)$ is
+
+\[
+	\npq{\bnu} =
+		\np{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)}{\bnu}
+		+ \np{\bnu}{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)},
+\]
+
+\noindent the natural parameter vector for $q (\bzeta_i)$, $i = 1, \dots, n$, is
+
+\[
+	\npq{\bzeta_i} =
+		\np{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)}{\bzeta_i}
+		+ \np{\bzeta_i}{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)},
+\]
+
+\noindent and the natural parameter vector for $q(\sigsqeps)$ is
+
+\[
+	\npq{\sigsqeps} =
+		\np{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)}{\sigsqeps}
+		+ \np{\sigsqeps}{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)}.
+\]
+
+Next, we consider the updates for standard expectations that occur for each of
+the random variables and random vectors in
+\eqref{log_bayes_fpca_mod}. For $\bnu$, we need to determine the mean vector $\E_q (\bnu)$
+and the covariance matrix $\Cov_q (\bnu)$. The expectations are taken with respect to the normalization
+of
+
+\[
+	\msg{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)}{\bnu} (\bnu)
+	\msg{\bnu}{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)} (\bnu),
+\]
+
+\noindent which is a multivariate normal density function with natural parameter vector $\npq{\bnu}$.
+From \eqref{gauss_vec_comm_params}, we have
+
+\begin{align}
+\begin{split}
+	\E_q (\bnu)
+		&\longleftarrow
+			-\frac12 \left[
+				\vect^{-1} \left\{
+					\left( \npq{\bnu} \right)_2
+				\right\}
+			\right]^{-1} \left( \npq{\bnu} \right)_1 \\
+	\text{and} \quad
+	\Cov_q (\bnu)
+		&\longleftarrow
+			-\frac12 \left[
+				\vect^{-1} \left\{
+					\left( \npq{\bnu} \right)_2
+				\right\}
+			\right]^{-1}.
+\end{split}
+\label{mom_lik_nu}
+\end{align}
+
+\noindent Furthermore, the mean vector has the form
+
+\begin{equation}
+	\E_q (\bnu) \equiv \T{
+		\left\{ \T{\E_q (\numu)}, \T{\E_q (\nupsi{1})}, \dots, \T{\E_q (\nupsi{L})} \right\}
+	},
+\label{exp_lik_nu}
+\end{equation}
+
+\noindent and the covariance matrix has the form
+
+\begin{equation}
+	\Cov_q (\bnu) \equiv \begin{bmatrix}
+		\Cov_q (\numu) & \Cov_q (\numu, \nupsi{1}) & \dots & \Cov_q (\numu, \nupsi{L}) \\
+		\Cov_q (\nupsi{1}, \numu) & \Cov_q (\nupsi{1}) & \dots & \Cov_q (\nupsi{1}, \nupsi{L}) \\
+		\vdots & \vdots & \ddots & \vdots \\
+		\Cov_q (\nupsi{L}, \numu) & \Cov_q (\nupsi{L}, \nupsi{1}) & \dots & \Cov_q (\nupsi{L}) \\
+	\end{bmatrix}.
+\label{cov_lik_nu}
+\end{equation}
+
+\noindent Similarly, for each $i = 1, \dots, n$, we need to determine the optimal mean vector and covariance matrix
+for $\bzeta_i$, which are $\E_q (\bzeta_i)$ and $\Cov_q (\bzeta_i)$, respectively. The expectations are taken with
+respect to the normalization of
+
+\[
+	\msg{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)}{\bzeta_i} (\bzeta_i)
+	\msg{\bzeta_i}{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)} (\bzeta_i),
+\]
+
+\noindent which is a multivariate normal density function with natural parameter vector $\npq{\bzeta_i}$.
+According to \eqref{gauss_vech_comm_params},
+
+\begin{align}
+\begin{split}
+	\E_q (\bzeta_i)
+		&\longleftarrow
+			-\frac12 \left[
+				\vect^{-1} \left\{
+					\bD_L^{+ \intercal}
+					\left( \npq{\bzeta_i} \right)_2
+				\right\}
+			\right]^{-1} \left( \npq{\bzeta_i} \right)_1 \\
+	\text{and} \quad
+	\Cov_q (\bzeta_i)
+		&\longleftarrow
+			-\frac12 \left[
+				\vect^{-1} \left\{
+					\bD_L^{+ \intercal}
+					\left( \npq{\bzeta_i} \right)_2
+				\right\}
+			\right]^{-1}, \quad \text{for $i = 1, \dots, n$.}
+\end{split}
+\label{exp_lik_zeta}
+\end{align}
+
+\noindent Finally, for $\sigsqeps$, we need to determine $\E_q (1/\sigsqeps)$, with the expectation taken with
+respect to the normalization of
+
+\[
+	\msg{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)}{\sigsqeps} (\sigsqeps)
+	\msg{\sigsqeps}{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)} (\sigsqeps).
+\]
+
+\noindent This is an inverse-$\chi^2$ density function, with natural parameter vector $\npq{\sigsqeps}$.
+According to Result 6 of \citeA{maestrini20},
+
+\[
+	\E_q (1/\sigsqeps)
+		\longleftarrow
+			\frac{
+				\left( \npq{\sigsqeps} \right)_1 + 1
+			}{
+				\left( \npq{\sigsqeps} \right)_2
+			}.
+\]
+
+Now, we turn our attention to the derivation of the message passed from $p (\by | \bnu, \bzeta_1, \dots, \bzeta_n,
+\sigsqeps)$ to $\bnu$. Notice that
+
+\begin{equation}
+	\bC_i \left( \numu - \sum_{l=1}^L \zeta_{il} \nupsi{l} \right) = (\T{\bzetatilde_i} \otimes \bC_i) \bnu.
+\label{theta_simplification}
+\end{equation}
+
+\noindent Therefore, as a function of $\bnu$, \eqref{log_bayes_fpca_mod} can be re-written as
+
+\begin{align*}
+	\log p (\by_i | \bnu, \bzeta_i, \sigsqeps)
+		& = -\frac{1}{2\sigsqeps} \left|\left|
+			\by_i - (\T{\bzetatilde_i} \otimes \bC_i) \bnu
+		\right|\right|^2 + \tni{\bnu} \\
+		& = \T{\begin{bmatrix}
+			\bnu \\
+			\vect (\bnu \T{\bnu})
+		\end{bmatrix}} \begin{bmatrix}
+			\frac{1}{\sigsqeps} \T{(\T{\bzetatilde_i} \otimes \bC_i)} \by_i \\
+			-\frac{1}{2\sigsqeps} \vect \left\{
+				(\bzetatilde_i \T{\bzetatilde_i}) \otimes (\T{\bC_i} \bC_i)
+			\right\}
+		\end{bmatrix} + \tni{\bnu}.
+\end{align*}
+
+\noindent According to equation (8) of \citeA{wand17}, the message from the factor $p (\by | \bnu,
+\bzeta_1, \dots, \bzeta_n, \sigsqeps)$ to $\bnu$ is 
+
+\[
+	\msg{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)}{\bnu} (\bnu) \propto
+		\exp \left\{
+			\T{\begin{bmatrix}
+				\bnu \\
+				\vect (\bnu \T{\bnu})
+			\end{bmatrix}}
+			\np{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)}{\bnu}
+		\right\},
+\]
+
+
+\noindent which is proportional to a
+multivariate normal density function. The update for the message's natural parameter vector,
+in \eqref{np_lik_nu}, is dependent upon
+the mean vector and covariance matrix of $\bzetatilde_i$, which are
+
+\begin{equation}
+	\E_q (\zetatilde_i) = \T{\{ 1, \T{\E_q (\bzeta_i)} \}} \quad
+	\text{and} \quad
+	\Cov_q (\zetatilde_i) = \blockdiag \left\{ 0, \Cov_q (\bzeta_i) \right\}, \quad
+	\text{for $i = 1, \dots, n$,}
+\label{exp_lik_zeta_tilde}
+\end{equation}
+
+\noindent where $\E_q (\bzeta_i)$ and $\Cov_q (\bzeta_i)$ are defined in \eqref{exp_lik_zeta}. Note that
+a standard statistical result allows us to write
+
+\begin{equation}
+	\E_q (\bzetatilde_i \T{\bzetatilde_i}) =
+		\Cov_q (\bzetatilde_i) + \E_q (\bzetatilde_i) \T{\E_q (\bzetatilde_i)}, \quad \text{for $i = 1, \dots, n$.}
+\label{E_q_outer_zeta}
+\end{equation}
+
+Next, notice that
+
+\begin{equation}
+	\sum_{l=1}^L \zeta_{il} \nupsi{l} = \Vpsi \bzeta_i
+\label{zeta_simplification}
+\end{equation}
+
+\noindent Then, for each $i = 1, \dots, n$, the log-density function
+in \eqref{log_bayes_fpca_mod} can be represented as a function of $\bzeta_i$ by
+
+\begin{align*}
+	\log p (\by_i | \bnu, \bzeta_i, \sigsqeps)
+		& = -\frac{1}{2\sigsqeps} \left|\left|
+			\by_i - \bC_i \numu - \bC_i \Vpsi \bzeta_i
+		\right|\right|^2 + \tni{\bzeta_i} \\
+		& = \T{
+			\begin{bmatrix}
+				\bzeta_i \\
+				\vech (\bzeta_i \T{\bzeta_i})
+			\end{bmatrix}
+		} \begin{bmatrix}
+			\frac{1}{\sigsqeps} (\T{\Vpsi} \T{\bC_i} \by_i - \hmupsi{i}) \\
+			-\frac{1}{2 \sigsqeps} \T{\bD_L} \vect (\Hpsi{i})
+		\end{bmatrix} + \tni{\bzeta_i},
+\end{align*}
+
+\noindent According to equation (8) of \citeA{wand17}, the message from the factor
+$p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)$ to $\bzeta_i$ is 
+
+\[
+	\msg{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)}{\bzeta_i} (\bzeta_i) \propto
+		\exp \left\{
+			\T{\begin{bmatrix}
+				\bzeta_i \\
+				\vech (\bzeta_i \T{\bzeta_i})
+			\end{bmatrix}}
+			\np{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)}{\bzeta_i}
+		\right\},
+\]
+
+\noindent which
+is proportional to a multivariate normal density function. The message's natural parameter vector update, in
+\eqref{np_lik_zeta}, is dependant on the following expectations that are yet to be determined:
+
+\[
+	\E_q (\Vpsi) \quad \text{and} \quad \E_q (\Hpsi{i}), \quad \E_q (\hmupsi{i}), \quad i = 1, \dots, n.
+\]
+
+\noindent Now, we have,
+
+\begin{equation}
+	\E_q (\Vpsi) = \begin{bmatrix}
+		\E_q (\nupsi{1}) & \dots & \E_q (\nupsi{L})
+	\end{bmatrix},
+\label{E_q_Vpsi}
+\end{equation}
+
+\noindent where, for $l = 1, \dots, L$, $\E_q (\nupsi{l})$ is defined by \eqref{mom_lik_nu} and \eqref{exp_lik_nu}.
+Next, $\E_q (\hmupsi{i})$ is an $L \times 1$ vector, with $l$th component being
+
+\begin{equation}
+	\E_q (\hmupsi{i})_l =
+		\tr \{ \Cov_q (\numu, \nupsi{l}) \T{\bC_i} \bC_i \}
+		+ \T{\E_q (\nupsi{l})} \T{\bC_i} \bC_i \E_q (\numu), \quad
+	l = 1, \dots, L,
+\label{exp_lik_hmupsi}
+\end{equation}
+
+\noindent which depends on sub-vectors of $\E_q (\bnu)$ and sub-blocks of $\Cov_q (\bnu)$ that are defined
+in \eqref{exp_lik_nu} and \eqref{cov_lik_nu}, respectively. Finally, $\E_q (\Hpsi{i})$ is an $L \times L$ matrix,
+with $(l, l')$ component being
+
+\begin{equation}
+	\E_q (\Hpsi{i})_{l, l'} =
+		\tr \{ \Cov_q (\nupsi{l'}, \nupsi{l}) \T{\bC_i} \bC_i \}
+		+ \T{\E_q (\nupsi{l})} \T{\bC_i} \bC_i \E_q (\nupsi{l'}), \quad
+	1 \le l, l' \le L.
+\label{exp_lik_Hpsi}
+\end{equation}
+
+The final message to consider is the message from $p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)$ to
+$\sigsqeps$. As a function of $\sigsqeps$, \eqref{log_bayes_fpca_mod} takes the form
+
+\begin{align*}
+	\log p (\by_i | \bnu, \bzeta_i, \sigsqeps)
+		& = -\frac{T_i}{2} \log (\sigsqeps) - \frac{1}{2 \sigsqeps} \left|\left|
+			\by_i - \bC_i \bV \bzetatilde_i
+		\right|\right|^2 + \tni{\sigsqeps} \\
+		& = \T{
+			\begin{bmatrix}
+				\log (\sigsqeps) \\
+				\frac{1}{\sigsqeps}
+			\end{bmatrix}
+		} \begin{bmatrix}
+			-\frac{T_i}{2} \\
+			-\frac12 \left|\left| \by_i - \bC_i \bV \bzetatilde_i \right|\right|^2
+		\end{bmatrix} + \tni{\sigsqeps},
+\end{align*}
+
+\noindent According to equation (8) of \citeA{wand17}, the message from $p (\by | \bnu,
+\bzeta_1, \dots, \bzeta_n, \sigsqeps)$ to $\sigsqeps$ is
+
+\[
+	\msg{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)}{\sigsqeps} (\sigsqeps) \propto
+		\exp \left\{
+			\T{\begin{bmatrix}
+				\log (\sigsqeps) \\
+				1/\sigsqeps
+			\end{bmatrix}}
+			\np{p (\by | \bnu, \bzeta_1, \dots, \bzeta_n, \sigsqeps)}{\sigsqeps}
+		\right\},
+\]
+
+\noindent which is proportional
+to an inverse-$\chi^2$ density function. The message's natural parameter vector, in \eqref{np_lik_sigsqeps}, depends
+on the mean of the square norm $|| \by_i - \bC_i \bV \bzetatilde_i ||^2$, for $i = 1, \dots, n$.
+This expectation takes the form
+
+\begin{align*}
+	\E_q \left(
+		\left|\left| \by_i - \bC_i \bV \bzetatilde_i \right|\right|^2
+	\right) =
+		& \T{\by_i} \by_i - 2 \T{\E_q (\bzetatilde_i)} \T{\E_q (\bV)} \T{\bC_i} \by_i \\
+		& + \tr \left[
+			\left\{ \Cov_q (\bzetatilde_i) + \E_q (\bzetatilde_i) \T{\E_q (\bzetatilde_i)} \right\} \E_q (\bH_i)
+		\right],
+\end{align*}
+
+\noindent where we introduce the matrices
+
+\begin{equation}
+	\bH_i \equiv \begin{bmatrix}
+		\hmu{i} & \T{\hmupsi{i}} \\
+		\hmupsi{i} & \Hpsi{i}
+	\end{bmatrix}, \quad
+	\text{for $i = 1, \dots, n$},
+\label{H_mat}
+\end{equation}
+
+\noindent and vectors
+
+\begin{equation}
+	\hmu{i} \equiv \T{\numu} \bC_i \bC_i \numu, \quad
+	\text{for $i = 1, \dots, n$}.
+\label{hmu_vec}
+\end{equation}
+
+\noindent For each $i = 1, \dots, n$, the mean vector $\E_q (\bzetatilde_i)$ and $\Cov_q (\bzetatilde_i)$ are defined in
+\eqref{exp_lik_zeta_tilde}. However, $\E_q (\bV)$ and $\E_q (\bH_i)$, $i = 1, \dots, n$, are yet to be determined.
+We then have,
+
+\[
+	\E_q (\bV) = \begin{bmatrix}
+		\E_q (\numu) & \E_q (\nupsi{1}) & \dots & \E_q (\nupsi{L})
+	\end{bmatrix},
+\]
+
+\noindent where the component mean vectors are defined by \eqref{exp_lik_nu}.
+For each $i = 1, \dots, n$, the expectation of $\bH_i$, defined in \eqref{H_mat},
+with respect to the optimal posterior distribution is
+
+\[
+	\E_q (\bH_i) \equiv \begin{bmatrix}
+		\E_q (\hmu{i}) & \T{\E_q (\hmupsi{i})} \\
+		\E_q (\hmupsi{i}) & \E_q (\Hpsi{i})
+	\end{bmatrix},
+\]
+
+\noindent where $\hmu{i}$ is defined in \eqref{hmu_vec} with expected value
+
+\[
+	\E_q (\hmu{i}) \equiv
+		\tr \{ \Cov_q (\numu) \T{\bC_i} \bC_i \}
+		+ \T{\E_q (\numu)} \T{\bC_i} \bC_i \E_q (\numu).
+\]
+
+\noindent Furthermore, $\E_q (\hmupsi{i})$ and $\E_q (\Hpsi{i})$ are defined in \eqref{exp_lik_hmupsi} and
+\eqref{exp_lik_Hpsi}, respectively.
+
+The FPCA Gaussian likelihood fragment, summarized in Algorithm \ref{alg:fpca_gauss_lik_frag}, is a
+proceduralization of these results.
+
+%%%%%%%%%%%%%%  DERIVATION  MEAN  AND  FPC                  %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%  GAUSSIAN  PENALIZATION  FRAGMENT  %%%%%%%%%%%%%%%
+
+\section{Derivation of the Functional Principal Component Gaussian Penalization Fragment}
+\label{app:mean_fpc_gauss_pen_frag}
+
+From \eqref{bayes_fpca_mod}, we have, for $l = 1, \dots, L$,
+
+\begin{align}
+\begin{split}
+	\log p (\numu, \nupsi{l} | \sigsqmu, \sigsqpsi{l}) =
+		& -\frac{K}{2} \log (\sigsqmu) - \frac{K}{2} \log (\sigsqpsi{l})
+			- \frac12 \T{(\betamu - \bmu_{\betamu})} \bSigma_{\betamu}^{-1} (\betamu - \bmu_{\betamu}) \\
+		& - \frac{1}{2 \sigsqmu} \T{\umu} \umu
+			- \frac12 \T{(\betapsi{l} - \bmu_{\betapsi{l}})} \bSigma_{\betapsi{l}}^{-1} (\betapsi{l} - \bmu_{\betapsi{l}})
+			- \frac{1}{2 \sigsqpsi{l}} \T{\upsi{l}} \upsi{l}.
+\end{split}
+\label{log_mean_fpc_gauss_pen_factor}
+\end{align}
+
+First, we establish the natural parameter vector for each of the optimal posterior density functions. As explained
+in Appendix \ref{app:fpca_gauss_lik_frag}, these natural
+parameter vectors are essential for determining expectations with respect to the optimal posterior distribution.
+According to equation (10) of \citeA{wand17}, the natural parameter vector for $q (\bnu)$ is
+
+\[
+	\npq{\bnu} =
+		\np{p(\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})}{\bnu}
+		+ \np{\bnu}{p(\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})},
+\]
+
+\noindent the natural parameter vector for $q (\sigsqmu)$ is
+
+\[
+	\npq{\sigsqmu} =
+		\np{p(\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})}{\sigsqmu}
+		+ \np{\sigsqmu}{p(\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})},
+\]
+
+\noindent and, for $l = 1, \dots, L$, the natural parameter vector for $q(\sigsqpsi{l})$ is
+
+\[
+	\npq{\sigsqpsi{l}} =
+		\np{p(\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})}{\sigsqpsi{l}}
+		+ \np{\sigsqpsi{l}}{p(\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})}.
+\]
+
+Next, we consider the updates for standard expectations of each of the random variables and random vectors
+that appear in \eqref{log_mean_fpc_gauss_pen_factor}. For $\bnu$, we require the mean vector $\E_q (\bnu)$
+and covariance matrix $\Cov_q (\bnu)$ under the optimal posterior distribution. The expectations are taken with
+respect to the normalization of
+
+\[
+	\msg{p(\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})}{\bnu} (\bnu)
+	\msg{\bnu}{p(\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})} (\bnu),
+\]
+
+\noindent which is a multivariate normal density function with natural parameter vector $\npq{\bnu}$.
+From \eqref{gauss_vec_comm_params}, we have
+
+\begin{align}
+\begin{split}
+	\E_q (\bnu)
+		&\longleftarrow
+			-\frac12 \left[
+				\vect^{-1} \left\{
+					\left( \npq{\bnu} \right)_2
+				\right\}
+			\right]^{-1} \left( \npq{\bnu} \right)_1 \\
+	\text{and} \quad
+	\Cov_q (\bnu)
+		&\longleftarrow
+			-\frac12 \left[
+				\vect^{-1} \left\{
+					\left( \npq{\bnu} \right)_2
+				\right\}
+			\right]^{-1}.
+\end{split}
+\label{mom_pen_nu}
+\end{align}
+
+\noindent The sub-vectors and sub-matrices of $\E_q (\bnu)$ and $\Cov_q (\bnu)$ are identical to those in
+\eqref{exp_lik_nu} and \eqref{cov_lik_nu}, respectively. For the functional principal components Gaussian penalization fragment,
+however, we need to note further sub-vectors and sub-matrices. First,
+
+\begin{equation}
+	\E_q (\numu) \equiv \T{\left\{ \T{\E_q (\betamu)}, \T{\E_q (\umu)} \right\}} \quad
+	\text{and} \quad
+	\E_q (\nupsi{l}) \equiv \T{\left\{ \T{\E_q (\betapsi{l})}, \T{\E_q (\upsi{l})} \right\}}, \quad
+	\text{for $l = 1, \dots, L$}
+\label{exp_betau}
+\end{equation}
+
+\noindent and, second,
+
+\begin{equation}
+	\Cov_q (\numu) \equiv \begin{bmatrix}
+		\Cov_q (\betamu) & \Cov_q (\betamu, \umu) \\
+		\Cov_q (\umu, \betamu) & \Cov_q (\umu)
+	\end{bmatrix}
+\label{cov_betau_mu}
+\end{equation}
+
+\noindent and
+
+\begin{equation}
+	\Cov_q (\nupsi{l}) \equiv \begin{bmatrix}
+		\Cov_q (\betapsi{l}) & \Cov_q (\betapsi{l}, \upsi{l}) \\
+		\Cov_q (\upsi{l}, \betapsi{l}) & \Cov_q (\upsi{l})
+	\end{bmatrix}, \quad
+	\text{for $l = 1, \dots, L$.}
+\label{cov_betau_psi}
+\end{equation}
+
+\noindent For $\sigsqmu$, we need to determine
+$\E_q (1/\sigsqmu)$, with expectation taken with respect to the normalization of
+
+\[
+	\msg{p(\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})}{\sigsqmu} (\sigsqmu)
+	\msg{\sigsqmu}{p(\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})} (\sigsqmu),
+\]
+
+\noindent which is an inverse-$\chi^2$ density function with natural parameter vector
+$\npq{\sigsqmu}$. According to Result 6 of \citeA{maestrini20},
+
+\begin{equation}
+	\E_q (1/\sigsqmu)
+		\longleftarrow
+			\frac{
+				\left( \npq{\sigsqmu} \right)_1 + 1
+			}{
+				\left( \npq{\sigsqmu} \right)_2
+			}.
+\label{exp_pen_sigsqmu}
+\end{equation}
+
+\noindent Similar arguments can be used to show that
+
+\begin{equation}
+	\E_q (1/\sigsqpsi{l})
+		\longleftarrow
+			\frac{
+				\left( \npq{\sigsqpsi{l}} \right)_1 + 1
+			}{
+				\left( \npq{\sigsqpsi{l}} \right)_2
+			}, \quad \text{for $l = 1, \dots, L$.}
+\label{exp_pen_sigsqpsi}
+\end{equation}
+
+Now, we turn our attention to the derivation of the messages passed from the factor. As a function of $\bnu$,
+\eqref{log_mean_fpc_gauss_pen_factor} this can be re-written as
+
+\begin{align*}
+	\log p(\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})
+		& = -\frac12 \T{\bnu} \Sigmanu^{-1} \bnu + \T{\bnu} \Sigmanu^{-1} \munu + \tni{\bnu} \\
+		& = \T{\begin{bmatrix}
+			\bnu \\
+			\vect (\bnu \T{\bnu})
+		\end{bmatrix}} \begin{bmatrix}
+			\Sigmanu^{-1} \munu \\
+			-\frac12 \vect (\Sigmanu^{-1})
+		\end{bmatrix} + \tni{\bnu},
+\end{align*}
+
+\noindent According to equation (8) of \citeA{wand17}, the message from the factor $p(\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})$
+to $\bnu$ is
+
+\[
+	\msg{p (\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})}{\bnu} (\bnu)
+		\propto
+			\exp \left\{
+				\T{\begin{bmatrix}
+					\bnu \\
+					\vect (\bnu \T{\bnu})
+				\end{bmatrix}}
+				\np{p (\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})}{\bnu}
+			\right\},
+\]
+
+\noindent which is proportional to a multivariate normal density function.
+The update for the message's natural parameter vector, in \eqref{np_pen_nu},
+is dependant upon the expectation of $\Sigmanu^{-1}$, which is given by
+
+\[
+	\E_q (\Sigmanu^{-1}) =
+		\blockdiag \left\{
+			\begin{bmatrix}
+				\bSigma_{\betamu} & \T{\textbf{O}} \\
+				\textbf{O} & \E_q (1/\sigsqmu) \bI_K
+			\end{bmatrix},
+			\blockdiag_{l = 1, \dots, L} \left(
+				\begin{bmatrix}
+					\bSigma_{\betapsi{l}} & \T{\textbf{O}} \\
+					\textbf{O} & \E_q (1/\sigsqpsi{l}) \bI_K
+				\end{bmatrix}
+			\right)
+		\right\},
+\]
+
+\noindent where $\E_q (1/\sigsqmu)$ and, for $l = 1, \dots, L$, $\E_q (1/\sigsqpsi{l})$ are defined in
+\eqref{exp_pen_sigsqmu} and \eqref{exp_pen_sigsqpsi}, respectively.
+
+As a function of $\sigsqmu$, \eqref{log_mean_fpc_gauss_pen_factor} can be re-written as
+
+\begin{align*}
+	\log p(\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})
+		& = -\frac{K}{2} \log (\sigsqmu) - \frac{1}{2\sigsqmu} \T{\umu} \umu + \tni{\sigsqmu} \\
+		& = \T{\begin{bmatrix}
+			\log (\sigsqmu) \\
+			1/\sigsqmu
+		\end{bmatrix}} \begin{bmatrix}
+			-\frac{K}{2} \\
+			-\frac12 \T{\umu} \umu
+		\end{bmatrix} + \tni{\sigsqmu}.
+\end{align*}
+
+\noindent According to equation (8) of \citeA{wand17}, the message from the factor $p(\bnu | \sigsqmu, \sigsqpsi{1}, \dots,
+\sigsqpsi{L})$ to $\sigsqmu$ is
+
+\[
+	\msg{p (\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})}{\sigsqmu} (\sigsqmu)
+		\propto
+			\exp \left\{
+				\T{\begin{bmatrix}
+					\log (\sigsqmu) \\
+					1/\sigsqmu
+				\end{bmatrix}} 
+				\np{p (\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})}{\sigsqmu}
+			\right\},
+\]
+
+\noindent which is an inverse-$\chi^2$
+density function upon normalization. The message's natural parameter vector update in \eqref{np_pen_sigsqmu}
+depends on $\E_q (\T{\umu} \umu)$. Standard statistical results and sub-vector and sub-matrix definitions in
+\eqref{exp_betau} and \eqref{cov_betau_mu} can be employed to show that
+
+\[
+	\E_q (\T{\umu} \umu) = \T{\E_q (\umu)} \E_q (\umu) + \tr \left\{ \Cov_q (\umu) \right\}.
+\]
+
+As a function of $\sigsqpsi{l}$, for $l = 1, \dots, L$, \eqref{log_mean_fpc_gauss_pen_factor} can be re-written as
+
+\begin{align*}
+	\log p(\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})
+		& = -\frac{K}{2} \log (\sigsqpsi{l}) - \frac{1}{2\sigsqpsi{l}} \T{\upsi{l}} \upsi{l} + \tni{\sigsqpsi{l}} \\
+		& = \T{\begin{bmatrix}
+			\log (\sigsqpsi{l}) \\
+			1/\sigsqpsi{l}
+		\end{bmatrix}} \begin{bmatrix}
+			-\frac{K}{2} \\
+			-\frac12 \T{\upsi{l}} \upsi{l}
+		\end{bmatrix} + \tni{\sigsqpsi{l}}.
+\end{align*}
+
+\noindent According to equation (8) of \citeA{wand17}, the message from the factor $p(\bnu | \sigsqmu, \sigsqpsi{1}, \dots,
+\sigsqpsi{L})$ to $\sigsqpsi{l}$ is
+
+\[
+	\msg{p (\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})}{\sigsqmu} (\sigsqpsi{l})
+		\propto
+			\exp \left\{
+				\T{\begin{bmatrix}
+					\log (\sigsqpsi{l}) \\
+					1/\sigsqpsi{l}
+				\end{bmatrix}} 
+				\np{p (\bnu | \sigsqmu, \sigsqpsi{1}, \dots, \sigsqpsi{L})}{\sigsqpsi{l}}
+			\right\},
+\]
+
+\noindent which is an inverse-$\chi^2$
+density function upon normalization. The message's natural parameter vector update in \eqref{np_pen_sigsqpsi}
+depends on $\E_q (\T{\upsi{l}} \upsi{l})$. Standard statistical results and sub-vector and sub-matrix definitions in
+\eqref{exp_betau} and \eqref{cov_betau_psi} can be employed to show that
+
+\[
+	\E_q (\T{\upsi{l}} \upsi{l}) = \T{\E_q (\upsi{l})} \E_q (\upsi{l}) + \tr \left\{ \Cov_q (\upsi{l}) \right\}.
+\]
+
+The functional principal component Gaussian penalization fragment, summarized in Algorithm \ref{alg:mean_fpc_gauss_pen_frag},
+is a proceduralization of these results.
+
+%%%%%%%%%%%%%%  BIBLIOGRAPHY  %%%%%%%%%%%%%%%
+
+\bibliography{bibliography}
+
+\end{document}
+
+
+
