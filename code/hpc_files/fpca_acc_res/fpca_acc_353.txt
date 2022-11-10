@@ -1,0 +1,2 @@
+N sim mu_vmp mu_mcmc psi_1_vmp psi_1_mcmc psi_2_vmp psi_2_mcmc psi_3_vmp psi_3_mcmc psi_4_vmp psi_4_mcmc zeta_vmp zeta_mcmc
+250 53 0.000588801 0.0006824398 0.00640153 0.005449467 0.01664779 0.01904043 0.01348529 0.06537636 0.01622228 0.06200122 0.617973 0.5923514

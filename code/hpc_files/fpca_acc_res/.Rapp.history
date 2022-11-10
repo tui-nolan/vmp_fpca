@@ -1,0 +1,1535 @@
+plot_dim <- c(n_sample, 1)                 # (ncol, nrow) for curve plots
+n_g <- 1000                         # length of plotting grid#
+#
+plot_width <- 6.5#
+plot_height <- 2.5#
+#
+print_pdf <- FALSE#
+#
+# Establish hyperparameters:#
+#
+sigsq_beta <- 1e10#
+Sigma_beta <- sigsq_beta*diag(2)#
+mu_beta <- rep(0, 2)#
+A <- 1e5#
+sigsq_zeta <- 1#
+sigma_zeta <- sqrt(sigsq_zeta)#
+Sigma_zeta <- sigsq_zeta*diag(L)#
+#
+# Set the mean function and the FPCA basis functions:#
+#
+mu <- function(t) return(3*sin(pi*t))#
+Psi <- fourier_basis(L)#
+#
+# Generate FPCA data:#
+#
+fpca_data <- gauss_fpca_data(#
+	T_vec, N, K, n_g, sigma_zeta_vec, sigma_eps,#
+	mu, Psi#
+)#
+#
+time_obs <- fpca_data$"time_obs"#
+time_g <- fpca_data$"time_g"#
+int_knots <- fpca_data$"int_knots"#
+X <- fpca_data$"X"#
+Z <- fpca_data$"Z"#
+C <- fpca_data$"C"#
+X_g <- fpca_data$"X_g"#
+Z_g <- fpca_data$"Z_g"#
+C_g <- fpca_data$"C_g"#
+zeta <- fpca_data$"zeta"#
+mu_t <- fpca_data$"mu_t"#
+Psi_t <- fpca_data$"Psi_t"#
+mu_g <- fpca_data$"mu_g"#
+Psi_g <- fpca_data$"Psi_g"#
+Y <- fpca_data$"Y"#
+#
+Y_vec <- Reduce(c, Y)#
+#
+# Plot the data:#
+#
+plot_fpca_data(N_sample, time_obs, Y, plot_dim, data_col)
+#####################################################
+##
+#  MCMC  SIMULATIONS#
+##
+#####################################################
+#
+# Set up Stan inputs:#
+#
+all_data <- list(#
+	N=N, n_time_obs=sum(T_vec), K=K, L=L,#
+	sigma_beta=sqrt(sigsq_beta), A=A,#
+	Sigma_zeta=Sigma_zeta,#
+	X=do.call(rbind, X),#
+	Z=do.call(rbind, Z),#
+	T_vec=T_vec, Y=Y_vec#
+)#
+#
+# Compile Stan code:#
+#
+compile_obj <- stan(#
+	model_code=fpca_model, data=all_data,#
+	iter=1, chains=1#
+)#
+#
+# Obtain MCMC samples for each parameter using Stan:#
+#
+stan_obj <- stan(#
+	model_code=fpca_model, data=all_data, warmup=n_burnin,#
+	iter=(n_burnin+n_mcmc), chains=1, thin=n_thin,#
+	refresh=100, fit=compile_obj#
+)#
+#
+# Summarise the MCMC samples:#
+#
+mcmc_summary <- summarise_mcmc(stan_obj, N_sample, C_g, Psi_g)#
+#
+Y_mcmc_summary <- mcmc_summary$"Y_summary"#
+gbl_mcmc_hat <- mcmc_summary$"gbl_curves"#
+Zeta_mcmc_hat <- mcmc_summary$"zeta"
+#####################################################
+##
+#  VMP  SIMULATIONS#
+##
+#####################################################
+#
+# VMP simulations:#
+#
+eta_vec <- vmp_gauss_fpca(#
+	n_vmp, N, L, C, Y, sigma_zeta, mu_beta,#
+	Sigma_beta, A, time_g, C_g, Psi_g,#
+	criterion, plot_elbo = TRUE#
+)#
+#
+# Get the posterior estimates#
+#
+eta_in <- list(#
+	eta_vec$"p(nu|Sigma_nu)->nu", eta_vec $"p(Y|nu,zeta,sigsq_eps)->nu",#
+	eta_vec $"p(zeta)->zeta", eta_vec $"p(Y|nu,zeta,sigsq_eps)->zeta"#
+)#
+fpc_rotns <- fpc_orthogonalization(eta_in, N_sample, time_g, C_g, Psi_g)#
+#
+# Summarise the VMP results:#
+#
+Y_vmp_summary <- fpc_rotns$"Y_summary"#
+gbl_vmp_hat <- fpc_rotns$"gbl_curves"#
+Zeta_vmp_hat <- fpc_rotns$"zeta"
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)
+print_pdf
+print_pdf <- TRUE
+if(print_pdf) {#
+	pdf("./res/fpca_fits.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+######### R script: fpca_vmp_vs_mcmc.R ###########
+#
+# For performing a simple functional principal#
+# components analysis via MCMC to determine#
+# the FPCA basis functions. The FPCA basis functions#
+# are determined via semiparametric regression.#
+#
+# Created: 29 SEP 2020#
+# Last changed: 29 JUL 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(rstan)#
+rstan_options(auto_write = TRUE)#
+library(lattice)#
+library(ellipse)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("stan_mods.r")#
+source("fourier_basis.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")
+getwd()
+######### R script: mlfpca_vmp_vs_mcmc_final.R ###########
+#
+# For performing a comparison of MlFPCA via MCMC#
+# and VMP#
+#
+# Created: 12 MAY 2022#
+# Last changed: 12 MAY 2022#
+#
+# Updates:#
+# 1. Constructing comparisons between VMP and MCMC.#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(lattice)#
+library(pracma)#
+library(rstan)#
+rstan_options(auto_write = TRUE)#
+library(ellipse)#
+library(matrixcalc)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("cprod.r")#
+source("hdi.r")#
+source("wait.r")#
+source("trapint.r")#
+source("stan_mods.r")#
+source("vmp_functions.r")#
+source("fourier_basis.r")#
+source("fpca_algs.r")#
+#
+setwd("..")#
+#
+set.seed(36)
+# Establish simulation variables:#
+#
+M_min <- 10#
+M_max <- 15#
+N <- 50                                   # number of subjects#
+#
+m_sample <- 3                                   # number of second level curves for the plots#
+n_sample <- 4                             # number of curves for the plots#
+#
+M_sample <- round(seq(1, M_max, length.out = m_sample))   # specific second level curves for the plots#
+M <- sample(M_min:M_max, N, replace = TRUE)     # number of observations on each subject#
+while(sum(M == M_max) < n_sample) {#
+	M <- sample(M_min:M_max, N, replace = TRUE)#
+}#
+#
+N_sample <- sort(sample(which(M == M_max), n_sample))   # specific curves for the plots#
+#
+T_vec <- vector("list", length = N)       # number of time observations for each curve#
+for(i in 1:N) {#
+	T_vec[[i]] <- round(runif(M[i], 20, 30))#
+}
+criterion  <- 1e-5                        # convergence criterion#
+n_int_knots <- 10                         # number of interior knots#
+K <- n_int_knots + 2                      # number of spline basis functions#
+L_1 <- 2                                  # number of first level eigenfunctions#
+L_2 <- 2                                  # number of second level eigenfunctions#
+L <- L_1 + L_2#
+data_col <- "grey51"                      # colour of the data in the plots#
+#
+n_vmp <- 200                              # number of VMP iterations#
+n_g <- 1000                               # length of the plotting grid#
+vmp_col <- "red"                 # colour of the VMP plots#
+d <- (K+2)*(L_1 + L_2 + 1)                # dimension of spline vector#
+#
+n_burnin <- 200                   # Length of burn-in.#
+n_mcmc <- 200                     # Size of the kept sample.#
+n_thin <- 1                        # Thinning factor. #
+tolerance <- 1e-10#
+mcmc_col <- "deepskyblue2"                  # colour of the MCMC lines in the plots#
+mcmc_lwd <- 2                       # line width for mcmc plots#
+#
+sigma_zeta_1 <- 1/(1:L_1)                   # vector of st. dev.'s for the first level scores#
+sigma_zeta_2 <- 1/(1:L_2)                 # vector of st. dev.'s for the second level scores#
+l_zeta <- L_1 + M*L_2                     # length of score vector#
+#
+sigma_eps <- 1                            # sd of the residuals#
+sigsq_eps <- sigma_eps^2
+# Set up plot-grid dimensions:#
+#
+plot_dim <- c(m_sample, n_sample)         # (ncol, nrow) for curve plots#
+#
+plot_width <- 5#
+plot_height <- 7#
+#
+print_pdf <- FALSE              # save the plots in a PDF?
+# Set the FPCA basis functions:#
+#
+mu <- function(t) return(10*sin(pi*t) - 10/2)#
+Psi_1 <- fourier_basis(L_1)#
+Psi_2 <- fourier_basis(L_1 + L_2)[(L_1 + 1):(L_1 + L_2)]
+# Generate the data:#
+#
+mlfpca_data <- gauss_mlfpca_data(#
+	T_vec, K, n_g, sigma_zeta_1, sigma_zeta_2,#
+	sigma_eps, mu_func, Psi_1, Psi_2#
+)#
+#
+time_obs <- mlfpca_data$time_obs#
+time_g <- mlfpca_data$time_g#
+int_knots <- mlfpca_data$int_knots#
+X <- mlfpca_data$X#
+Z <- mlfpca_data$Z#
+C <- mlfpca_data$C#
+C_g <- mlfpca_data$C_g#
+zeta_1 <- mlfpca_data$zeta_1#
+zeta_2 <- mlfpca_data$zeta_2#
+mu_g <- mlfpca_data$mu_g#
+Psi_1_g <- mlfpca_data$Psi_1_g#
+Psi_2_g <- mlfpca_data$Psi_2_g#
+Y <- mlfpca_data$Y
+# Plot the data:#
+#
+plot_mlfpca_data(N_sample, M_sample, time_obs, Y, plot_dim, data_col)
+wait()
+######### R script: fpca_vmp_vs_mcmc.R ###########
+#
+# For performing a simple functional principal#
+# components analysis via MCMC to determine#
+# the FPCA basis functions. The FPCA basis functions#
+# are determined via semiparametric regression.#
+#
+# Created: 29 SEP 2020#
+# Last changed: 29 JUL 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(rstan)#
+rstan_options(auto_write = TRUE)#
+library(lattice)#
+library(ellipse)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("stan_mods.r")#
+source("fourier_basis.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")
+# Establish simulation variables:#
+#
+N <- 50                             # number of curves#
+n_sample <- 4                       # number of curves for the plots#
+N_sample <- sort(sample(1:N, n_sample))   # specific curves for the plots#
+T_vec <- sample(20:30, N, replace = TRUE)    # number of time observations for each curve#
+n_int_knots <- 10                   # number of interior knots#
+K <- n_int_knots + 2                # number of spline basis functions#
+L <- 3                              # guess of the number of FPCA basis functions#
+data_col <- "black"                 # colour of the data in the plots#
+criterion <- 1e-5                   # convergence criterion#
+d <- (K+2)*(L+1)              # dimension of spline vector#
+#
+n_vmp <- 500                        # number of VMP iterations#
+n_g <- 1000                         # length of the plotting grid#
+vmp_col <- "red"                    # colour of the VMP plots#
+vmp_lwd <- 1                        # line width for vmp plots#
+#
+n_burnin <- 1000                    # Length of burn-in.#
+n_mcmc <- 1000                      # Size of the kept sample.#
+n_thin <- 1                         # Thinning factor. #
+tolerance <- 1e-10#
+mcmc_col <- "deepskyblue2"          # colour of the MCMC lines in the plots#
+mcmc_lwd <- 2                       # line width for mcmc plots#
+#
+sigma_zeta_vec <- 1/(1:L)      # sd for the scores#
+sigma_eps <- 1                      # sd of the residuals#
+sigsq_eps <- sigma_eps^2
+# Set up plotting variables:#
+#
+plot_dim <- c(n_sample, 1)                 # (ncol, nrow) for curve plots#
+#
+n_g <- 1000                         # length of plotting grid#
+#
+plot_width <- 6.5#
+plot_height <- 2.5#
+#
+print_pdf <- FALSE
+# Establish hyperparameters:#
+#
+sigsq_beta <- 1e10#
+Sigma_beta <- sigsq_beta*diag(2)#
+mu_beta <- rep(0, 2)#
+A <- 1e5#
+sigsq_zeta <- 1#
+sigma_zeta <- sqrt(sigsq_zeta)#
+Sigma_zeta <- sigsq_zeta*diag(L)#
+#
+# Set the mean function and the FPCA basis functions:#
+#
+mu <- function(t) return(3*sin(pi*t))#
+Psi <- fourier_basis(L)
+# Generate FPCA data:#
+#
+fpca_data <- gauss_fpca_data(#
+	T_vec, N, K, n_g, sigma_zeta_vec, sigma_eps,#
+	mu, Psi#
+)
+time_obs <- fpca_data$"time_obs"#
+time_g <- fpca_data$"time_g"#
+int_knots <- fpca_data$"int_knots"#
+X <- fpca_data$"X"#
+Z <- fpca_data$"Z"#
+C <- fpca_data$"C"#
+X_g <- fpca_data$"X_g"#
+Z_g <- fpca_data$"Z_g"#
+C_g <- fpca_data$"C_g"#
+zeta <- fpca_data$"zeta"#
+mu_t <- fpca_data$"mu_t"#
+Psi_t <- fpca_data$"Psi_t"#
+mu_g <- fpca_data$"mu_g"#
+Psi_g <- fpca_data$"Psi_g"#
+Y <- fpca_data$"Y"#
+#
+Y_vec <- Reduce(c, Y)#
+#
+# Plot the data:#
+#
+plot_fpca_data(N_sample, time_obs, Y, plot_dim, data_col)
+source("fpca_vmp_vs_mcmc.R")
+print_pdf <- TRUE
+if(print_pdf) {#
+	pdf("./res/fpca_fits.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+plot_dim
+plot_dim <- rev(plot_dim)
+plot_dim
+if(print_pdf) {#
+	pdf("./res/fpca_fits.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+source("fpca_vmp_vs_mcmc.R")
+print_pdf <- TRUE
+if(print_pdf) {#
+	pdf("./res/fpca_fits.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+source("fpca_vmp_vs_mcmc.R")
+print_pdf <- TRUE
+if(print_pdf) {#
+	pdf("./res/fpca_fits.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+source("fpca_vmp_vs_mcmc.R")
+print_pdf <- T
+if(print_pdf) {#
+	pdf("./res/fpca_fits.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+print_pdf
+source("fpca_vmp_vs_mcmc.R")
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("stan_mods.r")#
+source("fourier_basis.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("stan_mods.r")#
+source("fourier_basis.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("stan_mods.r")#
+source("fourier_basis.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("stan_mods.r")#
+source("fourier_basis.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("stan_mods.r")#
+source("fourier_basis.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("stan_mods.r")#
+source("fourier_basis.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("stan_mods.r")#
+source("fourier_basis.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)
+print_pdf <- T
+if(print_pdf) {#
+	pdf("./res/fpca_fits.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+source("fpca_vmp_vs_mcmc.R")
+print_pdf <- T
+if(print_pdf) {#
+	pdf("./res/fpca_fits.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+source("fpca_vmp_vs_mcmc.R")
+getwd()
+source("mlfpca_vmp_vs_mcmc.R")
+######### R script: fpca_sim_st.R ###########
+#
+# For performing Bayesian FPCA simulation study for VMP and MCMC.#
+#
+# Created: 14 JUL 2022#
+# Last changed: 05 AUG 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(lattice)#
+library(pracma)#
+library(ellipse)#
+#
+set.seed(0)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("fpca_algs.r")#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+source("stan_mods.r")#
+source("ise.r")#
+source("fourier_basis.r")#
+#
+setwd("..")#
+#
+# Establish simulation variables:#
+#
+N_vec <- c(10, 50, 100)             # number of curves#
+n_int_knots <- 10                   # number of interior knots#
+K <- n_int_knots + 2                # number of spline basis functions#
+L <- 3                              # number of FPCA basis functions#
+data_col <- "red"                   # colour of the data in the plots#
+criterion <- 1e-6                   # convergence criterion#
+#
+n_vmp <- 500                        # number of VMP iterations#
+n_mc <- 100                         # number of MC samples for VMP CI#
+n_g <- 1000                         # length of the plotting grid#
+vmp_col <- "black"                  # colour of the VMP plots#
+d <- (K+2)*(L+1)                    # dimension of spline vector#
+#
+n_burnin <- 1000                   # Length of burn-in.#
+n_mcmc <- 1000                     # Size of the kept sample.#
+n_thin <- 1                        # Thinning factor. #
+tolerance <- 1e-10#
+mcmc_col <- "red"                  # colour of the MCMC lines in the plots#
+#
+sigma_zeta_vec <- 1/(1:L)         # sd for first and second scores#
+sigma_eps <- 1                      # sd of the residuals#
+sigsq_eps <- sigma_eps^2#
+#
+n_sims <- 10                       # number of simulations#
+#
+plot_width <- 6#
+plot_height <- 4#
+#
+bw_plot_dim <- c(L + 1, 1)              # c(ncol, nrow)#
+hist_plot_dim <- c(length(N_vec), 1)    # c(ncol, nrow)
+hist_plot_fpca_sims("res/fpca_speed.txt", hist_plot_dim, plot_width, plot_height, save_pdf = T)
+######### R script: mlfpca_sim_st.R ###########
+#
+# For comparing a MlFPCA via MFVB and MCMC#
+#
+# Created: 19 JUL 2022#
+# Last changed: 23 JUL 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(rstan)#
+rstan_options(auto_write = TRUE)#
+library(lattice)#
+library(pracma)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("fpca_algs.r")#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+source("stan_mods.r")#
+source("ise.r")#
+source("fourier_basis.r")#
+#
+setwd("..")#
+#
+# Establish simulation variables:#
+#
+N_vec <- c(10, 50, 100)                    # number of subjects#
+M_min <- 3                                # minimum second level observations#
+M_max <- 5                                # maximum second level observations#
+#
+n_sims <- 10                               # number of simulations#
+#
+criterion  <- 1e-5                        # convergence criterion#
+n_int_knots <- 10                         # number of interior knots#
+K <- n_int_knots + 2                      # number of spline basis functions#
+L_1 <- 2                                  # number of first level eigenfunctions#
+L_2 <- 2                                  # number of second level eigenfunctions#
+L <- L_1 + L_2#
+data_col <- "grey51"                      # colour of the data in the plots#
+#
+n_burnin <- 500                   # Length of burn-in.#
+n_mcmc <- 500                     # Size of the kept sample.#
+n_thin <- 1                        # Thinning factor. #
+tolerance <- 1e-10#
+mcmc_col <- "red"                  # colour of the MCMC lines in the plots#
+n_g <- 1000                               # length of the plotting grid#
+#
+n_vmp <- 500                              # number of VMP iterations#
+n_g <- 1000                               # length of the plotting grid#
+vmp_col <- "deepskyblue2"                 # colour of the VMP plots#
+d <- (K+2)*(L_1 + L_2 + 1)                # dimension of spline vector#
+#
+sigma_zeta_1 <- 1/(1:L_1)                   # vector of st. dev.'s for the first level scores#
+sigma_zeta_2 <- 1/(1:L_2)                 # vector of st. dev.'s for the second level scores#
+#
+sigma_eps <- 1                            # sd of the residuals#
+sigsq_eps <- sigma_eps^2#
+#
+plot_width <- 6#
+plot_height <- 4#
+bw_plot_dim <- c(L + 1, 1)              # c(ncol, nrow)#
+hist_plot_dim <- c(length(N_vec), 1)    # c(ncol, nrow)
+hist_plot_fpca_sims(#
+	"res/mlfpca_speed.txt", hist_plot_dim, plot_width,#
+	plot_height, fpca_mod = "multilevel", save_pdf = TRUE#
+)
+exp_var <- fpca_exp_var_summary("res/fpca_L.txt")
+######### R script: fpca_L_sims.R ###########
+#
+# For performing Bayesian FPCA simulation study for#
+# determining the number of eigenfunctions (L)#
+#
+# Created: 20 JUL 2022#
+# Last changed: 21 JUL 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(lattice)#
+library(pracma)#
+library(ellipse)#
+#
+set.seed(0)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("fpca_algs.r")#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("fourier_basis.r")#
+source("ise.r")#
+source("stan_mods.r")#
+source("vmp_functions.r")#
+#
+setwd("..")
+exp_var <- fpca_exp_var_summary("res/fpca_L.txt")
+exp_var
+101 %% 100
+getwd()
+setwd(hpc_files/fpca_acc_res)
+setwd("hpc_files/fpca_acc_res")
+getwd()
+list.files(pattern = "^fpca_acc")
+acc_res <- list.files(pattern = "^fpca_acc")
+which(acc_res == "fpca_acc_data.R")
+acc_res <- acc_res[-which(acc_res == "fpca_acc_data.R")]
+acc_res
+acc_files <- list.files(pattern = "^fpca_acc")
+acc_files <- acc_res[-which(acc_res == "fpca_acc_data.R")]
+acc_files
+acc_files <- list.files(pattern = "^fpca_acc")
+acc_files
+which(acc_res == "fpca_acc_data.R")
+which(acc_files == "fpca_acc_data.R")
+acc_files <- acc_files[-which(acc_files == "fpca_acc_data.R")]
+acc_files
+acc_files <- list.files(pattern = ".txt")
+acc_files
+sort(acc_files)
+l <- length(acc_files)
+l
+sort(paste0("fpoca_acc_", 1:l, ".txt"))
+as.numeric(regmatches(acc_files, regexpr("[0-9]+", acc_files)))
+file_numbers <- as.numeric(regmatches(acc_files, regexpr("[0-9]+", acc_files)))
+file_numbers
+order(file_numbers)
+acc_files[order(file_numbers)]
+acc_files <- acc_files[order(file_numbers)]
+acc_files
+read.table(acc_files[[1]], header = TRUE)
+names(read.table(acc_files[[1]], header = TRUE))
+col_names <- names(read.table(acc_files[[1]], header = TRUE))
+n_col_acc <- length(col_names)
+write(col_names, "../fpca_acc.txt", ncol = n_col_acc, append = FALSE)
+write(col_names, "../../res/fpca_acc.txt", ncol = n_col_acc, append = FALSE)
+n_files <- length(acc_files)
+n_files
+i <- 1
+acc_res <- read.table(acc_files[[i]], header = TRUE)
+acc_res
+unname(acc_res)
+acc_files <- list.files(pattern = ".txt")#
+file_numbers <- as.numeric(regmatches(acc_files, regexpr("[0-9]+", acc_files)))#
+acc_files <- acc_files[order(file_numbers)]#
+n_files <- length(acc_files)#
+#
+col_names <- names(read.table(acc_files[[1]], header = TRUE))#
+n_col_acc <- length(col_names)#
+file_name <- "../../res/fpca_acc.txt"#
+write(col_names, file_name, ncol = n_col_acc, append = FALSE)#
+#
+for(i in 1:n_files) {#
+	acc_res <- unname(read.table(acc_files[[i]], header = TRUE))#
+	write(acc_res, file_name, ncol = n_col_acc, append = TRUE)#
+}
+acc_files <- list.files(pattern = ".txt")#
+file_numbers <- as.numeric(regmatches(acc_files, regexpr("[0-9]+", acc_files)))#
+acc_files <- acc_files[order(file_numbers)]#
+n_files <- length(acc_files)#
+#
+col_names <- names(read.table(acc_files[[1]], header = TRUE))#
+n_col_acc <- length(col_names)#
+file_name <- "../../res/fpca_acc.txt"#
+write(col_names, file_name, ncol = n_col_acc, append = FALSE)
+i <- 1
+i
+acc_res <- unname(read.table(acc_files[[i]], header = TRUE))
+acc_res
+length(acc_res)
+n_col_acc
+write(acc_res, file_name, ncol = n_col_acc, append = TRUE)
+unlist(acc_res)
+typeof(acc_res)
+unlist(read.table(acc_files[[i]], header = TRUE))
+unname(unlist(read.table(acc_files[[i]], header = TRUE)))
+acc_res <- unname(unlist(read.table(acc_files[[i]], header = TRUE)))
+write(acc_res, file_name, ncol = n_col_acc, append = TRUE)
+acc_files <- list.files(pattern = ".txt")#
+file_numbers <- as.numeric(regmatches(acc_files, regexpr("[0-9]+", acc_files)))#
+acc_files <- acc_files[order(file_numbers)]#
+n_files <- length(acc_files)#
+#
+col_names <- names(read.table(acc_files[[1]], header = TRUE))#
+n_col_acc <- length(col_names)#
+file_name <- "../../res/fpca_acc.txt"#
+write(col_names, file_name, ncol = n_col_acc, append = FALSE)#
+#
+for(i in 1:n_files) {#
+	acc_res <- unname(unlist(read.table(acc_files[[i]], header = TRUE)))#
+	write(acc_res, file_name, ncol = n_col_acc, append = TRUE)#
+}
+source("../../functions/fpca_algs.R")
+n_sims <- 10
+1:30 %% n_sims + 1
+1:30 %% n_sims
+1:30 %% (n_sims + 1)
+1%%n_sims
+######### R script: fpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 16 AUG 2022#
+# Last changed: 16 AUG 2022#
+#
+source("../../functions/fpca_algs.R")#
+#
+acc_files <- list.files(pattern = ".txt")#
+file_numbers <- as.numeric(regmatches(acc_files, regexpr("[0-9]+", acc_files)))#
+acc_files <- acc_files[order(file_numbers)]#
+n_files <- length(acc_files)#
+#
+col_names <- names(read.table(acc_files[[1]], header = TRUE))#
+n_col_acc <- length(col_names)#
+file_name <- "../../res/fpca_acc.txt"#
+write(col_names, file_name, ncol = n_col_acc, append = FALSE)#
+#
+for(i in 1:n_files) {#
+	acc_res <- unname(unlist(read.table(acc_files[[i]], header = TRUE)))#
+	write(acc_res, file_name, ncol = n_col_acc, append = TRUE)#
+}
+files
+source("../../functions/fpca_algs.R")
+source("../../functions/construct_txt.R")
+file_name <- "../../res/fpca_acc.txt"
+construct_txt(file_name = file_name, header = TRUE)
+plot_width <- 6
+plot_height <- 4
+hist_plot_dim <- c(3, 1)    # c(ncol, nrow)
+hist_plot_fpca_sims(#
+	"../../res/fpca_acc.txt", hist_plot_dim, plot_width, plot_height,#
+	save_pdf = FALSE#
+)
+results <- read.table(file_name, header = TRUE)
+results
+N_vec <- unique(results$"N")
+n_settings <- length(N_vec)
+n_sims <- max(results$"sim")
+n_iter <- results$"iter"
+N_vec
+n_settings
+n_sims
+n_iter
+results <- read.table(file_name, header = TRUE)
+results
+L <- (ncol(results) - 6)/2
+L
+N_vec <- unique(results$N)
+N_vec
+n_sims <- max(results$sim)
+n_sims
+vmp_acc_vec <- as.vector(as.matrix(results[, (1:((L + 1)*2) + 2)[c(TRUE, FALSE)]]))
+mcmc_acc_vec <- as.vector(as.matrix(results[, (1:((L + 1)*2) + 2)[c(FALSE, TRUE)]]))
+log_acc <- TRUE
+if(log_acc) {#
+		vmp_acc_vec <- log(vmp_acc_vec)#
+		mcmc_acc_vec <- log(mcmc_acc_vec)#
+		y_lab <- "log ISE"#
+	} else {#
+		y_lab <- "ISE"#
+	}
+acc_vec <- c(vmp_acc_vec, mcmc_acc_vec)
+N_labels <- rep(N_vec, each = n_sims)#
+	N_labels <- rep(N_labels, 2*(L + 1))#
+	N_labels <- factor(N_labels)#
+	gbl_labels <- vector("list", length = L + 1)#
+	gbl_id <- rep(NA, L + 1)#
+	gbl_id[1] <- expression(mu (t))#
+	gbl_labels[[1]] <- rep(gbl_id[1], length(N_vec)*n_sims)#
+	for(l in 1:L) {#
+		gbl_id[l+1] <- parse(text=paste("psi[", l, "] (t)", sep=""))#
+		bf_val <- eval(bquote(expression(psi[.(l)] (t))))#
+		gbl_labels[[l+1]] <- rep(bf_val, length(N_vec)*n_sims)#
+	}#
+	gbl_labels <- do.call(c, gbl_labels)#
+	gbl_labels <- factor(gbl_labels, levels = gbl_id)#
+	gbl_labels <- rep(gbl_labels, 2)#
+	mod_id <- expression(VMP, MCMC)#
+	mod_labels <- rep(mod_id, each = length(N_vec)*n_sims*(L + 1))#
+	mod_labels <- factor(mod_labels, levels = mod_id)
+source("../../functions/fpca_algs.r")
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/fpca_acc.txt"#
+construct_txt(file_name = file_name, header = TRUE)#
+#
+plot_width <- 6#
+plot_height <- 4#
+#
+plot_dim <- c(5, 1)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"
+box_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = FALSE, log_acc = TRUE, saved_location = saved_location#
+)
+library(lattice)
+box_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = FALSE, log_acc = TRUE, saved_location = saved_location#
+)
+source("fpca_acc_data.R")
+######### R script: fpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 16 AUG 2022#
+# Last changed: 16 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/fpca_acc.txt"#
+construct_txt(file_name = file_name, header = TRUE)#
+#
+plot_width <- 6#
+plot_height <- 4#
+#
+plot_dim <- c(5, 1)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"#
+#
+box_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = TRUE, log_acc = TRUE, saved_location = saved_location#
+)#
+#
+score_res <- fpca_score_summary(file_name)
+score_res
+######### R script: fpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 16 AUG 2022#
+# Last changed: 16 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/fpca_acc.txt"#
+construct_txt(file_name = file_name, header = TRUE)
+plot_width <- 6#
+plot_height <- 4#
+#
+plot_dim <- c(5, 1)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"#
+#
+box_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = TRUE, log_acc = TRUE, saved_location = saved_location#
+)#
+#
+score_res <- fpca_score_summary(file_name)
+score_res
+######### R script: fpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 16 AUG 2022#
+# Last changed: 16 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/fpca_acc.txt"#
+construct_txt(file_name = file_name, header = TRUE)#
+#
+plot_width <- 9#
+plot_height <- 4#
+#
+plot_dim <- c(5, 1)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"#
+#
+box_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = TRUE, log_acc = TRUE, saved_location = saved_location#
+)#
+#
+score_res <- fpca_score_summary(file_name)#
+#
+############ End of fpca_acc_data.R
+######### R script: fpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 16 AUG 2022#
+# Last changed: 16 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/fpca_acc.txt"#
+construct_txt(file_name = file_name, header = TRUE)
+plot_width <- 5#
+plot_height <- 6
+plot_dim <- c(3, 2)              # c(ncol, nrow)
+saved_location <- "../../res"#
+#
+box_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = TRUE, log_acc = TRUE, saved_location = saved_location#
+)
+######### R script: fpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 16 AUG 2022#
+# Last changed: 16 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/fpca_acc.txt"#
+construct_txt(file_name = file_name, header = TRUE)#
+#
+plot_width <- 9#
+plot_height <- 4#
+#
+plot_dim <- c(3, 2)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"#
+#
+box_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = TRUE, log_acc = TRUE, saved_location = saved_location#
+)
+######### R script: fpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 16 AUG 2022#
+# Last changed: 16 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/fpca_acc.txt"#
+construct_txt(file_name = file_name, header = TRUE)#
+#
+plot_width <- 9#
+plot_height <- 3#
+#
+plot_dim <- c(5, 1)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"#
+#
+box_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = TRUE, log_acc = TRUE, saved_location = saved_location#
+)
+######### R script: fpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 16 AUG 2022#
+# Last changed: 16 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/fpca_acc.txt"#
+construct_txt(file_name = file_name, header = TRUE)#
+#
+plot_width <- 9#
+plot_height <- 2#
+#
+plot_dim <- c(5, 1)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"#
+#
+box_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = TRUE, log_acc = TRUE, saved_location = saved_location#
+)
+######### R script: mlfpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 23 AUG 2022#
+# Last changed: 23 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/mlfpca_acc.txt"
+######### R script: fpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 16 AUG 2022#
+# Last changed: 16 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/fpca_acc.txt"#
+construct_txt(file_name = file_name, header = TRUE)#
+#
+plot_width <- 9#
+plot_height <- 3#
+#
+plot_dim <- c(5, 1)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"#
+#
+box_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = TRUE, log_acc = TRUE, saved_location = saved_location#
+)
+######### R script: fpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 16 AUG 2022#
+# Last changed: 16 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/fpca_acc.txt"#
+construct_txt(file_name = file_name, header = TRUE)#
+#
+plot_width <- 9#
+plot_height <- 2.5#
+#
+plot_dim <- c(5, 1)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"#
+#
+box_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = TRUE, log_acc = TRUE, saved_location = saved_location#
+)
+######### R script: fpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 16 AUG 2022#
+# Last changed: 16 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/fpca_acc.txt"#
+construct_txt(file_name = file_name, header = TRUE)#
+#
+plot_width <- 9#
+plot_height <- 3#
+#
+plot_dim <- c(5, 1)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"#
+#
+box_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = TRUE, log_acc = TRUE, saved_location = saved_location#
+)
+file_name <- "../../res/fpca_acc.txt"
+score_res <- fpca_score_summary(file_name)
+source("../../functions/fpca_algs.r")
+score_res <- fpca_score_summary(file_name)
+score_res
+results <- read.table(file_name, header = TRUE)
+N_vec <- unique(results$"N")
+results
+N_vec
+vmp_scores <- split(results$"zeta_vmp", N_vec)
+vmp_scores
+sapply(vmp_res, function(x) c(median(x), mad(x)))
+sapply(vmp_scores, function(x) c(median(x), mad(x)))
+vmp_res <- t(sapply(vmp_scores, function(x) c(median(x), mad(x))))
+vmp_res
+vmp_res <- as.data.frame(cbind(N_vec, Reduce(rbind, vmp_res)))
+mcmc_scores <- split(results$"zeta_mcmc", N_vec)
+mcmc_res <- t(sapply(mcmc_scores, function(x) c(median(x), mad(x))))
+mcmc_res <- as.data.frame(cbind(N_vec, Reduce(rbind, mcmc_res)))
+source("../../functions/fpca_algs.r")
+score_res <- fpca_score_summary(file_name)
+vmp_scores <- split(results$"zeta_vmp", N_vec)
+vmp_res <- t(sapply(vmp_scores, function(x) c(median(x), mad(x))))
+vmp_res <- as.data.frame(cbind(N_vec, Reduce(rbind, vmp_res)))
+names(vmp_res) <- c("N", "median", "mad")
+vmp_res
+vmp_scores <- split(results$"zeta_vmp", N_vec)
+vmp_scores
+vmp_res <- t(sapply(vmp_scores, function(x) c(median(x), mad(x))))
+vmp_res
+Reduce(rbind, vmp_res)
+vmp_res <- as.data.frame(cbind(N_vec, vmp_res))
+vmp_res
+names(vmp_res) <- c("N", "median", "mad")
+rownames(vmp_res) <- NULL
+vmp_res
+file_name <- "../../res/fpca_acc.txt"
+score_res <- fpca_score_summary(file_name)
+source("../../functions/fpca_algs.r")
+file_name <- "../../res/fpca_acc.txt"
+score_res <- fpca_score_summary(file_name)
+score_res
+library(lattice)
+source("../../functions/fpca_algs.r")
+file_name <- "../../res/fpca_acc.txt"
+plot_width <- 9
+plot_height <- 3
+plot_dim <- c(5, 1)              # c(ncol, nrow)
+saved_location <- "../../res"
+score_res <- fpca_score_summary(file_name)
+score_res
+######### R script: fpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 16 AUG 2022#
+# Last changed: 16 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/fpca_acc.txt"#
+construct_txt(file_name = file_name, header = TRUE)#
+#
+plot_width <- 8#
+plot_height <- 4#
+#
+plot_dim <- c(5, 1)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"#
+#
+box_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = TRUE, log_acc = TRUE, saved_location = saved_location#
+)
+######### R script: fpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 16 AUG 2022#
+# Last changed: 16 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/fpca_acc.txt"#
+construct_txt(file_name = file_name, header = TRUE)#
+#
+plot_width <- 9#
+plot_height <- 4#
+#
+plot_dim <- c(5, 1)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"#
+#
+box_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = TRUE, log_acc = TRUE, saved_location = saved_location#
+)
+######### R script: fpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 16 AUG 2022#
+# Last changed: 16 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/fpca_acc.txt"#
+construct_txt(file_name = file_name, header = TRUE)#
+#
+plot_width <- 9#
+plot_height <- 2.8#
+#
+plot_dim <- c(5, 1)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"#
+#
+box_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = TRUE, log_acc = TRUE, saved_location = saved_location#
+)
+######### R script: fpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 16 AUG 2022#
+# Last changed: 16 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/fpca_acc.txt"#
+construct_txt(file_name = file_name, header = TRUE)#
+#
+plot_width <- 9#
+plot_height <- 4#
+#
+plot_dim <- c(5, 1)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"#
+#
+box_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = TRUE, log_acc = TRUE, saved_location = saved_location#
+)#
+#
+score_res <- fpca_score_summary(file_name)#
+#
+############ End of fpca_acc_data.R

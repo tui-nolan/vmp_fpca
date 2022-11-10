@@ -1,0 +1,197 @@
+# Created: 16 AUG 2022#
+# Last changed: 16 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")
+file_name <- "../../res/fpca_speed.txt"#
+construct_txt(file_name = file_name, header = TRUE)
+plot_width <- 6#
+plot_height <- 4#
+#
+plot_dim <- c(3, 1)              # c(ncol, nrow)
+saved_location <- "../../res"
+hist_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	fpca_mod = "standard", save_pdf = TRUE, saved_location = saved_location#
+)
+speed_res <- fpca_speed_summary(file_name)#
+#
+conv_res <- fpca_converged(file_name, 500)
+speed_res
+conv_res
+######### R script: fpca_speed_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 16 AUG 2022#
+# Last changed: 16 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")
+file_name <- "../../res/fpca_speed.txt"#
+construct_txt(file_name = file_name, header = TRUE)#
+#
+plot_width <- 6#
+plot_height <- 4#
+#
+plot_dim <- c(3, 1)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"
+######### R script: fpca_speed_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 16 AUG 2022#
+# Last changed: 16 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/fpca_speed.txt"#
+construct_txt(file_name = file_name, header = TRUE)#
+#
+plot_width <- 6#
+plot_height <- 4#
+#
+plot_dim <- c(3, 1)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"#
+#
+hist_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	fpca_mod = "standard", save_pdf = TRUE, saved_location = saved_location#
+)#
+#
+speed_res <- fpca_speed_summary(file_name)#
+#
+conv_res <- fpca_converged(file_name, 500)
+speed_res
+conv_res
+######### R script: fpca_speed_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 16 AUG 2022#
+# Last changed: 16 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/fpca_speed.txt"#
+construct_txt(file_name = file_name, header = TRUE)#
+#
+plot_width <- 6#
+plot_height <- 4#
+#
+plot_dim <- c(5, 1)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"#
+#
+hist_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	fpca_mod = "standard", save_pdf = TRUE, saved_location = saved_location#
+)#
+#
+speed_res <- fpca_speed_summary(file_name)#
+#
+conv_res <- fpca_converged(file_name, 500)
+speed_res <- fpca_speed_summary(file_name)
+speed_res
+conv_res
+######### R script: fpca_speed_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 16 AUG 2022#
+# Last changed: 16 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/fpca_speed.txt"#
+construct_txt(file_name = file_name, header = TRUE)#
+#
+plot_width <- 9#
+plot_height <- 4#
+#
+plot_dim <- c(5, 1)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"#
+#
+hist_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	fpca_mod = "standard", save_pdf = TRUE, saved_location = saved_location#
+)#
+#
+speed_res <- fpca_speed_summary(file_name)#
+#
+conv_res <- fpca_converged(file_name, 500)
+library(lattice)
+source("../../functions/fpca_algs.r")
+source("../../functions/construct_txt.r")
+file_name <- "../../res/fpca_speed.txt"
+construct_txt(file_name = file_name, header = TRUE)
+plot_width <- 9
+plot_height <- 4
+plot_dim <- c(5, 1)              # c(ncol, nrow)
+saved_location <- "../../res"
+hist_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	fpca_mod = "standard", save_pdf = FALSE, saved_location = saved_location#
+)
+speed_res <- fpca_speed_summary(file_name)
+speed_res
+results <- read.table(file_name, header = TRUE)
+results
+N_vec <- results$"N"
+N_vec
+vmp_speed <- split(results$"vmp", N_vec)
+vmp_speed
+vmp_res <- sapply(vmp_speed, function(x), c(median(x), mad(x)))
+vmp_res <- sapply(vmp_speed, function(x) c(median(x), mad(x)))
+vmp_res
+vmp_res <- t(sapply(vmp_speed, function(x) c(median(x), mad(x))))
+vmp_res
+Reduce(rbind, vmp_res)
+cbind(unique(N_vec), vmp_res)
+as.data.frame(cbind(unique(N_vec), vmp_res))
+vmp_res <- as.data.frame(cbind(unique(N_vec), vmp_res))
+vmp_res
+names(vmp_res) <- c("N", "median", "mad")
+rownames(vmp_res) <- NULL
+vmp_res
+mcmc_speed <- split(results$"mcmc", N_vec)
+mcmc_res <- t(sapply(mcmc_speed, function(x) c(median(x), mad(x))))
+mcmc_res
+mcmc_res
+mcmc_res <- as.data.frame(cbind(unique(N_vec), mcmc_res))
+mcmc_res
+names(mcmc_res) <- c("N", "median", "mad")
+names(mcmc_res) <- c("N", "median", "mad")
+mcmc_res
+rownames(mcmc_res) <- NULL
+mcmc_res
+source("../../functions/fpca_algs.r")
+speed_res <- fpca_speed_summary(file_name)
+speed_res
+122.4639/4.915868
+309.9690/8.104373
+609.2525/15.555015
+2564.6880/32.042350
+5841.8300/59.308675
+conv_res <- fpca_converged(file_name, 500)
+conv_res

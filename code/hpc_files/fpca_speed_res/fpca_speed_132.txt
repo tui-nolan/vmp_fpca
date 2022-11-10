@@ -1,0 +1,2 @@
+N sim iter vmp mcmc
+50 32 40 5.999 350.0734

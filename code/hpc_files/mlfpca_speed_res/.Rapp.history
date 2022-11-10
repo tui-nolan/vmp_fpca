@@ -1,0 +1,94 @@
+######### R script: fpca_speed_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 16 AUG 2022#
+# Last changed: 16 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")
+file_name <- "../../res/mlfpca_speed.txt"
+construct_txt(file_name = file_name, header = TRUE)
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/mlfpca_speed.txt"#
+construct_txt(file_name = file_name, header = TRUE)
+results
+results <- read.table(file_name, header = TRUE)
+results$sim
+results$sim <- rep(1:100, 5)
+results$sim
+col_names <- colnames(results)
+col_names
+file_name
+n_col <- length(col_names)
+n_col
+write(col_names, file_name, ncolumns = n_col, append = FALSE)
+results
+results <- as.matrix(results)
+results
+write(t(results), file_name, ncolumns = n_col, append = TRUE)
+plot_width <- 9
+plot_height <- 4
+saved_location <- "../../res"
+hist_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	fpca_mod = "standard", save_pdf = FALSE, saved_location = saved_location#
+)
+plot_dim <- c(5, 1)              # c(ncol, nrow)
+hist_plot_fpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	fpca_mod = "multilevel", save_pdf = FALSE, saved_location = saved_location#
+)
+file_name
+results <- read.table(file_name, header = TRUE)
+N_vec <- results$"N"
+N_vec
+vmp_speed <- split(results$"vmp", N_vec)
+vmp_speed
+vmp_res
+vmp_res <- t(sapply(vmp_speed, function(x) c(median(x), mad(x))))
+vmp_res <- as.data.frame(cbind(unique(N_vec), vmp_res))
+names(vmp_res) <- c("N", "median", "mad")
+rownames(vmp_res) <- NULL
+vmp_res
+mcmc_speed <- split(results$"mcmc", N_vec)
+mcmc_res <- t(sapply(mcmc_speed, function(x) c(median(x), mad(x))))
+mcmc_res <- as.data.frame(cbind(unique(N_vec), mcmc_res))
+names(mcmc_res) <- c("N", "median", "mad")
+rownames(mcmc_res) <- NULL
+speed_res <- list(vmp_res, mcmc_res)
+names(speed_res) <- c("VMP", "MCMC")
+speed_res <- fpca_speed_summary(file_name)
+speed_res
+1771.569/28.27461
+13789.045/130.73815
+30938.915/453.89690
+69845.435/974.99865
+216260.000/4873.52150
+conv_res <- fpca_converged(file_name, 500)
+conv_res
+13789.045/65
+13789.0/212.2
+13789.045/65.1
+216260.000/74.4
+results <- read.table(file_name, header = TRUE)
+results
+names(results)
+results$"iter"
+split(results$"iter", results$"N")
+iters <- split(results$"iter", results$"N")
+n_iters <- split(results$"iter", results$"N")
+n_iters
+lapply(n_iters, function(x) c(median(x), mad(x)))
+file_name
+file_name <- "../../res/fpca_speed.txt"
+results <- read.table(file_name, header = TRUE)
+n_iters <- split(results$"iter", results$"N")
+lapply(n_iters, function(x) c(median(x), mad(x)))

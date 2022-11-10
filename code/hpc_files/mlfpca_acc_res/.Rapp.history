@@ -1,0 +1,637 @@
+write(t(hpc_res), "res/mlfpca_acc_new.txt", ncol = length(colnames(hpc_res)), append = TRUE)
+box_plot_mlfpca_sims("mlfpca_acc_new.txt", c(7, 1), 7, 7)
+box_plot_mlfpca_sims("res/mlfpca_acc_new.txt", c(7, 1), 7, 7)
+hpc_res <- read.table("res/mlfpca_acc.txt", header = TRUE)
+hpc_res <- hpc_res[, c(1, 2, 3, 5, 7, 9, 11, 13, 15)]
+hpc_res[, -c(1, 2)] <- log(hpc_res[, -c(1, 2)])
+hpc_res <- split(hpc_res, hpc_res$"N")
+lapply(hpc_res, function(X) apply(X[, -c(1, 2)], 2, quantile))
+file_name <- "res/mlfpca_acc.txt"
+results <- read.table(file_name, header = TRUE)
+results
+L_1 <- length(grep("psi_1", names(results), fixed = TRUE))/2
+L_2 <- length(grep("psi_2", names(results), fixed = TRUE))/2
+L <- L_1 + L_2
+N_vec <- unique(results$N)
+n_sims <- max(results$sim)/length(N_vec)
+n_sims
+file_name <- "res/mlfpca_acc_new.txt"
+results <- read.table(file_name, header = TRUE)
+L_1 <- length(grep("psi_1", names(results), fixed = TRUE))/2
+L_2 <- length(grep("psi_2", names(results), fixed = TRUE))/2
+L <- L_1 + L_2
+N_vec <- unique(results$N)
+n_sims <- max(results$sim)
+vmp_acc_vec <- as.vector(as.matrix(results[, (1:((L + 1)*2) + 2)[c(TRUE, FALSE)]]))
+mcmc_acc_vec <- as.vector(as.matrix(results[, (1:((L + 1)*2) + 2)[c(FALSE, TRUE)]]))
+vmp_acc_vec <- log(vmp_acc_vec)
+mcmc_acc_vec <- log(mcmc_acc_vec)
+y_lab <- "log ISE"
+acc_vec <- c(vmp_acc_vec, mcmc_acc_vec)
+N_labels <- rep(N_vec, each = n_sims)
+N_labels <- rep(N_labels, 2*(L + 1))
+N_labels <- factor(N_labels)
+N_labels
+mu_id <- parse(text = paste("mu (t)", sep=""))#
+mu_labels <- rep(mu_id, n_sims*length(N_vec))#
+mu_labels <- factor(mu_labels, levels = mu_id)
+psi_1_id <- rep(NA, L_1)#
+psi_1_labels <- vector("list", length = L_1)#
+for(l in 1:L_1) {#
+	psi_1_id[l] <- parse(text = paste("psi[", l, "]^(1)~(t)", sep=""))#
+	psi_1_labels[[l]] <- rep(psi_1_id[l], n_sims*length(N_vec))#
+}#
+psi_1_labels <- do.call(c, psi_1_labels)#
+psi_1_labels <- factor(psi_1_labels, levels = psi_1_id)
+psi_2_id <- rep(NA, L_2)#
+psi_2_labels <- vector("list", length = L_2)#
+for(l in 1:L_2) {#
+	psi_2_id[l] <- parse(text = paste("psi[", l, "]^(2)~(t)", sep=""))#
+	psi_2_labels[[l]] <- rep(psi_2_id[l], n_sims*length(N_vec))#
+}#
+psi_2_labels <- do.call(c, psi_2_labels)#
+psi_2_labels <- factor(psi_2_labels, levels = psi_2_id)
+gbl_id <- c(mu_id, psi_1_id, psi_2_id)#
+gbl_labels <- c(mu_labels, psi_1_labels, psi_2_labels)#
+gbl_labels <- rep(gbl_labels, 2)
+mod_id <- expression(VMP, MCMC)#
+mod_labels <- rep(mod_id, each = length(N_vec)*n_sims*(L + 1))#
+mod_labels <- factor(mod_labels, levels = mod_id)
+strip.math <- function(#
+	which.given, which.panel, var.name, factor.levels, ...#
+) {#
+	fl <- gbl_id#
+	strip.default(which.given, which.panel, var.name, fl, ...)#
+}
+gbl_id
+data_table <- data.frame(acc_vec, N_labels, mod_labels, gbl_labels)#
+names(data_table) <- c("accuracy", "N", "model", "curves")
+box_plots <- bwplot(#
+	accuracy ~ N | curves, data = data_table, groups = model,#
+	pch = "|", box.width = 1/3,#
+	layout = plot_dim, xlab = "N", ylab = "log ISE",#
+	strip = strip.math,#
+	par.strip.text = list(cex = 0.8),#
+	par.settings = list(layout.heights = list(strip = 1)),#
+	as.table=TRUE,#
+	panel = panel.superpose,#
+	panel.groups = function(x, y, ..., group.number) {#
+		panel.bwplot(x + (group.number - 1.5)/3, y, ...)#
+	}#
+)#
+#
+print(box_plots)
+box_plots <- bwplot(#
+	accuracy ~ N | curves, data = data_table, groups = model,#
+	pch = "|", box.width = 1/3,#
+	layout = c(4, 2), xlab = "N", ylab = "log ISE",#
+	strip = strip.math,#
+	par.strip.text = list(cex = 0.8),#
+	par.settings = list(layout.heights = list(strip = 1)),#
+	as.table=TRUE,#
+	panel = panel.superpose,#
+	panel.groups = function(x, y, ..., group.number) {#
+		panel.bwplot(x + (group.number - 1.5)/3, y, ...)#
+	}#
+)
+print(box_plots)
+box_plots <- bwplot(#
+	accuracy ~ N | curves, data = data_table, groups = model,#
+	pch = "|", box.width = 1/3,#
+	layout = c(4, 2), xlab = "N", ylab = "log ISE",#
+	strip = strip.math,#
+	par.strip.text = list(cex = 0.8),#
+	par.settings = list(layout.heights = list(strip = 1.4)),#
+	as.table=TRUE,#
+	panel = panel.superpose,#
+	panel.groups = function(x, y, ..., group.number) {#
+		panel.bwplot(x + (group.number - 1.5)/3, y, ...)#
+	}#
+)#
+#
+print(box_plots)
+source("tmp_vmp.R")
+hpc_res <- read.table("res/tmp_mlfpca_acc.txt", header = TRUE)
+hpc_res
+hpc_res$"N"
+names(hpc_res)
+hpc_res <- hpc_res[, -c(2, 10, 11)]
+names(hpc_res)
+hpc_res <- split(hpc_res, hpc_res$"N")
+hpc_res
+lapply(hpc_res, function(X) apply(hpc_res[, -1], 2, quantile))
+lapply(hpc_res, function(X) apply(X[, -1], 2, quantile))
+hpc_res <- read.table("res/mlfpca_acc_new.txt", header = TRUE)
+names(hpc_res)
+hpc_res <- hpc_res[, c(1, 3, 5, 7, 9, 11, 13, 15)]
+names(hpc_res)
+hpc_res$"N" %in% c(10, 50, 100)
+hpc_res <- read.table("res/mlfpca_acc_new.txt", header = TRUE)
+hpc_res <- hpc_res[hpc_res$"N" %in% c(10, 50, 100), c(1, 3, 5, 7, 9, 11, 13, 15)]
+hpc_res
+hpc_res[, 1:3]
+hpc_res <- split(hpc_res, hpc_res $"N")
+hpc_res
+lapply(hpc_res, function(X) apply(X[, -1], 2, quantile))
+my_res <- read.table("res/tmp_mlfpca_acc.txt", header = TRUE)#
+my_res <- my_res[, -c(2, 10, 11)]#
+my_res <- split(my_res, my_res$"N")#
+#
+lapply(my_res, function(X) apply(X[, -1], 2, quantile))#
+#
+hpc_res <- read.table("res/mlfpca_acc_new.txt", header = TRUE)#
+hpc_res <- hpc_res[hpc_res$"N" %in% c(10, 50, 100), c(1, 3, 5, 7, 9, 11, 13, 15)]#
+hpc_res <- split(hpc_res, hpc_res $"N")#
+#
+lapply(hpc_res, function(X) apply(X[, -1], 2, quantile))
+my_res <- read.table("res/tmp_mlfpca_acc.txt", header = TRUE)#
+my_res <- my_res[, -c(2, 10, 11)]#
+my_res <- split(my_res, my_res$"N")#
+#
+my_res <- lapply(my_res, function(X) apply(X[, -1], 2, quantile))#
+#
+hpc_res <- read.table("res/mlfpca_acc_new.txt", header = TRUE)#
+hpc_res <- hpc_res[hpc_res$"N" %in% c(10, 50, 100), c(1, 3, 5, 7, 9, 11, 13, 15)]#
+hpc_res <- split(hpc_res, hpc_res $"N")#
+#
+hpc_res <- lapply(hpc_res, function(X) apply(X[, -1], 2, quantile))
+my_res[[1]]
+hpc_res[[1]]
+my_res <- read.table("res/tmp_mlfpca_acc.txt", header = TRUE)
+my_res <- my_res[, -c(2, 10, 11)]
+my_res
+names(my_res)
+my_res <- read.table("res/tmp_mlfpca_acc.txt", header = TRUE)#
+my_res <- my_res[, -c(2, 10, 11)]#
+my_res[, -1] <- log(my_res[, -1])#
+my_res <- split(my_res, my_res$"N")#
+#
+my_res <- lapply(my_res, function(X) apply(X[, -1], 2, quantile))#
+#
+hpc_res <- read.table("res/mlfpca_acc_new.txt", header = TRUE)#
+hpc_res <- hpc_res[hpc_res$"N" %in% c(10, 50, 100), c(1, 3, 5, 7, 9, 11, 13, 15)]#
+hpc_res[, -1] <- log(hpc_res[, -1])#
+hpc_res <- split(hpc_res, hpc_res $"N")#
+#
+hpc_res <- lapply(hpc_res, function(X) apply(X[, -1], 2, quantile))
+my_res[[1]]
+hpc_res[[1]]
+my_res[[2]]
+hpc_res[[2]]
+my_res[[3]]
+hpc_res[[3]]
+getwd()
+setwd("hpc_files/mlfpca_acc_res")
+######### R script: mlfpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 23 AUG 2022#
+# Last changed: 23 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")
+plot_width <- 8#
+plot_height <- 5.6#
+#
+plot_dim <- c(4, 2)              # c(ncol, nrow)
+saved_location <- "../../res"
+file_name <- "../../res/mlfpca_acc_new.txt"
+box_plot_mlfpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = FALSE, log_acc = TRUE, saved_location = saved_location#
+)
+score_res <- fpca_score_summary(file_name)
+score_res <- mlfpca_score_summary(file_name)
+results <- read.table(file_name, header = TRUE)
+results
+N_vec <- unique(results$"N")
+N_vec
+vmp_scores_1 <- split(results$"zeta_1_vmp", N_vec)
+names(results)
+vmp_scores_1 <- split(results$"Zeta_1_hat_vmp", N_vec)
+results <- read.table(file_name, header = TRUE)
+N_vec <- unique(results$"N")
+vmp_scores_1 <- split(results$"zeta_1_vmp", N_vec)
+vmp_scores_1
+vmp_res_1 <- sapply(vmp_scores_1, function(x) c(median(x), mad(x)))
+vmp_res_1
+vmp_res_1 <- as.data.frame(vmp_res_1)
+vmp_res_1
+vmp_scores_1 <- split(results$"zeta_1_vmp", N_vec)
+vmp_res_1 <- sapply(vmp_scores_1, function(x) c(median(x), mad(x)))
+vmp_res_1 <- t(sapply(vmp_scores_1, function(x) c(median(x), mad(x))))
+vmp_res_1
+rownames(vmp_res_1)
+colnames(vmp_res_1) <- c("median", "mad")
+vmp_res_1
+vmp_res_1 <- as.data.frame(vmp_res_1)
+vmp_res_1
+vmp_scores_1 <- split(results$"zeta_1_vmp", N_vec)
+vmp_scores_1
+vmp_res_1 <- t(sapply(vmp_scores_1, function(x) c(median(x), mad(x))))
+vmp_res_1
+N_vec
+vmp_res_1 <- cbind(N_vec, vmp_res_1)
+vmp_res_1
+colnames(vmp_res_1) <- c("N", "median", "mad")
+vmp_res_1
+rownames(vmp_res_1) <- NULL
+vmp_res_1
+vmp_res_1 <- as.data.frame(vmp_res_1)
+vmp_res_1
+rownames(vmp_res_1) <- NULL
+vmp_res_1
+mcmc_scores_1 <- split(results$"zeta_1_mcmc", N_vec)
+mcmc_scores_1
+mcmc_res_1 <- t(sapply(mcmc_res_1, function(x) c(median(x), mad(x))))
+mcmc_res_1 <- t(sapply(mcmc_scores_1, function(x) c(median(x), mad(x))))
+mcmc_res_1
+mcmc_scores_1 <- split(results$"zeta_1_mcmc", N_vec)#
+	mcmc_res_1 <- t(sapply(mcmc_scores_1, function(x) c(median(x), mad(x))))#
+	mcmc_res_1 <- cbind(N_vec, mcmc_res_1)#
+	colnames(mcmc_res_1) <- c("N", "median", "mad")#
+	rownames(mcmc_res_1) <- NULL#
+	mcmc_res_1 <- as.data.frame(mcmc_res_1)
+mcmc_res_1
+vmp_scores_2 <- split(results$"zeta_2_vmp", N_vec)
+vmp_scores_2 <- split(results$"zeta_2_vmp", N_vec)#
+	vmp_res_2 <- t(sapply(vmp_scores_2, function(x) c(median(x), mad(x))))#
+	vmp_res_2 <- cbind(N_vec, vmp_res_2)#
+	colnames(vmp_res_2) <- c("N", "median", "mad")#
+	rownames(vmp_res_2) <- NULL#
+	vmp_res_2 <- as.data.frame(vmp_res_2)
+vmp_res_2
+vmp_res_1
+mcmc_res_1
+vmp_res_1
+mcmc_res_1
+mcmc_scores_2 <- split(results$"zeta_2_mcmc", N_vec)#
+	mcmc_res_2 <- t(sapply(mcmc_scores_2, function(x) c(median(x), mad(x))))#
+	mcmc_res_2 <- cbind(N_vec, mcmc_res_2)#
+	colnames(mcmc_res_2) <- c("N", "median", "mad")#
+	rownames(mcmc_res_2) <- NULL#
+	mcmc_res_2 <- as.data.frame(mcmc_res_2)
+mcmc_res_2
+vmp_res_2
+######### R script: mlfpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 23 AUG 2022#
+# Last changed: 23 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/mlfpca_acc_new.txt"#
+construct_txt(file_name = file_name, header = TRUE)#
+#
+plot_width <- 8#
+plot_height <- 5.6#
+#
+plot_dim <- c(4, 2)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"#
+#
+box_plot_mlfpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = FALSE, log_acc = TRUE, saved_location = saved_location#
+)
+results <- read.table(file_name, header = TRUE)
+results
+L_1 <- length(grep("psi_1", names(results), fixed = TRUE))/2
+L_1
+file_name
+results <- read.table("../../res/mlfpca_acc.txt", header = TRUE)
+results
+results$sim
+results$sim <- rep(1:100, 5)
+results$sim
+names(results)
+col_names <- colnames(results)
+col_names
+n_col <- length(col_names)
+n_col
+results <- as.matrix(results)
+results
+results <- read.table("../../res/mlfpca_acc.txt", header = TRUE)
+results$sim <- rep(1:100, 5)
+col_names <- colnames(results)
+n_col <- length(col_names)
+write(col_names, "../../res/mlfpca_acc.txt", ncol = n_col, append = FALSE)
+results <- as.matrix(results)
+write(t(results), "../../res/mlfpca_acc.txt", ncol = n_col, append = TRUE)
+results <- read.table("../../res/mlfpca_acc.txt", header = TRUE)
+names(results)
+results$sim <- rep(1:100, 5)
+col_names <- colnames(results)
+n_col <- length(col_names)
+write(col_names, "../../res/mlfpca_acc.txt", ncol = n_col, append = FALSE)
+getwd()
+results <- as.matrix(results)
+write(t(results), "../../res/mlfpca_acc.txt", ncol = n_col, append = TRUE)
+results <- read.table("../../res/mlfpca_acc.txt", header = TRUE)
+L_1 <- length(grep("psi_1", names(results), fixed = TRUE))/2
+L_2 <- length(grep("psi_2", names(results), fixed = TRUE))/2
+L <- L_1 + L_2
+N_vec <- unique(results$N)
+n_sims <- max(results$sim)
+L_1
+L_2
+N_vec
+n_sims
+# Extract accuracy scores:#
+	vmp_acc_vec <- as.vector(as.matrix(results[, (1:((L + 1)*2) + 2)[c(TRUE, FALSE)]]))#
+	mcmc_acc_vec <- as.vector(as.matrix(results[, (1:((L + 1)*2) + 2)[c(FALSE, TRUE)]]))
+vmp_acc_vec <- log(vmp_acc_vec)
+mcmc_acc_vec <- log(mcmc_acc_vec)
+y_lab <- "log ISE"
+acc_vec <- c(vmp_acc_vec, mcmc_acc_vec)
+# Label the curves:#
+	N_labels <- rep(N_vec, each = n_sims)#
+	N_labels <- rep(N_labels, 2*(L + 1))#
+	N_labels <- factor(N_labels)#
+#
+	mu_id <- parse(text = paste("mu (t)", sep=""))#
+	mu_labels <- rep(mu_id, n_sims*length(N_vec))#
+	mu_labels <- factor(mu_labels, levels = mu_id)#
+	psi_1_id <- rep(NA, L_1)#
+	psi_1_labels <- vector("list", length = L_1)#
+	for(l in 1:L_1) {#
+		psi_1_id[l] <- parse(text = paste("psi[", l, "]^(1)~(t)", sep=""))#
+		psi_1_labels[[l]] <- rep(psi_1_id[l], n_sims*length(N_vec))#
+	}#
+	psi_1_labels <- do.call(c, psi_1_labels)#
+	psi_1_labels <- factor(psi_1_labels, levels = psi_1_id)#
+	psi_2_id <- rep(NA, L_2)#
+	psi_2_labels <- vector("list", length = L_2)#
+	for(l in 1:L_2) {#
+		psi_2_id[l] <- parse(text = paste("psi[", l, "]^(2)~(t)", sep=""))#
+		psi_2_labels[[l]] <- rep(psi_2_id[l], n_sims*length(N_vec))#
+	}#
+	psi_2_labels <- do.call(c, psi_2_labels)#
+	psi_2_labels <- factor(psi_2_labels, levels = psi_2_id)#
+	gbl_id <- c(mu_id, psi_1_id, psi_2_id)#
+	gbl_labels <- c(mu_labels, psi_1_labels, psi_2_labels)#
+	gbl_labels <- rep(gbl_labels, 2)#
+	mod_id <- expression(VMP, MCMC)#
+	mod_labels <- rep(mod_id, each = length(N_vec)*n_sims*(L + 1))#
+	mod_labels <- factor(mod_labels, levels = mod_id)
+strip.math <- function(#
+		which.given, which.panel, var.name, factor.levels, ...#
+	) {#
+		fl <- gbl_id#
+		strip.default(which.given, which.panel, var.name, fl, ...)#
+	}#
+	data_table <- data.frame(acc_vec, N_labels, mod_labels, gbl_labels)#
+	names(data_table) <- c("accuracy", "N", "model", "curves")#
+	box_plots <- bwplot(#
+		accuracy ~ N | curves, data = data_table, groups = model,#
+		pch = "|", box.width = 1/3,#
+		layout = plot_dim, xlab = "N", ylab = "log ISE",#
+#		auto.key = list(points = FALSE, rectangles = TRUE, space = "top", columns = 2),#
+		strip = strip.math,#
+		par.strip.text = list(cex = 0.8),#
+		par.settings = list(layout.heights = list(strip = 1.4)),#
+		as.table=TRUE,#
+		panel = panel.superpose,#
+		panel.groups = function(x, y, ..., group.number) {#
+			panel.bwplot(x + (group.number - 1.5)/3, y, ...)#
+		}#
+	)#
+	print(box_plots)
+######### R script: mlfpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 23 AUG 2022#
+# Last changed: 23 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")
+plot_width <- 8
+plot_height <- 5.6
+plot_dim <- c(4, 2)              # c(ncol, nrow)
+saved_location <- "../../res"
+box_plot_mlfpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = FALSE, log_acc = TRUE, saved_location = saved_location#
+)
+file_name <- "../../res/mlfpca_acc.txt"
+box_plot_mlfpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = FALSE, log_acc = TRUE, saved_location = saved_location#
+)
+box_plot_mlfpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = TRUE, log_acc = TRUE, saved_location = saved_location#
+)
+file_name <- "../../res/mlfpca_acc_new.txt"
+results <- read.table(file_name, header = TRUE)
+file_name <- "../../res/mlfpca_acc.txt"
+results <- read.table(file_name, header = TRUE)
+results
+N_vec <- unique(results$"N")
+vmp_scores <- split(results$"zeta_vmp", N_vec)#
+	vmp_res <- lapply(vmp_scores, quantile, probs = c(0.25, 0.5, 0.75))#
+	vmp_res <- as.data.frame(cbind(N_vec, Reduce(rbind, vmp_res)))#
+	names(vmp_res) <- c("N", "quantile_1", "median", "quantile_3")#
+	rownames(vmp_res) <- NULL#
+	mcmc_scores <- split(results$"zeta_mcmc", N_vec)#
+	mcmc_res <- lapply(mcmc_scores, quantile, probs = c(0.25, 0.5, 0.75))#
+	mcmc_res <- as.data.frame(cbind(N_vec, Reduce(rbind, mcmc_res)))#
+	names(mcmc_res) <- c("N", "quantile_1", "median", "quantile_3")#
+	rownames(mcmc_res) <- NULL
+N_vec
+vmp_scores <- split(results$"zeta_vmp", N_vec)
+score_res <- mlfpca_score_summary(file_name)
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")
+score_res <- mlfpca_score_summary(file_name)
+results <- read.table(file_name, header = TRUE)
+results
+file_name
+N_vec <- unique(results$"N")
+N_vec
+vmp_scores_1 <- split(results$"zeta_1_vmp", N_vec)
+N_vec
+names(results)
+results <- read.table(file_name, header = TRUE)
+N_vec <- unique(results$"N")
+vmp_scores_1 <- split(results$"zeta_1_vmp", N_vec)#
+	vmp_res_1 <- t(sapply(vmp_scores_1, function(x) c(median(x), mad(x))))#
+	vmp_res_1 <- cbind(N_vec, vmp_res_1)#
+	colnames(vmp_res_1) <- c("N", "median", "mad")#
+	rownames(vmp_res_1) <- NULL#
+	vmp_res_1 <- as.data.frame(vmp_res_1)
+mcmc_scores_1 <- split(results$"zeta_1_mcmc", N_vec)#
+	mcmc_res_1 <- t(sapply(mcmc_scores_1, function(x) c(median(x), mad(x))))#
+	mcmc_res_1 <- cbind(N_vec, mcmc_res_1)#
+	colnames(mcmc_res_1) <- c("N", "median", "mad")#
+	rownames(mcmc_res_1) <- NULL#
+	mcmc_res_1 <- as.data.frame(mcmc_res_1)
+vmp_scores_2 <- split(results$"zeta_2_vmp", N_vec)#
+	vmp_res_2 <- t(sapply(vmp_scores_2, function(x) c(median(x), mad(x))))#
+	vmp_res_2 <- cbind(N_vec, vmp_res_2)#
+	colnames(vmp_res_2) <- c("N", "median", "mad")#
+	rownames(vmp_res_2) <- NULL#
+	vmp_res_2 <- as.data.frame(vmp_res_2)
+mcmc_scores_2 <- split(results$"zeta_2_mcmc", N_vec)#
+	mcmc_res_2 <- t(sapply(mcmc_scores_2, function(x) c(median(x), mad(x))))#
+	mcmc_res_2 <- cbind(N_vec, mcmc_res_2)#
+	colnames(mcmc_res_2) <- c("N", "median", "mad")#
+	rownames(mcmc_res_2) <- NULL#
+	mcmc_res_2 <- as.data.frame(mcmc_res_2)
+# Output the results:#
+	score_res_1 <- list(vmp_res_1, mcmc_res_1)#
+	names(score_res_1) <- c("VMP", "MCMC")#
+	score_res_2 <- list(vmp_res_2, mcmc_res_2)#
+	names(score_res_2) <- c("VMP", "MCMC")#
+	score_res <- list(score_res_1, score_res_2)#
+	names(score_res) <- c("L1", "L2")
+score_res
+######### R script: mlfpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 23 AUG 2022#
+# Last changed: 23 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/mlfpca_acc_new.txt"#
+construct_txt(file_name = file_name, header = TRUE)#
+#
+plot_width <- 8#
+plot_height <- 5.6#
+#
+plot_dim <- c(4, 2)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"#
+#
+box_plot_mlfpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = FALSE, log_acc = TRUE, saved_location = saved_location#
+)
+######### R script: mlfpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 23 AUG 2022#
+# Last changed: 23 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/mlfpca_acc_new.txt"#
+construct_txt(file_name = file_name, header = TRUE)#
+#
+plot_width <- 8#
+plot_height <- 5#
+#
+plot_dim <- c(4, 2)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"#
+#
+box_plot_mlfpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = TRUE, log_acc = TRUE, saved_location = saved_location#
+)
+######### R script: mlfpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 23 AUG 2022#
+# Last changed: 23 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/mlfpca_acc_new.txt"#
+construct_txt(file_name = file_name, header = TRUE)#
+#
+plot_width <- 8#
+plot_height <- 4#
+#
+plot_dim <- c(4, 2)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"#
+#
+box_plot_mlfpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = TRUE, log_acc = TRUE, saved_location = saved_location#
+)
+######### R script: mlfpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 23 AUG 2022#
+# Last changed: 23 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/mlfpca_acc_new.txt"#
+construct_txt(file_name = file_name, header = TRUE)#
+#
+plot_width <- 8#
+plot_height <- 5.6#
+#
+plot_dim <- c(4, 2)              # c(ncol, nrow)#
+#
+saved_location <- "../../res"#
+#
+box_plot_mlfpca_sims(#
+	file_name, plot_dim, plot_width, plot_height,#
+	save_pdf = TRUE, log_acc = TRUE, saved_location = saved_location#
+)#
+#
+score_res <- fpca_score_summary(file_name)#
+#
+############ End of mlfpca_acc_data.R
+######### R script: mlfpca_acc_data.R ###########
+#
+# For transforming the FPCA accuracy data from the HPC#
+# into the appropriate txt format#
+#
+# Created: 23 AUG 2022#
+# Last changed: 23 AUG 2022#
+#
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/mlfpca_acc_new.txt"
+score_res <- fpca_score_summary(file_name)
+file_name
+results <- read.table(file_name, header = TRUE)
+names(results)
+N_vec <- unique(results$"N")
+N_vec
+score_res <- mlfpca_score_summary(file_name)
+score_res
