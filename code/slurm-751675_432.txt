@@ -1,0 +1,191 @@
+slurmstepd: error: task/cgroup: unable to add task[pid=64229] to memory cg '(null)'
+slurmstepd: error: xcgroup_instantiate: unable to create cgroup '/cgroup-sl/memory/slurm/uid_131319' : Cannot allocate memory
+slurmstepd: error: jobacct_gather/cgroup: unable to instanciate user 131319 memory cgroup
+JobID: 751707
+======
+Time: Thu 25 Aug 00:04:54 BST 2022
+Running on node: compute-elgar
+Current directory: /home/tui/repos/vmp_fpca/code
+
+Num tasks = , Num nodes = 1, OMP_NUM_THREADS = 1
+
+Executing command:
+==================
+Rscript mlfpca_hpc.R
+
+Loading required package: abind
+Loading required package: StanHeaders
+Loading required package: ggplot2
+rstan (Version 2.21.5, GitRev: 2e1f913d3ca3)
+For execution on a local, multicore CPU with excess RAM we recommend calling
+options(mc.cores = parallel::detectCores()).
+To avoid recompilation of unchanged Stan programs, we recommend calling
+rstan_options(auto_write = TRUE)
+
+Attaching package: ‘ellipse’
+
+The following object is masked from ‘package:graphics’:
+
+    pairs
+
+Loading required package: matrixcalc
+
+Attaching package: ‘matrixcalc’
+
+The following object is masked _by_ ‘.GlobalEnv’:
+
+    vec
+
+Loading required package: pracma
+
+Attaching package: ‘pracma’
+
+The following object is masked from ‘package:magic’:
+
+    magic
+
+starting iteration 1 of 500 
+starting iteration 2 of 500 
+starting iteration 3 of 500 
+starting iteration 4 of 500 
+starting iteration 5 of 500 
+starting iteration 6 of 500 
+starting iteration 7 of 500 
+starting iteration 8 of 500 
+starting iteration 9 of 500 
+starting iteration 10 of 500 
+starting iteration 11 of 500 
+starting iteration 12 of 500 
+starting iteration 13 of 500 
+starting iteration 14 of 500 
+starting iteration 15 of 500 
+starting iteration 16 of 500 
+starting iteration 17 of 500 
+starting iteration 18 of 500 
+starting iteration 19 of 500 
+starting iteration 20 of 500 
+starting iteration 21 of 500 
+starting iteration 22 of 500 
+starting iteration 23 of 500 
+starting iteration 24 of 500 
+starting iteration 25 of 500 
+starting iteration 26 of 500 
+starting iteration 27 of 500 
+starting iteration 28 of 500 
+starting iteration 29 of 500 
+starting iteration 30 of 500 
+starting iteration 31 of 500 
+starting iteration 32 of 500 
+starting iteration 33 of 500 
+starting iteration 34 of 500 
+starting iteration 35 of 500 
+starting iteration 36 of 500 
+starting iteration 37 of 500 
+starting iteration 38 of 500 
+starting iteration 39 of 500 
+starting iteration 40 of 500 
+starting iteration 41 of 500 
+starting iteration 42 of 500 
+starting iteration 43 of 500 
+starting iteration 44 of 500 
+starting iteration 45 of 500 
+starting iteration 46 of 500 
+starting iteration 47 of 500 
+starting iteration 48 of 500 
+starting iteration 49 of 500 
+starting iteration 50 of 500 
+starting iteration 51 of 500 
+starting iteration 52 of 500 
+starting iteration 53 of 500 
+starting iteration 54 of 500 
+starting iteration 55 of 500 
+starting iteration 56 of 500 
+starting iteration 57 of 500 
+starting iteration 58 of 500 
+starting iteration 59 of 500 
+starting iteration 60 of 500 
+starting iteration 61 of 500 
+starting iteration 62 of 500 
+starting iteration 63 of 500 
+starting iteration 64 of 500 
+starting iteration 65 of 500 
+starting iteration 66 of 500 
+starting iteration 67 of 500 
+starting iteration 68 of 500 
+starting iteration 69 of 500 
+starting iteration 70 of 500 
+starting iteration 71 of 500 
+starting iteration 72 of 500 
+starting iteration 73 of 500 
+starting iteration 74 of 500 
+starting iteration 75 of 500 
+starting iteration 76 of 500 
+starting iteration 77 of 500 
+starting iteration 78 of 500 
+starting iteration 79 of 500 
+starting iteration 80 of 500 
+starting iteration 81 of 500 
+starting iteration 82 of 500 
+starting iteration 83 of 500 
+starting iteration 84 of 500 
+starting iteration 85 of 500 
+starting iteration 86 of 500 
+starting iteration 87 of 500 
+starting iteration 88 of 500 
+starting iteration 89 of 500 
+starting iteration 90 of 500 
+starting iteration 91 of 500 
+starting iteration 92 of 500 
+starting iteration 93 of 500 
+starting iteration 94 of 500 
+starting iteration 95 of 500 
+starting iteration 96 of 500 
+starting iteration 97 of 500 
+starting iteration 98 of 500 
+starting iteration 99 of 500 
+starting iteration 100 of 500 
+starting iteration 101 of 500 
+starting iteration 102 of 500 
+starting iteration 103 of 500 
+starting iteration 104 of 500 
+starting iteration 105 of 500 
+starting iteration 106 of 500 
+starting iteration 107 of 500 
+starting iteration 108 of 500 
+starting iteration 109 of 500 
+starting iteration 110 of 500 
+starting iteration 111 of 500 
+starting iteration 112 of 500 
+starting iteration 113 of 500 
+starting iteration 114 of 500 
+starting iteration 115 of 500 
+starting iteration 116 of 500 
+starting iteration 117 of 500 
+starting iteration 118 of 500 
+starting iteration 119 of 500 
+starting iteration 120 of 500 
+starting iteration 121 of 500 
+starting iteration 122 of 500 
+starting iteration 123 of 500 
+starting iteration 124 of 500 
+starting iteration 125 of 500 
+starting iteration 126 of 500 
+starting iteration 127 of 500 
+starting iteration 128 of 500 
+starting iteration 129 of 500 
+starting iteration 130 of 500 
+starting iteration 131 of 500 
+starting iteration 132 of 500 
+starting iteration 133 of 500 
+starting iteration 134 of 500 
+starting iteration 135 of 500 
+starting iteration 136 of 500 
+starting iteration 137 of 500 
+starting iteration 138 of 500 
+starting iteration 139 of 500 
+Error in file(con, "w") : cannot open the connection
+Calls: stan -> stan_model -> writeLines -> file
+In addition: Warning message:
+In file(con, "w") :
+  cannot open file '/tmp/Rtmpzu5Cxc/filefaf2177a0b71': No such file or directory
+Execution halted
