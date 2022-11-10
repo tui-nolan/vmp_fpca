@@ -1,10 +1,10 @@
-######### R script: fpca_us_weather_vmp.R ##########
+######### R script: fpca_us_temp_vmp.R ##########
 
 # For performing Bayesian FPCA via VMP
 # for the US weather dataset.
 
-# Created: 14 JAN 2020
-# Last changed: 03 MAR 2020
+# Created: 19 OCT 2022
+# Last changed: 30 OCT 2022
 
 # Load libraries:
 
@@ -35,13 +35,15 @@ setwd("..")
 
 # Gather the data:
 
-n_sample <- 16                             # number of curves for the plots
-N_sample <- rep(NA, n_sample)             # specific curves for the plots
-
 us_weather_data <- read.table("us_weather_data.txt", header=TRUE)
 
 states <- unique(us_weather_data$state)
+states <- states[-match("District of Columbia", states)]
 n_states <- length(states)
+
+n_sample <- 16                             # number of curves for the plots
+N_sample <- rep(NA, n_sample)              # specific curves for the plots
+
 sample_states <- sample(states, n_sample, replace = FALSE)
 sample_states <- names(sort(sapply(sample_states, function(x) which(states == x))))
 sample_rows <- vector("list", length=n_states)
@@ -86,7 +88,7 @@ vmp_lwd <- 1                              # line width for vmp plots
 
 # Set up plot-grid dimensions:
 
-L_present <- 2                            # number of basis functions to present
+L_present <- 4                            # number of basis functions to present
 
 plot_dim <- c(4, 4)                       # (ncol, nrow) for curve plots
 plot_gbl_dim <- c(4, 1)                   # (ncol, nrow) for basis function plots
@@ -157,7 +159,7 @@ length_N <- length(N_sample)
 Y_vec <- Reduce(c, Y_sample)
 time_vec <- Reduce(c, time_obs_sample)
 
-curve_id <- sample_states
+curve_id <- state.abb[match(sample_states, state.name)]
 curve_labels <- vector("list", length=length_N)
 for(i in 1:length_N) {
 	
@@ -318,6 +320,12 @@ for(i in 1:N) {
 	Sigma_q_zeta[[i]] <- tcrossprod(scale_mat%*%Sigma_q_zeta[[i]], scale_mat)
 }
 
+Psi_hat[, 1] <- sign(Psi_hat[1, 1])*Psi_hat[, 1]
+Zeta_hat[, 1] <- sign(Psi_hat[1, 1])*Zeta_hat[, 1]
+
+Psi_hat[, 2] <- sign(Psi_hat[1, 2])*Psi_hat[, 2]
+Zeta_hat[, 2] <- sign(Psi_hat[1, 2])*Zeta_hat[, 2]
+
 Y_summary <- vector("list", length=N)
 for(i in 1:N) {
 	
@@ -332,7 +340,7 @@ for(i in 1:N) {
 zeta_summary <- vector("list", length=N)
 for(i in 1:N) {
 	
-	zeta_mean <- Zeta_hat[i,][1:2]
+	zeta_mean <- Zeta_hat[i, ][1:2]
 	
 	zeta_ellipse <- ellipse(
 		Sigma_q_zeta[[i]][1:2, 1:2],
@@ -373,7 +381,7 @@ length_N <- length(N_sample)
 Y_vec <- Reduce(c, Y_sample)
 time_vec <- Reduce(c, time_obs_sample)
 
-curve_id <- sample_states
+curve_id <- state.abb[match(sample_states, state.name)]
 curve_labels <- vector("list", length=length_N)
 for(i in 1:length_N) {
 	
@@ -442,8 +450,6 @@ print(fitted_data_plots)
 if(print_pdf) {
 	
 	dev.off()
-	
-	wait()
 } else {
 	
 	wait()
@@ -456,68 +462,37 @@ var_cont <- var_cont[1:L_present]
 
 time_g_gbl <- rep(time_g, L_present)
 
-gbl_g_vec <- as.vector(gbl_summary[,2:(L_present+1)])
+gbl_g_vec <- as.vector(Psi_hat)
 gbl_labels <- vector("list", length=L_present)
 gbl_id <- rep(NA, L_present)
-
-mu_g_gbl <- rep(mu_q_mu, L_present)
-mu_labels <- vector("list", length=L_present)
-mu_id <- rep(NA, L_present)
-
-mean_mat <- matrix(rep(mu_q_mu[time_g_sample_points,], L_present), ncol=L_present)
-fpc_bf_mat <- gbl_summary[time_g_sample_points, 2:(L_present+1)]
-scale_mat <- diag(c(3, 1.2))
-mean_plus_fpc_mat <- mean_mat + fpc_bf_mat%*%scale_mat
-mean_minus_fpc_mat <- mean_mat - fpc_bf_mat%*%scale_mat
 
 for(l in 1:L_present) {
 	
 	gbl_id[l] <- parse(text=paste0("psi[", l, "] (t) : ", var_cont[l], "*\'%\'"))
 	gbl_labels[[l]] <- rep(gbl_id[l], n_g)
-	
-	mu_id[l] <- parse(text=paste0("mu (t) %+-% delta[", l, "] *\ psi[", l, "] (t)"))
-	mu_labels[[l]] <- rep(mu_id[l], n_g)
 }
 
-gbl_plot_id <- c(gbl_id, mu_id)
-gbl_plot_labels <- c(do.call(c, gbl_labels), do.call(c, mu_labels))
-gbl_plot_labels <- factor(gbl_plot_labels, levels = gbl_plot_id)
+gbl_labels <- do.call(c, gbl_labels)
+gbl_labels <- factor(gbl_labels, levels = gbl_id)
+gbl_plot_labels <- gbl_labels
 
-gbl_plot_vec <- c(gbl_g_vec, mu_g_gbl)
-time_plot_vec <- rep(time_g_gbl, 2)
-mean_pos_shift_mat <- cbind(matrix(NA, n_points, L_present), mean_plus_fpc_mat)
-mean_neg_shift_mat <- cbind(matrix(NA, n_points, L_present), mean_minus_fpc_mat)
-write(
-	c("time", function_names[2:(L_present + 1)]),
-	"./res/us_pos_shift.txt", ncol = L_present + 1, append = FALSE
-)
-write(
-	cbind(time_g_sample, mean_plus_fpc_mat),
-	"./res/us_pos_shift.txt", ncol = L_present + 1, append=TRUE
-)
-write(
-	c("time", function_names[2:(L_present + 1)]),
-	"./res/us_neg_shift.txt", ncol = L_present + 1, append = FALSE
-)
-write(
-	cbind(time_g_sample, mean_minus_fpc_mat),
-	"./res/us_neg_shift.txt", ncol = L_present + 1, append=TRUE
-)
+gbl_plot_vec <- gbl_g_vec
+time_plot_vec <- rep(time_g_gbl, L_present)
 
-y_lims <- rep(list(c(-2, 2), c(0, 32)), each = L_present)
+y_lims <- rep(list(c(-2, 2)), each = L_present)
 
 strip.math <- function(
 	which.given, which.panel, var.name, factor.levels, ...
 ) {
 	
-	fl <- gbl_plot_id
+	fl <- gbl_id
 		
 	strip.default(which.given,which.panel,var.name,fl,...)
 }
 
 if(print_pdf) {
 	
-	pdf("./res/us_bf.pdf",width=plot_width, height=plot_height)
+	pdf("./res/us_bf.pdf",width=plot_width, height=4.5)
 }
 
 basis_plots <- xyplot(
@@ -526,8 +501,8 @@ basis_plots <- xyplot(
 		time_plot_vec = time_plot_vec, gbl_plot_vec = gbl_plot_vec,
 		gbl_plot_labels = gbl_plot_labels
 	),
-	layout=c(L_present, 2), main="",
-	strip=strip.math, col=vmp_col, type=c("l", "g"), lwd=2,
+	layout=c(L_present, 1), main="",
+	strip=strip.math, col=vmp_col, lwd=2,
 	scales = list(x = list(tick.number = 3), y = list(relation = "free", limits = y_lims)),
 	par.strip.text=list(cex=0.8),
 	par.settings = list(layout.heights = list(strip = 1.2)),
@@ -537,19 +512,11 @@ basis_plots <- xyplot(
 	panel=function(x, y, subscripts, groups) {
 		
 		lPan <- panel.number()
-		l <- rep((1:(2*L_present)), each=1)[lPan]
+		l <- rep((1:L_present), each=1)[lPan]
 		panel.grid()
 		panel.superpose(
 			x[order(x)], y[order(x)], subscripts, groups,
 			type="l", col=vmp_col, lwd=2
-		)
-		panel.xyplot(
-			time_g_sample, mean_pos_shift_mat[,l],
-			col="black", pch="+", cex=1
-		)
-		panel.xyplot(
-			time_g_sample, mean_neg_shift_mat[,l],
-			col="black", pch="-", cex=1
 		)
 	}
 )
@@ -559,6 +526,44 @@ print(basis_plots)
 if(print_pdf) {
 	
 	dev.off()
+} else {
+	
+	wait()
 }
 
-############ End of fpca_us_weather_vmp.R ############
+# Construct plots of the scores:
+
+score_res <- zeta_summary[N_sample]
+Zeta_hat <- Zeta_hat[N_sample, 1:2]
+
+x_lim <- 1.2*range(Zeta_hat[, 1])
+y_lim <- 1.2*range(Zeta_hat[, 2])
+
+if(print_pdf) {
+	
+	pdf("./res/us_scores.pdf",width=plot_width, height=plot_height)
+}
+
+plot(
+	Zeta_hat, col = vmp_col,
+	xlab = "score for 1st eigenfunction",
+	ylab = "score for 2nd eigenfunction",
+	pch = 16, cex = 0.4,
+	xlim = x_lim, ylim = y_lim
+)
+abline(h = 0)
+abline(v = 0)
+for(i in 1:n_sample) {
+	
+	lines(score_res[[i]][[2]], col = vmp_col)
+}
+text(
+	Zeta_hat, labels = curve_id, pos = 4
+)
+
+if(print_pdf) {
+	
+	dev.off()
+}
+
+############ End of fpca_us_temp_vmp.R ############
