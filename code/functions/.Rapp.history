@@ -1,0 +1,4298 @@
+######### R script: mlfpca_vmp_6.R ###########
+#
+# For comparing a simple functional principal#
+# components analysis via MFVB and VMP.#
+#
+# Created: 20 FEB 2022#
+# Last changed: 25 MAR 2022#
+#
+# Updates:#
+# 1. Estimating eigenfunctions only.#
+# 2. Including scores and orthogonalization.#
+# 3. Streamlining the multilevel computations.#
+# 4. Including posterior for the residuals.#
+# 5. Functionalizing the multilevel likelihood fragment.#
+# 6. Including convergence.#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(lattice)#
+library(pracma)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+#
+setwd("..")#
+#
+# Establish simulation variables:#
+#
+N <- 100                                  # number of subjects#
+M <- 4                                    # number of observations on each subject#
+n_sample <- 4                             # number of curves for the plots#
+N_sample <- sort(sample(1:N, n_sample))   # specific curves for the plots#
+#
+T_vec <- vector("list", length = N)       # number of time observations for each curve#
+for(i in 1:N) {#
+	T_vec[[i]] <- round(runif(M, 50, 70))#
+}#
+n_int_knots <- 10                         # number of interior knots#
+K <- n_int_knots + 2                      # number of spline basis functions#
+L_1 <- 2                                  # number of first level eigenfunctions#
+L_2 <- 2                                  # number of second level eigenfunctions#
+L <- L_1 + L_2#
+data_col <- "grey51"                      # colour of the data in the plots#
+delta <- 1e-3#
+#
+n_vmp <- 200                              # number of VMP iterations#
+n_g <- 1000                               # length of the plotting grid#
+vmp_col <- "red"                          # colour of the VMP plots#
+d <- (K+2)*(L_1 + L_2 + 1)                # dimension of spline vector#
+#
+sigma_zeta_1 <- c(10, 5)                   # vector of st. dev.'s for the first level scores#
+sigma_zeta_2 <- c(1, 0.5)                 # vector of st. dev.'s for the second level scores#
+sigma_eps <- 3                            # sd of the residuals#
+sigsq_eps <- sigma_eps^2#
+#
+# Set up plot-grid dimensions:#
+#
+plot_dim <- c(M, n_sample)                # (ncol, nrow) for curve plots#
+plot_gbl_dim <- c(L + 1, 1)               # (ncol, nrow) for basis function plots#
+plot_score_1_dim <- c(2, 2)#
+plot_score_2_dim <- c(4, 4)#
+#
+plot_width <- 7#
+plot_height <- 14#
+#
+construct_pdf <- FALSE              # save the plots in a PDF?#
+#
+# Set the FPCA basis functions:#
+#
+mu <- function(t) return(10*sin(pi*t) - 5)#
+#
+psi_11 <- function(t) return(sqrt(2)*sin(2*pi*t))#
+psi_12 <- function(t) return(sqrt(2)*cos(2*pi*t))#
+#
+psi_21 <- function(t) return(sqrt(2)*sin(3*pi*t))#
+psi_22 <- function(t) return(sqrt(2)*cos(3*pi*t))#
+#
+# Set up fixed parameters:#
+#
+time_obs <- vector("list", length = N)#
+unique_time_obs <- vector("list", length = N)#
+for(i in 1:N) {#
+	time_obs[[i]] <- lapply(T_vec[[i]], runif)#
+	time_obs[[i]] <- lapply(time_obs[[i]], sort)#
+	unique_time_obs[[i]] <- sort(unique(Reduce(c, time_obs[[i]])))#
+}#
+unique_time_obs <- sort(Reduce(c, unique_time_obs))#
+int_knots <- quantile(unique_time_obs, seq(0,1,length=K)[-c(1,K)])#
+#
+X <- vector("list", length=N)#
+Z <- vector("list", length=N)#
+C <- vector("list", length=N)#
+for(i in 1:N) {#
+	X[[i]] <- vector("list", length = M)#
+	Z[[i]] <- vector("list", length = M)#
+	C[[i]] <- vector("list", length = M)#
+	for(j in 1:M) {#
+		X[[i]][[j]] <- X_design(time_obs[[i]][[j]])#
+		Z[[i]][[j]] <- ZOSull(time_obs[[i]][[j]], range.x=c(0, 1), intKnots=int_knots)#
+		C[[i]][[j]] <- cbind(X[[i]][[j]], Z[[i]][[j]])#
+#
+	}#
+}#
+#
+# Set up parameters for estimation:#
+#
+zeta_1 <- vector("list", length = N)#
+zeta_2 <- vector("list", length = N)#
+for(i in 1:N) {#
+	zeta_1[[i]] <- rep(NA, L_1)#
+	for(l in 1:L_1) {#
+		zeta_1[[i]][l] <- rnorm(1, 0, sigma_zeta_1[l])#
+	}#
+	zeta_2[[i]] <- vector("list", length = M)#
+	for(j in 1:M) {#
+		zeta_2[[i]][[j]] <- rep(NA, L_2)#
+		for(l in 1:L_2) {#
+			zeta_2[[i]][[j]][l] <- rnorm(1, 0, sigma_zeta_2[l])#
+		}#
+	}#
+}#
+#
+# Set up curve observations:#
+#
+Y <- vector("list", length=N)#
+for(i in 1:N) {#
+	Y[[i]] <- vector("list", length = M)#
+	for(j in 1:M) {#
+		mu_t <- mu(time_obs[[i]][[j]])#
+		Psi_1_t <- matrix(NA, nrow=T_vec[[i]][[j]], ncol=L_1)#
+		for(l in 1:L_1) {#
+			char_val <- paste("psi_1", l, "(time_obs[[i]][[j]])", sep="")#
+			Psi_1_t[,l] <- eval(parse(text=char_val))#
+		}#
+		Psi_2_t <- matrix(NA, nrow=T_vec[[i]][[j]], ncol=L_2)#
+		for(l in 1:L_2) {#
+			char_val <- paste("psi_2", l, "(time_obs[[i]][[j]])", sep="")#
+			Psi_2_t[,l] <- eval(parse(text=char_val))#
+		}#
+		epsilon <- rnorm(T_vec[[i]][[j]], 0, sigma_eps)#
+		Y_hat <- mu_t + as.vector(Psi_1_t %*% zeta_1[[i]] + Psi_2_t %*% zeta_2[[i]][[j]])#
+		Y[[i]][[j]] <- Y_hat + epsilon	#
+	}#
+}#
+#
+# Plot the data:#
+#
+Y_sample <- Y[N_sample]#
+time_obs_sample <- time_obs[N_sample]#
+T_sample <- vector("list", length = n_sample)#
+Y_vec <- vector("list", length = n_sample)#
+time_vec <- vector("list", length = n_sample)#
+for(i in 1:n_sample) {#
+	T_sample[[i]] <- sapply(Y_sample[[i]], length)#
+	Y_vec[[i]] <- Reduce(c, Y_sample[[i]])#
+	time_vec[[i]] <- Reduce(c, time_obs_sample[[i]])#
+}#
+Y_vec <- Reduce(c, Y_vec)#
+time_vec <- Reduce(c, time_vec)#
+#
+curve_labels_1 <- vector("list", length = n_sample)#
+for(i in 1:n_sample) {#
+	curve_labels_1[[i]] <- rep.int(1:M, times =  T_sample[[i]])#
+}#
+curve_labels_1 <- Reduce(c, curve_labels_1)#
+curve_id_1 <- rep(NA, M)#
+for(j in 1:M) {#
+	curve_id_1[j] <- parse(text = as.character(j))#
+}#
+curve_labels_1 <- factor(curve_labels_1, levels=curve_id_1)#
+#
+curve_labels_2 <- vector("list", length = n_sample)#
+curve_id_2 <- rep(NA, n_sample)#
+for(i in 1:n_sample) {#
+	N_i <- N_sample[i]#
+	curve_id_2[i] <- parse(text=paste("Y [", N_i, "] (t)", sep=""))#
+	curve_val <- eval(bquote(expression(Y[.(N_i)] (t))))#
+	curve_labels_2[[i]] <- rep(curve_val, sum(T_sample[[i]]))#
+}#
+curve_labels_2 <- do.call(c, curve_labels_2)#
+curve_labels_2 <- factor(curve_labels_2, levels=curve_id_2)#
+#
+strip.math <- function(#
+	which.given, which.panel, var.name, factor.levels, ...#
+) {#
+	if(which.given==1) {#
+		fl <- curve_id_1#
+		strip.default(which.given, which.panel, var.name, fl, ...)#
+	}#
+	if (which.given==2) {#
+		fl <- curve_id_2#
+		strip.default(which.given, which.panel, var.name, fl, ...)#
+	}#
+}#
+#
+raw_data_plots <- xyplot(#
+	Y_vec ~ time_vec | curve_labels_1*curve_labels_2, groups = curve_labels_1,#
+	data = data.frame(#
+		time_vec = time_vec, Y_vec = Y_vec,#
+		curve_labels_1 = curve_labels_1, curve_labels_2 = curve_labels_2#
+	), layout = plot_dim, main = "",#
+	strip=strip.math,#
+	par.strip.text=list(cex=0.8),#
+	par.settings = list(layout.heights = list(strip = 1)),#
+	xlab = "time", ylab = "functional responses", as.table = TRUE,#
+	panel=function(x,y,subscripts,groups) {#
+		panel.grid() #
+		panel.superpose(#
+			x[order(x)], y[order(x)], subscripts, groups,#
+			type="p", col = data_col, pch = 16, cex = 0.4#
+		)#
+	}#
+)
+print(raw_data_plots)
+# Set up plotting grid#
+#
+time_g <- seq(0,1, length.out=n_g)#
+#
+X_g <- X_design(time_g)#
+Z_g <- ZOSull(time_g, range.x=c(0, 1), intKnots=int_knots)#
+C_g <- cbind(X_g, Z_g)#
+#
+mu_g <- mu(time_g)#
+#
+Psi_1_g <- matrix(NA, n_g, L_1)#
+for(l in 1:L_1) {#
+	char_val <- paste("psi_1", l, "(time_g)", sep="")#
+	Psi_1_g[,l] <- eval(parse(text=char_val))#
+}#
+#
+Psi_2_g <- matrix(NA, n_g, L_2)#
+for(l in 1:L_2) {#
+	char_val <- paste("psi_2", l, "(time_g)", sep="")#
+	Psi_2_g[,l] <- eval(parse(text=char_val))#
+}#
+#
+# Establish hyperparameters:#
+#
+sigsq_beta <- 1e10#
+Sigma_beta <- sigsq_beta*diag(2)#
+sigma_zeta <- 1#
+sigsq_zeta <- sigma_zeta^2#
+mu_beta <- rep(0, 2)#
+A <- 1e5#
+#
+# Initialise the scores:#
+#
+E_q_zeta_1 <- vector("list", length = N)#
+Cov_q_zeta_1 <- vector("list", length = N)#
+E_q_zeta_2 <- vector("list", length = N)#
+Cov_q_zeta_2 <- vector("list", length = N)#
+Cov_q_zeta_12 <- vector("list", length = N)#
+for(i in 1:N) {#
+	E_q_zeta_1[[i]] <- rnorm(L_1, 0, 1)#
+	Cov_q_zeta_1[[i]] <- diag(L_1)#
+	E_q_zeta_2[[i]] <- vector("list", length = M)#
+	Cov_q_zeta_2[[i]] <- vector("list", length = M)#
+	Cov_q_zeta_12[[i]] <- vector("list", length = M)#
+	for(j in 1:M) {#
+		E_q_zeta_2[[i]][[j]] <- rnorm(L_2, 0, 1)#
+		Cov_q_zeta_2[[i]][[j]] <- diag(L_2)#
+		Cov_q_zeta_12[[i]][[j]] <- matrix(0, L_1, L_2)#
+	}#
+}#
+#
+# VMP algorithm:#
+#
+eta_vec <- vector("list", length=32)#
+names(eta_vec) <- c(#
+	"nu->p(Y|nu,zeta,sigsq_eps)", "p(Y|nu,zeta,sigsq_eps)->nu",#
+	"zeta->p(Y|nu,zeta,sigsq_eps)", "p(Y|nu,zeta,sigsq_eps)->zeta",#
+	"sigsq_eps->p(Y|nu,zeta,sigsq_eps)", "p(Y|nu,zeta,sigsq_eps)->sigsq_eps",#
+	"zeta->p(zeta)", "p(zeta)->zeta",#
+	"sigsq_eps->p(sigsq_eps|a_eps)", "p(sigsq_eps|a_eps)->sigsq_eps",#
+	"a_eps->p(sigsq_eps|a_eps)", "p(sigsq_eps|a_eps)->a_eps",#
+	"a_eps->p(a_eps)", "p(a_eps)->a_eps",#
+	"nu->p(nu|Sigma_nu)", "p(nu|Sigma_nu)->nu",#
+	"sigsq_m->p(nu|Sigma_nu)", "p(nu|Sigma_nu)->sigsq_m",#
+	"sigsq_p->p(nu|Sigma_nu)", "p(nu|Sigma_nu)->sigsq_p",#
+	"sigsq_m->p(sigsq_m|a_m)", "p(sigsq_m|a_m)->sigsq_m",#
+	"sigsq_p->p(sigsq_p|a_p)", "p(sigsq_p|a_p)->sigsq_p",#
+	"a_m->p(sigsq_m|a_m)", "p(sigsq_m|a_m)->a_m",#
+	"a_p->p(sigsq_p|a_p)", "p(sigsq_p|a_p)->a_p",#
+	"a_m->p(a_m)", "p(a_m)->a_m",#
+	"a_p->p(a_p)", "p(a_p)->a_p"#
+)#
+#
+G <- vector("list", length=24)#
+names(G) <- c(#
+	"sigsq_eps->p(Y|nu,zeta,sigsq_eps)", "p(Y|nu,zeta,sigsq_eps)->sigsq_eps",#
+	"sigsq_eps->p(sigsq_eps|a_eps)", "p(sigsq_eps|a_eps)->sigsq_eps",#
+	"a_eps->p(sigsq_eps|a_eps)", "p(sigsq_eps|a_eps)->a_eps",#
+	"a_eps->p(a_eps)", "p(a_eps)->a_eps",#
+	"sigsq_m->p(nu|Sigma_nu)", "p(nu|Sigma_nu)->sigsq_m",#
+	"sigsq_p->p(nu|Sigma_nu)", "p(nu|Sigma_nu)->sigsq_p",#
+	"sigsq_m->p(sigsq_m|a_m)", "p(sigsq_m|a_m)->sigsq_m",#
+	"sigsq_p->p(sigsq_p|a_p)", "p(sigsq_p|a_p)->sigsq_p",#
+	"a_m->p(sigsq_m|a_m)", "p(sigsq_m|a_m)->a_m",#
+	"a_p->p(sigsq_p|a_p)", "p(sigsq_p|a_p)->a_p",#
+	"a_m->p(a_m)", "p(a_m)->a_m",#
+	"a_p->p(a_p)", "p(a_p)->a_p"#
+)#
+#
+eta_1_sum <- 0#
+eta_2_sum <- 0#
+for(i in 1:N) {#
+	for(j in 1:M) {#
+		E_q_zeta <- c(E_q_zeta_1[[i]], E_q_zeta_2[[i]][[j]])#
+		E_q_zeta_tilde <- c(1, E_q_zeta)#
+		top_block <- cbind(Cov_q_zeta_1[[i]], Cov_q_zeta_12[[i]][[j]])#
+		bottom_block <- cbind(t(Cov_q_zeta_12[[i]][[j]]), Cov_q_zeta_2[[i]][[j]])#
+		Cov_q_zeta <- rbind(top_block, bottom_block)#
+		Cov_q_zeta_tilde <- adiag(0, Cov_q_zeta)#
+		E_q_tcross_zeta_tilde <- Cov_q_zeta_tilde + tcrossprod(E_q_zeta_tilde)#
+		sum_val <- cprod(kronecker(t(E_q_zeta_tilde), C[[i]][[j]]), Y[[i]][[j]])#
+		eta_1_sum <- eta_1_sum + sum_val#
+		sum_val <- as.vector(kronecker(E_q_tcross_zeta_tilde, crossprod(C[[i]][[j]])))#
+		eta_2_sum <- eta_2_sum + sum_val#
+	}#
+}#
+eta_1 <- eta_1_sum#
+eta_2 <- -1/2*eta_2_sum#
+eta_vec$"p(Y|nu,zeta,sigsq_eps)->nu" <- c(eta_1, eta_2)#
+#
+l_zeta_1 <- L_1 + 0.5*L_1*(L_1 + 1)#
+l_zeta_2 <- L_2 + 0.5*L_2*(L_2 + 1) + L_1*L_2#
+D_zeta_1 <- duplication.matrix(L_1)#
+D_zeta_2 <- duplication.matrix(L_2)#
+eta_1 <- matrix(NA, l_zeta_1, N)#
+eta_2 <- matrix(NA, M*l_zeta_2, N)#
+for(i in 1:N) {#
+	eta_11 <- E_q_zeta_1[[i]]#
+	eta_12 <- -0.5*cprod(D_zeta_1, as.vector(solve(Cov_q_zeta_1[[i]])))#
+	eta_1[, i] <- c(eta_11, eta_12)#
+	eta_2i <- matrix(NA, l_zeta_2, M)#
+	for(j in 1:M) {#
+		eta_21 <- E_q_zeta_2[[i]][[j]]#
+		eta_22 <- -0.5*cprod(D_zeta_2, as.vector(solve(Cov_q_zeta_2[[i]][[j]])))#
+		eta_23 <- -as.vector(Cov_q_zeta_12[[i]][[j]])#
+		eta_2i[, j] <- c(eta_21, eta_22, eta_23)#
+	}#
+	eta_2[, i] <- as.vector(eta_2i)#
+}#
+eta_vec$"p(Y|nu,zeta,sigsq_eps)->zeta" <- rbind(eta_1, eta_2)#
+#
+eta_1 <- -0.5*sum(Reduce(c, T_vec))#
+eta_2 <- -0.5*sum(Reduce(c, T_vec))#
+eta_vec$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps" <- c(eta_1, eta_2)#
+G$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps" <- "full"#
+#
+eta_1 <- matrix(NA, l_zeta_1, N)#
+eta_2 <- matrix(NA, M*l_zeta_2, N)#
+for(i in 1:N) {#
+	eta_11 <- rep(0, L_1)#
+	eta_12 <- -0.5*cprod(D_zeta_1, as.vector(solve(diag(L_1))))#
+	eta_1[, i] <- c(eta_11, eta_12)#
+	eta_21 <- matrix(NA, l_zeta_2, M)#
+	for(j in 1:M) {#
+		eta_21 <- rep(0, L_2)#
+		eta_22 <- -0.5*cprod(D_zeta_2, as.vector(solve(diag(L_2))))#
+		eta_23 <- -as.vector(matrix(0, L_1, L_2))#
+		eta_2i[, j] <- c(eta_21, eta_22, eta_23)#
+	}#
+	eta_2[, i] <- as.vector(eta_2i)#
+}#
+eta_vec$"p(zeta)->zeta" <- rbind(eta_1, eta_2)#
+#
+eta_vec$"p(sigsq_eps|a_eps)->sigsq_eps" <- c(-3/2, -1/2)#
+G$"p(sigsq_eps|a_eps)->sigsq_eps" <- "full"#
+#
+eta_vec$"p(sigsq_eps|a_eps)->a_eps" <- c(-1/2, -1/2)#
+G$"p(sigsq_eps|a_eps)->a_eps" <- "diag"#
+#
+eta_vec$"p(nu|Sigma_nu)->nu" <- gauss_prior_frag(rep(0, d), diag(d), use_vech = FALSE)#
+#
+eta_vec$"p(nu|Sigma_nu)->sigsq_m" <- c(-K/2, -K/2)#
+G$"p(nu|Sigma_nu)->sigsq_m" <- "full"#
+#
+eta_vec$"p(nu|Sigma_nu)->sigsq_p" <- replicate(L, c(-K/2, -K/2))#
+G$"p(nu|Sigma_nu)->sigsq_p" <- rep("full", L)#
+#
+eta_vec$"p(sigsq_m|a_m)->sigsq_m" <- c(-3/2, -1/2)#
+G$"p(sigsq_m|a_m)->sigsq_m" <- "full"#
+#
+eta_vec$"p(sigsq_p|a_p)->sigsq_p" <- replicate(L, c(-3/2, -1/2))#
+G$"p(sigsq_p|a_p)->sigsq_p" <- rep("full", L)#
+#
+eta_vec$"p(sigsq_m|a_m)->a_m" <- c(-1/2, -1/2)#
+G$"p(sigsq_m|a_m)->a_m" <- "diag"#
+#
+eta_vec$"p(sigsq_p|a_p)->a_p" <- replicate(L, c(-1/2, -1/2))#
+G$"p(sigsq_p|a_p)->a_p" <- rep("diag", L)#
+#
+igw_prior_updates <- igw_prior_frag(list("diag", 1, 1/A^2))#
+#
+eta_vec$"p(a_eps)->a_eps" <- igw_prior_updates[[2]]#
+G$"p(a_eps)->a_eps" <- igw_prior_updates[[1]]#
+#
+eta_vec$"p(a_m)->a_m" <- igw_prior_updates[[2]]#
+G$"p(a_m)->a_m" <- igw_prior_updates[[1]]#
+#
+eta_vec$"p(a_p)->a_p" <- replicate(L, igw_prior_updates[[2]])#
+G$"p(a_p)->a_p" <- rep(igw_prior_updates[[1]], L)
+eta_vec$"nu->p(Y|nu,zeta,sigsq_eps)" <- eta_vec$"p(nu|Sigma_nu)->nu"#
+	eta_vec$"nu->p(nu|Sigma_nu)" <- eta_vec$"p(Y|nu,zeta,sigsq_eps)->nu"#
+	eta_vec$"zeta->p(Y|nu,zeta,sigsq_eps)" <- eta_vec$"p(zeta)->zeta"#
+	eta_vec$"zeta->p(zeta)" <- eta_vec$"p(Y|nu,zeta,sigsq_eps)->zeta"#
+	eta_vec$"sigsq_eps->p(Y|nu,zeta,sigsq_eps)" <- eta_vec$"p(sigsq_eps|a_eps)->sigsq_eps"#
+	G$"sigsq_eps->p(Y|nu,zeta,sigsq_eps)" <- G$"p(sigsq_eps|a_eps)->sigsq_eps"#
+	eta_vec$"sigsq_eps->p(sigsq_eps|a_eps)" <- eta_vec$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps"#
+	G$"sigsq_eps->p(sigsq_eps|a_eps)" <- G$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps"#
+	eta_vec$"a_eps->p(sigsq_eps|a_eps)" <- eta_vec$"p(a_eps)->a_eps"#
+	G$"a_eps->p(sigsq_eps|a_eps)" <- G$"p(a_eps)->a_eps"#
+	eta_vec$"a_eps->p(a_eps)" <- eta_vec$"p(sigsq_eps|a_eps)->a_eps"#
+	G$"a_eps->p(a_eps)" <- G$"p(sigsq_eps|a_eps)->a_eps"#
+	eta_vec$"sigsq_m->p(nu|Sigma_nu)" <- eta_vec$"p(sigsq_m|a_m)->sigsq_m"#
+	G$"sigsq_m->p(nu|Sigma_nu)" <- G$"p(sigsq_m|a_m)->sigsq_m"#
+	eta_vec$"sigsq_m->p(sigsq_m|a_m)" <- eta_vec$"p(nu|Sigma_nu)->sigsq_m"#
+	G$"sigsq_m->p(sigsq_m|a_m)" <- G$"p(nu|Sigma_nu)->sigsq_m"#
+	eta_vec$"sigsq_p->p(nu|Sigma_nu)" <- eta_vec$"p(sigsq_p|a_p)->sigsq_p"#
+	G$"sigsq_p->p(nu|Sigma_nu)" <- G$"p(sigsq_p|a_p)->sigsq_p"#
+	eta_vec$"sigsq_p->p(sigsq_p|a_p)" <- eta_vec$"p(nu|Sigma_nu)->sigsq_p"#
+	G$"sigsq_p->p(sigsq_p|a_p)" <- G$"p(nu|Sigma_nu)->sigsq_p"#
+	eta_vec$"a_m->p(sigsq_m|a_m)" <- eta_vec$"p(a_m)->a_m"#
+	G$"a_m->p(sigsq_m|a_m)" <- G$"p(a_m)->a_m"#
+	eta_vec$"a_m->p(a_m)" <- eta_vec$"p(sigsq_m|a_m)->a_m"#
+	G$"a_m->p(a_m)" <- G$"p(sigsq_m|a_m)->a_m"#
+	eta_vec$"a_p->p(sigsq_p|a_p)" <- eta_vec$"p(a_p)->a_p"#
+	G$"a_p->p(sigsq_p|a_p)" <- G$"p(a_p)->a_p"#
+	eta_vec$"a_p->p(a_p)" <- eta_vec$"p(sigsq_p|a_p)->a_p"#
+	G$"a_p->p(a_p)" <- G$"p(sigsq_p|a_p)->a_p"
+# Update p(Y|nu,zeta,sigsq_eps) fragment:#
+	eta_in <- list(#
+		eta_vec$"nu->p(Y|nu,zeta,sigsq_eps)",#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->nu",#
+		eta_vec$"zeta->p(Y|nu,zeta,sigsq_eps)",#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->zeta",#
+		eta_vec$"sigsq_eps->p(Y|nu,zeta,sigsq_eps)",#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps"#
+	)#
+	G_in <- list(#
+		G$"sigsq_eps->p(Y|nu,zeta,sigsq_eps)",#
+		G$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps"#
+	)#
+	ml_fpc_lik_fragment <- ml_fpc_lik_frag(#
+		eta_in, G_in, C, Y, T_vec, L_1, L_2#
+	)#
+	eta_vec$"p(Y|nu,zeta,sigsq_eps)->nu" <- ml_fpc_lik_fragment$"eta"[[1]]#
+	eta_vec$"p(Y|nu,zeta,sigsq_eps)->zeta" <- ml_fpc_lik_fragment$"eta"[[2]]#
+	eta_vec$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps" <- ml_fpc_lik_fragment$"eta"[[3]]#
+	G$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps" <- ml_fpc_lik_fragment$"G"[[1]]#
+	# Update p(nu|Sigma_nu) fragment:#
+	eta_in <- list(#
+		eta_vec$"nu->p(nu|Sigma_nu)", eta_vec$"p(nu|Sigma_nu)->nu",#
+		eta_vec$"sigsq_m->p(nu|Sigma_nu)", eta_vec$"p(nu|Sigma_nu)->sigsq_m",#
+		eta_vec$"sigsq_p->p(nu|Sigma_nu)", eta_vec$"p(nu|Sigma_nu)->sigsq_p"#
+	)#
+	G_in <- list(#
+		G$"sigsq_m->p(nu|Sigma_nu)", G$"p(nu|Sigma_nu)->sigsq_m",#
+		G$"sigsq_p->p(nu|Sigma_nu)", G$"p(nu|Sigma_nu)->sigsq_p"#
+	)#
+	fpc_gauss_pen_fragment <- fpc_gauss_pen_frag(#
+		eta_in, G_in, L, mu_beta, Sigma_beta#
+	)#
+	eta_vec$"p(nu|Sigma_nu)->nu" <- fpc_gauss_pen_fragment$"eta"[[1]]#
+	eta_vec$"p(nu|Sigma_nu)->sigsq_m" <- fpc_gauss_pen_fragment$"eta"[[2]]#
+	eta_vec$"p(nu|Sigma_nu)->sigsq_p" <- fpc_gauss_pen_fragment$"eta"[[3]]#
+	G$"p(nu|Sigma_nu)->sigsq_m" <- fpc_gauss_pen_fragment$"G"[[1]]#
+	G$"p(nu|Sigma_nu)->sigsq_p" <- fpc_gauss_pen_fragment$"G"[[2]]#
+	# Update p(sigsq_m|a_m) fragment:#
+	eta_in <- list(#
+		eta_vec$"sigsq_m->p(sigsq_m|a_m)",#
+		eta_vec$"p(sigsq_m|a_m)->sigsq_m",#
+		eta_vec$"a_m->p(sigsq_m|a_m)",#
+		eta_vec$"p(sigsq_m|a_m)->a_m"#
+	)#
+	iter_igw_fragment <- iter_igw_frag(#
+		eta_in, G$"a_m->p(sigsq_m|a_m)",#
+		1, G$"sigsq_m->p(sigsq_m|a_m)"#
+	)#
+	eta_vec$"p(sigsq_m|a_m)->sigsq_m" <- iter_igw_fragment$"eta"[[1]]#
+	eta_vec$"p(sigsq_m|a_m)->a_m" <- iter_igw_fragment$"eta"[[2]]#
+	G$"p(sigsq_m|a_m)->sigsq_m" <- iter_igw_fragment$"G"[[1]]#
+	G$"p(sigsq_m|a_m)->a_m" <- iter_igw_fragment$"G"[[2]]#
+	# Update p(sigsq_p|a_p) fragment:#
+	for(l in 1:L) {#
+		eta_in <- list(#
+			eta_vec$"sigsq_p->p(sigsq_p|a_p)"[,l],#
+			eta_vec$"p(sigsq_p|a_p)->sigsq_p"[,l],#
+			eta_vec$"a_p->p(sigsq_p|a_p)"[,l],#
+			eta_vec$"p(sigsq_p|a_p)->a_p"[,l]#
+		)#
+		iter_igw_fragment <- iter_igw_frag(#
+			eta_in, G$"a_p->p(sigsq_p|a_p)"[l],#
+			1, G$"sigsq_p->p(sigsq_p|a_p)"[l]#
+		)#
+		eta_vec$"p(sigsq_p|a_p)->sigsq_p"[,l] <- iter_igw_fragment$"eta"[[1]]#
+		eta_vec$"p(sigsq_p|a_p)->a_p"[,l] <- iter_igw_fragment$"eta"[[2]]#
+		G$"p(sigsq_p|a_p)->sigsq_p"[l] <- iter_igw_fragment$"G"[[1]]#
+		G$"p(sigsq_p|a_p)->a_p"[l] <- iter_igw_fragment$"G"[[2]]#
+	}
+ent <- 0#
+	eta_nu <- list(#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->nu",#
+		eta_vec$"p(nu|Sigma_nu)->nu"#
+	)#
+	ent_nu <- entropy_gauss(eta_nu, use_vech=FALSE)#
+	ent <- ent + ent_nu
+eta_vec$"p(zeta)->zeta"
+######### R script: mlfpca_vmp_6.R ###########
+#
+# For comparing a simple functional principal#
+# components analysis via MFVB and VMP.#
+#
+# Created: 20 FEB 2022#
+# Last changed: 25 MAR 2022#
+#
+# Updates:#
+# 1. Estimating eigenfunctions only.#
+# 2. Including scores and orthogonalization.#
+# 3. Streamlining the multilevel computations.#
+# 4. Including posterior for the residuals.#
+# 5. Functionalizing the multilevel likelihood fragment.#
+# 6. Including convergence.#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(lattice)#
+library(pracma)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+#
+setwd("..")#
+#
+# Establish simulation variables:#
+#
+N <- 100                                  # number of subjects#
+M <- 4                                    # number of observations on each subject#
+n_sample <- 4                             # number of curves for the plots#
+N_sample <- sort(sample(1:N, n_sample))   # specific curves for the plots#
+#
+T_vec <- vector("list", length = N)       # number of time observations for each curve#
+for(i in 1:N) {#
+	T_vec[[i]] <- round(runif(M, 50, 70))#
+}#
+n_int_knots <- 10                         # number of interior knots#
+K <- n_int_knots + 2                      # number of spline basis functions#
+L_1 <- 2                                  # number of first level eigenfunctions#
+L_2 <- 2                                  # number of second level eigenfunctions#
+L <- L_1 + L_2#
+data_col <- "grey51"                      # colour of the data in the plots#
+delta <- 1e-3#
+#
+n_vmp <- 200                              # number of VMP iterations#
+n_g <- 1000                               # length of the plotting grid#
+vmp_col <- "red"                          # colour of the VMP plots#
+d <- (K+2)*(L_1 + L_2 + 1)                # dimension of spline vector#
+#
+sigma_zeta_1 <- c(10, 5)                   # vector of st. dev.'s for the first level scores#
+sigma_zeta_2 <- c(1, 0.5)                 # vector of st. dev.'s for the second level scores#
+sigma_eps <- 3                            # sd of the residuals#
+sigsq_eps <- sigma_eps^2#
+#
+# Set up plot-grid dimensions:#
+#
+plot_dim <- c(M, n_sample)                # (ncol, nrow) for curve plots#
+plot_gbl_dim <- c(L + 1, 1)               # (ncol, nrow) for basis function plots#
+plot_score_1_dim <- c(2, 2)#
+plot_score_2_dim <- c(4, 4)#
+#
+plot_width <- 7#
+plot_height <- 14#
+#
+construct_pdf <- FALSE              # save the plots in a PDF?#
+#
+# Set the FPCA basis functions:#
+#
+mu <- function(t) return(10*sin(pi*t) - 5)#
+#
+psi_11 <- function(t) return(sqrt(2)*sin(2*pi*t))#
+psi_12 <- function(t) return(sqrt(2)*cos(2*pi*t))#
+#
+psi_21 <- function(t) return(sqrt(2)*sin(3*pi*t))#
+psi_22 <- function(t) return(sqrt(2)*cos(3*pi*t))#
+#
+# Set up fixed parameters:#
+#
+time_obs <- vector("list", length = N)#
+unique_time_obs <- vector("list", length = N)#
+for(i in 1:N) {#
+	time_obs[[i]] <- lapply(T_vec[[i]], runif)#
+	time_obs[[i]] <- lapply(time_obs[[i]], sort)#
+	unique_time_obs[[i]] <- sort(unique(Reduce(c, time_obs[[i]])))#
+}#
+unique_time_obs <- sort(Reduce(c, unique_time_obs))#
+int_knots <- quantile(unique_time_obs, seq(0,1,length=K)[-c(1,K)])#
+#
+X <- vector("list", length=N)#
+Z <- vector("list", length=N)#
+C <- vector("list", length=N)#
+for(i in 1:N) {#
+	X[[i]] <- vector("list", length = M)#
+	Z[[i]] <- vector("list", length = M)#
+	C[[i]] <- vector("list", length = M)#
+	for(j in 1:M) {#
+		X[[i]][[j]] <- X_design(time_obs[[i]][[j]])#
+		Z[[i]][[j]] <- ZOSull(time_obs[[i]][[j]], range.x=c(0, 1), intKnots=int_knots)#
+		C[[i]][[j]] <- cbind(X[[i]][[j]], Z[[i]][[j]])#
+#
+	}#
+}#
+#
+# Set up parameters for estimation:#
+#
+zeta_1 <- vector("list", length = N)#
+zeta_2 <- vector("list", length = N)#
+for(i in 1:N) {#
+	zeta_1[[i]] <- rep(NA, L_1)#
+	for(l in 1:L_1) {#
+		zeta_1[[i]][l] <- rnorm(1, 0, sigma_zeta_1[l])#
+	}#
+	zeta_2[[i]] <- vector("list", length = M)#
+	for(j in 1:M) {#
+		zeta_2[[i]][[j]] <- rep(NA, L_2)#
+		for(l in 1:L_2) {#
+			zeta_2[[i]][[j]][l] <- rnorm(1, 0, sigma_zeta_2[l])#
+		}#
+	}#
+}#
+#
+# Set up curve observations:#
+#
+Y <- vector("list", length=N)#
+for(i in 1:N) {#
+	Y[[i]] <- vector("list", length = M)#
+	for(j in 1:M) {#
+		mu_t <- mu(time_obs[[i]][[j]])#
+		Psi_1_t <- matrix(NA, nrow=T_vec[[i]][[j]], ncol=L_1)#
+		for(l in 1:L_1) {#
+			char_val <- paste("psi_1", l, "(time_obs[[i]][[j]])", sep="")#
+			Psi_1_t[,l] <- eval(parse(text=char_val))#
+		}#
+		Psi_2_t <- matrix(NA, nrow=T_vec[[i]][[j]], ncol=L_2)#
+		for(l in 1:L_2) {#
+			char_val <- paste("psi_2", l, "(time_obs[[i]][[j]])", sep="")#
+			Psi_2_t[,l] <- eval(parse(text=char_val))#
+		}#
+		epsilon <- rnorm(T_vec[[i]][[j]], 0, sigma_eps)#
+		Y_hat <- mu_t + as.vector(Psi_1_t %*% zeta_1[[i]] + Psi_2_t %*% zeta_2[[i]][[j]])#
+		Y[[i]][[j]] <- Y_hat + epsilon	#
+	}#
+}#
+#
+# Plot the data:#
+#
+Y_sample <- Y[N_sample]#
+time_obs_sample <- time_obs[N_sample]#
+T_sample <- vector("list", length = n_sample)#
+Y_vec <- vector("list", length = n_sample)#
+time_vec <- vector("list", length = n_sample)#
+for(i in 1:n_sample) {#
+	T_sample[[i]] <- sapply(Y_sample[[i]], length)#
+	Y_vec[[i]] <- Reduce(c, Y_sample[[i]])#
+	time_vec[[i]] <- Reduce(c, time_obs_sample[[i]])#
+}#
+Y_vec <- Reduce(c, Y_vec)#
+time_vec <- Reduce(c, time_vec)#
+#
+curve_labels_1 <- vector("list", length = n_sample)#
+for(i in 1:n_sample) {#
+	curve_labels_1[[i]] <- rep.int(1:M, times =  T_sample[[i]])#
+}#
+curve_labels_1 <- Reduce(c, curve_labels_1)#
+curve_id_1 <- rep(NA, M)#
+for(j in 1:M) {#
+	curve_id_1[j] <- parse(text = as.character(j))#
+}#
+curve_labels_1 <- factor(curve_labels_1, levels=curve_id_1)#
+#
+curve_labels_2 <- vector("list", length = n_sample)#
+curve_id_2 <- rep(NA, n_sample)#
+for(i in 1:n_sample) {#
+	N_i <- N_sample[i]#
+	curve_id_2[i] <- parse(text=paste("Y [", N_i, "] (t)", sep=""))#
+	curve_val <- eval(bquote(expression(Y[.(N_i)] (t))))#
+	curve_labels_2[[i]] <- rep(curve_val, sum(T_sample[[i]]))#
+}#
+curve_labels_2 <- do.call(c, curve_labels_2)#
+curve_labels_2 <- factor(curve_labels_2, levels=curve_id_2)#
+#
+strip.math <- function(#
+	which.given, which.panel, var.name, factor.levels, ...#
+) {#
+	if(which.given==1) {#
+		fl <- curve_id_1#
+		strip.default(which.given, which.panel, var.name, fl, ...)#
+	}#
+	if (which.given==2) {#
+		fl <- curve_id_2#
+		strip.default(which.given, which.panel, var.name, fl, ...)#
+	}#
+}#
+#
+raw_data_plots <- xyplot(#
+	Y_vec ~ time_vec | curve_labels_1*curve_labels_2, groups = curve_labels_1,#
+	data = data.frame(#
+		time_vec = time_vec, Y_vec = Y_vec,#
+		curve_labels_1 = curve_labels_1, curve_labels_2 = curve_labels_2#
+	), layout = plot_dim, main = "",#
+	strip=strip.math,#
+	par.strip.text=list(cex=0.8),#
+	par.settings = list(layout.heights = list(strip = 1)),#
+	xlab = "time", ylab = "functional responses", as.table = TRUE,#
+	panel=function(x,y,subscripts,groups) {#
+		panel.grid() #
+		panel.superpose(#
+			x[order(x)], y[order(x)], subscripts, groups,#
+			type="p", col = data_col, pch = 16, cex = 0.4#
+		)#
+	}#
+)#
+#
+print(raw_data_plots)
+# Set up plotting grid#
+#
+time_g <- seq(0,1, length.out=n_g)#
+#
+X_g <- X_design(time_g)#
+Z_g <- ZOSull(time_g, range.x=c(0, 1), intKnots=int_knots)#
+C_g <- cbind(X_g, Z_g)#
+#
+mu_g <- mu(time_g)#
+#
+Psi_1_g <- matrix(NA, n_g, L_1)#
+for(l in 1:L_1) {#
+	char_val <- paste("psi_1", l, "(time_g)", sep="")#
+	Psi_1_g[,l] <- eval(parse(text=char_val))#
+}#
+#
+Psi_2_g <- matrix(NA, n_g, L_2)#
+for(l in 1:L_2) {#
+	char_val <- paste("psi_2", l, "(time_g)", sep="")#
+	Psi_2_g[,l] <- eval(parse(text=char_val))#
+}#
+#
+# Establish hyperparameters:#
+#
+sigsq_beta <- 1e10#
+Sigma_beta <- sigsq_beta*diag(2)#
+sigma_zeta <- 1#
+sigsq_zeta <- sigma_zeta^2#
+mu_beta <- rep(0, 2)#
+A <- 1e5#
+#
+# Initialise the scores:#
+#
+E_q_zeta_1 <- vector("list", length = N)#
+Cov_q_zeta_1 <- vector("list", length = N)#
+E_q_zeta_2 <- vector("list", length = N)#
+Cov_q_zeta_2 <- vector("list", length = N)#
+Cov_q_zeta_12 <- vector("list", length = N)#
+for(i in 1:N) {#
+	E_q_zeta_1[[i]] <- rnorm(L_1, 0, 1)#
+	Cov_q_zeta_1[[i]] <- diag(L_1)#
+	E_q_zeta_2[[i]] <- vector("list", length = M)#
+	Cov_q_zeta_2[[i]] <- vector("list", length = M)#
+	Cov_q_zeta_12[[i]] <- vector("list", length = M)#
+	for(j in 1:M) {#
+		E_q_zeta_2[[i]][[j]] <- rnorm(L_2, 0, 1)#
+		Cov_q_zeta_2[[i]][[j]] <- diag(L_2)#
+		Cov_q_zeta_12[[i]][[j]] <- matrix(0, L_1, L_2)#
+	}#
+}#
+#
+# VMP algorithm:#
+#
+eta_vec <- vector("list", length=32)#
+names(eta_vec) <- c(#
+	"nu->p(Y|nu,zeta,sigsq_eps)", "p(Y|nu,zeta,sigsq_eps)->nu",#
+	"zeta->p(Y|nu,zeta,sigsq_eps)", "p(Y|nu,zeta,sigsq_eps)->zeta",#
+	"sigsq_eps->p(Y|nu,zeta,sigsq_eps)", "p(Y|nu,zeta,sigsq_eps)->sigsq_eps",#
+	"zeta->p(zeta)", "p(zeta)->zeta",#
+	"sigsq_eps->p(sigsq_eps|a_eps)", "p(sigsq_eps|a_eps)->sigsq_eps",#
+	"a_eps->p(sigsq_eps|a_eps)", "p(sigsq_eps|a_eps)->a_eps",#
+	"a_eps->p(a_eps)", "p(a_eps)->a_eps",#
+	"nu->p(nu|Sigma_nu)", "p(nu|Sigma_nu)->nu",#
+	"sigsq_m->p(nu|Sigma_nu)", "p(nu|Sigma_nu)->sigsq_m",#
+	"sigsq_p->p(nu|Sigma_nu)", "p(nu|Sigma_nu)->sigsq_p",#
+	"sigsq_m->p(sigsq_m|a_m)", "p(sigsq_m|a_m)->sigsq_m",#
+	"sigsq_p->p(sigsq_p|a_p)", "p(sigsq_p|a_p)->sigsq_p",#
+	"a_m->p(sigsq_m|a_m)", "p(sigsq_m|a_m)->a_m",#
+	"a_p->p(sigsq_p|a_p)", "p(sigsq_p|a_p)->a_p",#
+	"a_m->p(a_m)", "p(a_m)->a_m",#
+	"a_p->p(a_p)", "p(a_p)->a_p"#
+)#
+#
+G <- vector("list", length=24)#
+names(G) <- c(#
+	"sigsq_eps->p(Y|nu,zeta,sigsq_eps)", "p(Y|nu,zeta,sigsq_eps)->sigsq_eps",#
+	"sigsq_eps->p(sigsq_eps|a_eps)", "p(sigsq_eps|a_eps)->sigsq_eps",#
+	"a_eps->p(sigsq_eps|a_eps)", "p(sigsq_eps|a_eps)->a_eps",#
+	"a_eps->p(a_eps)", "p(a_eps)->a_eps",#
+	"sigsq_m->p(nu|Sigma_nu)", "p(nu|Sigma_nu)->sigsq_m",#
+	"sigsq_p->p(nu|Sigma_nu)", "p(nu|Sigma_nu)->sigsq_p",#
+	"sigsq_m->p(sigsq_m|a_m)", "p(sigsq_m|a_m)->sigsq_m",#
+	"sigsq_p->p(sigsq_p|a_p)", "p(sigsq_p|a_p)->sigsq_p",#
+	"a_m->p(sigsq_m|a_m)", "p(sigsq_m|a_m)->a_m",#
+	"a_p->p(sigsq_p|a_p)", "p(sigsq_p|a_p)->a_p",#
+	"a_m->p(a_m)", "p(a_m)->a_m",#
+	"a_p->p(a_p)", "p(a_p)->a_p"#
+)#
+#
+eta_1_sum <- 0#
+eta_2_sum <- 0#
+for(i in 1:N) {#
+	for(j in 1:M) {#
+		E_q_zeta <- c(E_q_zeta_1[[i]], E_q_zeta_2[[i]][[j]])#
+		E_q_zeta_tilde <- c(1, E_q_zeta)#
+		top_block <- cbind(Cov_q_zeta_1[[i]], Cov_q_zeta_12[[i]][[j]])#
+		bottom_block <- cbind(t(Cov_q_zeta_12[[i]][[j]]), Cov_q_zeta_2[[i]][[j]])#
+		Cov_q_zeta <- rbind(top_block, bottom_block)#
+		Cov_q_zeta_tilde <- adiag(0, Cov_q_zeta)#
+		E_q_tcross_zeta_tilde <- Cov_q_zeta_tilde + tcrossprod(E_q_zeta_tilde)#
+		sum_val <- cprod(kronecker(t(E_q_zeta_tilde), C[[i]][[j]]), Y[[i]][[j]])#
+		eta_1_sum <- eta_1_sum + sum_val#
+		sum_val <- as.vector(kronecker(E_q_tcross_zeta_tilde, crossprod(C[[i]][[j]])))#
+		eta_2_sum <- eta_2_sum + sum_val#
+	}#
+}#
+eta_1 <- eta_1_sum#
+eta_2 <- -1/2*eta_2_sum#
+eta_vec$"p(Y|nu,zeta,sigsq_eps)->nu" <- c(eta_1, eta_2)#
+#
+l_zeta_1 <- L_1 + 0.5*L_1*(L_1 + 1)#
+l_zeta_2 <- L_2 + 0.5*L_2*(L_2 + 1) + L_1*L_2#
+D_zeta_1 <- duplication.matrix(L_1)#
+D_zeta_2 <- duplication.matrix(L_2)#
+eta_1 <- matrix(NA, l_zeta_1, N)#
+eta_2 <- matrix(NA, M*l_zeta_2, N)#
+for(i in 1:N) {#
+	eta_11 <- E_q_zeta_1[[i]]#
+	eta_12 <- -0.5*cprod(D_zeta_1, as.vector(solve(Cov_q_zeta_1[[i]])))#
+	eta_1[, i] <- c(eta_11, eta_12)#
+	eta_2i <- matrix(NA, l_zeta_2, M)#
+	for(j in 1:M) {#
+		eta_21 <- E_q_zeta_2[[i]][[j]]#
+		eta_22 <- -0.5*cprod(D_zeta_2, as.vector(solve(Cov_q_zeta_2[[i]][[j]])))#
+		eta_23 <- -as.vector(Cov_q_zeta_12[[i]][[j]])#
+		eta_2i[, j] <- c(eta_21, eta_22, eta_23)#
+	}#
+	eta_2[, i] <- as.vector(eta_2i)#
+}#
+eta_vec$"p(Y|nu,zeta,sigsq_eps)->zeta" <- rbind(eta_1, eta_2)#
+#
+eta_1 <- -0.5*sum(Reduce(c, T_vec))#
+eta_2 <- -0.5*sum(Reduce(c, T_vec))#
+eta_vec$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps" <- c(eta_1, eta_2)#
+G$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps" <- "full"#
+#
+eta_1 <- matrix(NA, l_zeta_1, N)#
+eta_2 <- matrix(NA, M*l_zeta_2, N)#
+for(i in 1:N) {#
+	eta_11 <- rep(0, L_1)#
+	eta_12 <- -0.5*cprod(D_zeta_1, as.vector(solve(diag(L_1))))#
+	eta_1[, i] <- c(eta_11, eta_12)#
+	eta_21 <- matrix(NA, l_zeta_2, M)#
+	for(j in 1:M) {#
+		eta_21 <- rep(0, L_2)#
+		eta_22 <- -0.5*cprod(D_zeta_2, as.vector(solve(diag(L_2))))#
+		eta_23 <- -as.vector(matrix(0, L_1, L_2))#
+		eta_2i[, j] <- c(eta_21, eta_22, eta_23)#
+	}#
+	eta_2[, i] <- as.vector(eta_2i)#
+}#
+eta_vec$"p(zeta)->zeta" <- rbind(eta_1, eta_2)#
+#
+eta_vec$"p(sigsq_eps|a_eps)->sigsq_eps" <- c(-3/2, -1/2)#
+G$"p(sigsq_eps|a_eps)->sigsq_eps" <- "full"#
+#
+eta_vec$"p(sigsq_eps|a_eps)->a_eps" <- c(-1/2, -1/2)#
+G$"p(sigsq_eps|a_eps)->a_eps" <- "diag"#
+#
+eta_vec$"p(nu|Sigma_nu)->nu" <- gauss_prior_frag(rep(0, d), diag(d), use_vech = FALSE)#
+#
+eta_vec$"p(nu|Sigma_nu)->sigsq_m" <- c(-K/2, -K/2)#
+G$"p(nu|Sigma_nu)->sigsq_m" <- "full"#
+#
+eta_vec$"p(nu|Sigma_nu)->sigsq_p" <- replicate(L, c(-K/2, -K/2))#
+G$"p(nu|Sigma_nu)->sigsq_p" <- rep("full", L)#
+#
+eta_vec$"p(sigsq_m|a_m)->sigsq_m" <- c(-3/2, -1/2)#
+G$"p(sigsq_m|a_m)->sigsq_m" <- "full"#
+#
+eta_vec$"p(sigsq_p|a_p)->sigsq_p" <- replicate(L, c(-3/2, -1/2))#
+G$"p(sigsq_p|a_p)->sigsq_p" <- rep("full", L)#
+#
+eta_vec$"p(sigsq_m|a_m)->a_m" <- c(-1/2, -1/2)#
+G$"p(sigsq_m|a_m)->a_m" <- "diag"#
+#
+eta_vec$"p(sigsq_p|a_p)->a_p" <- replicate(L, c(-1/2, -1/2))#
+G$"p(sigsq_p|a_p)->a_p" <- rep("diag", L)#
+#
+igw_prior_updates <- igw_prior_frag(list("diag", 1, 1/A^2))#
+#
+eta_vec$"p(a_eps)->a_eps" <- igw_prior_updates[[2]]#
+G$"p(a_eps)->a_eps" <- igw_prior_updates[[1]]#
+#
+eta_vec$"p(a_m)->a_m" <- igw_prior_updates[[2]]#
+G$"p(a_m)->a_m" <- igw_prior_updates[[1]]#
+#
+eta_vec$"p(a_p)->a_p" <- replicate(L, igw_prior_updates[[2]])#
+G$"p(a_p)->a_p" <- rep(igw_prior_updates[[1]], L)
+eta_vec$"nu->p(Y|nu,zeta,sigsq_eps)" <- eta_vec$"p(nu|Sigma_nu)->nu"#
+	eta_vec$"nu->p(nu|Sigma_nu)" <- eta_vec$"p(Y|nu,zeta,sigsq_eps)->nu"#
+	eta_vec$"zeta->p(Y|nu,zeta,sigsq_eps)" <- eta_vec$"p(zeta)->zeta"#
+	eta_vec$"zeta->p(zeta)" <- eta_vec$"p(Y|nu,zeta,sigsq_eps)->zeta"#
+	eta_vec$"sigsq_eps->p(Y|nu,zeta,sigsq_eps)" <- eta_vec$"p(sigsq_eps|a_eps)->sigsq_eps"#
+	G$"sigsq_eps->p(Y|nu,zeta,sigsq_eps)" <- G$"p(sigsq_eps|a_eps)->sigsq_eps"#
+	eta_vec$"sigsq_eps->p(sigsq_eps|a_eps)" <- eta_vec$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps"#
+	G$"sigsq_eps->p(sigsq_eps|a_eps)" <- G$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps"#
+	eta_vec$"a_eps->p(sigsq_eps|a_eps)" <- eta_vec$"p(a_eps)->a_eps"#
+	G$"a_eps->p(sigsq_eps|a_eps)" <- G$"p(a_eps)->a_eps"#
+	eta_vec$"a_eps->p(a_eps)" <- eta_vec$"p(sigsq_eps|a_eps)->a_eps"#
+	G$"a_eps->p(a_eps)" <- G$"p(sigsq_eps|a_eps)->a_eps"#
+	eta_vec$"sigsq_m->p(nu|Sigma_nu)" <- eta_vec$"p(sigsq_m|a_m)->sigsq_m"#
+	G$"sigsq_m->p(nu|Sigma_nu)" <- G$"p(sigsq_m|a_m)->sigsq_m"#
+	eta_vec$"sigsq_m->p(sigsq_m|a_m)" <- eta_vec$"p(nu|Sigma_nu)->sigsq_m"#
+	G$"sigsq_m->p(sigsq_m|a_m)" <- G$"p(nu|Sigma_nu)->sigsq_m"#
+	eta_vec$"sigsq_p->p(nu|Sigma_nu)" <- eta_vec$"p(sigsq_p|a_p)->sigsq_p"#
+	G$"sigsq_p->p(nu|Sigma_nu)" <- G$"p(sigsq_p|a_p)->sigsq_p"#
+	eta_vec$"sigsq_p->p(sigsq_p|a_p)" <- eta_vec$"p(nu|Sigma_nu)->sigsq_p"#
+	G$"sigsq_p->p(sigsq_p|a_p)" <- G$"p(nu|Sigma_nu)->sigsq_p"#
+	eta_vec$"a_m->p(sigsq_m|a_m)" <- eta_vec$"p(a_m)->a_m"#
+	G$"a_m->p(sigsq_m|a_m)" <- G$"p(a_m)->a_m"#
+	eta_vec$"a_m->p(a_m)" <- eta_vec$"p(sigsq_m|a_m)->a_m"#
+	G$"a_m->p(a_m)" <- G$"p(sigsq_m|a_m)->a_m"#
+	eta_vec$"a_p->p(sigsq_p|a_p)" <- eta_vec$"p(a_p)->a_p"#
+	G$"a_p->p(sigsq_p|a_p)" <- G$"p(a_p)->a_p"#
+	eta_vec$"a_p->p(a_p)" <- eta_vec$"p(sigsq_p|a_p)->a_p"#
+	G$"a_p->p(a_p)" <- G$"p(sigsq_p|a_p)->a_p"#
+	# Update p(Y|nu,zeta,sigsq_eps) fragment:#
+	eta_in <- list(#
+		eta_vec$"nu->p(Y|nu,zeta,sigsq_eps)",#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->nu",#
+		eta_vec$"zeta->p(Y|nu,zeta,sigsq_eps)",#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->zeta",#
+		eta_vec$"sigsq_eps->p(Y|nu,zeta,sigsq_eps)",#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps"#
+	)#
+	G_in <- list(#
+		G$"sigsq_eps->p(Y|nu,zeta,sigsq_eps)",#
+		G$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps"#
+	)#
+	ml_fpc_lik_fragment <- ml_fpc_lik_frag(#
+		eta_in, G_in, C, Y, T_vec, L_1, L_2#
+	)#
+	eta_vec$"p(Y|nu,zeta,sigsq_eps)->nu" <- ml_fpc_lik_fragment$"eta"[[1]]#
+	eta_vec$"p(Y|nu,zeta,sigsq_eps)->zeta" <- ml_fpc_lik_fragment$"eta"[[2]]#
+	eta_vec$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps" <- ml_fpc_lik_fragment$"eta"[[3]]#
+	G$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps" <- ml_fpc_lik_fragment$"G"[[1]]#
+	# Update p(nu|Sigma_nu) fragment:#
+	eta_in <- list(#
+		eta_vec$"nu->p(nu|Sigma_nu)", eta_vec$"p(nu|Sigma_nu)->nu",#
+		eta_vec$"sigsq_m->p(nu|Sigma_nu)", eta_vec$"p(nu|Sigma_nu)->sigsq_m",#
+		eta_vec$"sigsq_p->p(nu|Sigma_nu)", eta_vec$"p(nu|Sigma_nu)->sigsq_p"#
+	)#
+	G_in <- list(#
+		G$"sigsq_m->p(nu|Sigma_nu)", G$"p(nu|Sigma_nu)->sigsq_m",#
+		G$"sigsq_p->p(nu|Sigma_nu)", G$"p(nu|Sigma_nu)->sigsq_p"#
+	)#
+	fpc_gauss_pen_fragment <- fpc_gauss_pen_frag(#
+		eta_in, G_in, L, mu_beta, Sigma_beta#
+	)#
+	eta_vec$"p(nu|Sigma_nu)->nu" <- fpc_gauss_pen_fragment$"eta"[[1]]#
+	eta_vec$"p(nu|Sigma_nu)->sigsq_m" <- fpc_gauss_pen_fragment$"eta"[[2]]#
+	eta_vec$"p(nu|Sigma_nu)->sigsq_p" <- fpc_gauss_pen_fragment$"eta"[[3]]#
+	G$"p(nu|Sigma_nu)->sigsq_m" <- fpc_gauss_pen_fragment$"G"[[1]]#
+	G$"p(nu|Sigma_nu)->sigsq_p" <- fpc_gauss_pen_fragment$"G"[[2]]#
+	# Update p(sigsq_m|a_m) fragment:#
+	eta_in <- list(#
+		eta_vec$"sigsq_m->p(sigsq_m|a_m)",#
+		eta_vec$"p(sigsq_m|a_m)->sigsq_m",#
+		eta_vec$"a_m->p(sigsq_m|a_m)",#
+		eta_vec$"p(sigsq_m|a_m)->a_m"#
+	)#
+	iter_igw_fragment <- iter_igw_frag(#
+		eta_in, G$"a_m->p(sigsq_m|a_m)",#
+		1, G$"sigsq_m->p(sigsq_m|a_m)"#
+	)#
+	eta_vec$"p(sigsq_m|a_m)->sigsq_m" <- iter_igw_fragment$"eta"[[1]]#
+	eta_vec$"p(sigsq_m|a_m)->a_m" <- iter_igw_fragment$"eta"[[2]]#
+	G$"p(sigsq_m|a_m)->sigsq_m" <- iter_igw_fragment$"G"[[1]]#
+	G$"p(sigsq_m|a_m)->a_m" <- iter_igw_fragment$"G"[[2]]#
+	# Update p(sigsq_p|a_p) fragment:#
+	for(l in 1:L) {#
+		eta_in <- list(#
+			eta_vec$"sigsq_p->p(sigsq_p|a_p)"[,l],#
+			eta_vec$"p(sigsq_p|a_p)->sigsq_p"[,l],#
+			eta_vec$"a_p->p(sigsq_p|a_p)"[,l],#
+			eta_vec$"p(sigsq_p|a_p)->a_p"[,l]#
+		)#
+		iter_igw_fragment <- iter_igw_frag(#
+			eta_in, G$"a_p->p(sigsq_p|a_p)"[l],#
+			1, G$"sigsq_p->p(sigsq_p|a_p)"[l]#
+		)#
+		eta_vec$"p(sigsq_p|a_p)->sigsq_p"[,l] <- iter_igw_fragment$"eta"[[1]]#
+		eta_vec$"p(sigsq_p|a_p)->a_p"[,l] <- iter_igw_fragment$"eta"[[2]]#
+		G$"p(sigsq_p|a_p)->sigsq_p"[l] <- iter_igw_fragment$"G"[[1]]#
+		G$"p(sigsq_p|a_p)->a_p"[l] <- iter_igw_fragment$"G"[[2]]#
+	}
+ent <- 0#
+	eta_in <- list(#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->nu",#
+		eta_vec$"p(nu|Sigma_nu)->nu",#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->zeta",#
+		eta_vec$"p(zeta)->zeta"#
+	)#
+	ent <- ent + entropy_two_lev_fpc_prod(eta_in, C, L_1, L_2)
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+#
+setwd("..")
+ent <- 0#
+	eta_in <- list(#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->nu",#
+		eta_vec$"p(nu|Sigma_nu)->nu",#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->zeta",#
+		eta_vec$"p(zeta)->zeta"#
+	)#
+	ent <- ent + entropy_two_lev_fpc_prod(eta_in, C, L_1, L_2)
+ent
+ent_fpc_prod
+ent_fpc_prod <- entropy_two_lev_fpc_prod(eta_in, C, L_1, L_2)
+eta_sigsq_eps <- list(#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps",#
+		eta_vec$"p(sigsq_eps|a_eps)->sigsq_eps"#
+	)#
+	G_sigsq_eps <- c(#
+		G$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps",#
+		G$"p(sigsq_eps|a_eps)->sigsq_eps"#
+	)#
+	ent_sigsq_eps <- entropy_igw(eta_sigsq_eps, G_sigsq_eps)#
+	ent <- ent + ent_sigsq_eps
+eta_a_eps <- list(#
+		eta_vec$"p(sigsq_eps|a_eps)->a_eps",#
+		eta_vec$"p(a_eps)->a_eps"#
+	)#
+	G_a_eps <- c(#
+		G$"p(sigsq_eps|a_eps)->a_eps",#
+		G$"p(a_eps)->a_eps"#
+	)#
+	ent_a_eps <- entropy_igw(eta_a_eps, G_a_eps)#
+	ent <- ent + ent_a_eps
+eta_sigsq_m <- list(#
+		eta_vec$"p(nu|Sigma_nu)->sigsq_m",#
+		eta_vec$"p(sigsq_m|a_m)->sigsq_m"#
+	)#
+	G_sigsq_m <- c(#
+		G$"p(nu|Sigma_nu)->sigsq_m",#
+		G$"p(sigsq_m|a_m)->sigsq_m"#
+	)#
+	ent_sigsq_m <- entropy_igw(eta_sigsq_m, G_sigsq_m)#
+	ent <- ent + ent_sigsq_m
+eta_a_m <- list(#
+		eta_vec$"p(sigsq_m|a_m)->a_m",#
+		eta_vec$"p(a_m)->a_m"#
+	)#
+	G_a_m <- c(#
+		G$"p(sigsq_m|a_m)->a_m",#
+		G$"p(a_m)->a_m"#
+	)#
+	ent_a_m <- entropy_igw(eta_a_m, G_a_m)
+ent <- ent + ent_a_m#
+	ent_sigsq_p <- 0#
+	ent_a_p <- 0#
+	for(l in 1:L) {#
+		eta_sigsq_p <- list(#
+			eta_vec$"p(nu|Sigma_nu)->sigsq_p"[,l],#
+			eta_vec$"p(sigsq_p|a_p)->sigsq_p"[,l]#
+		)#
+		G_sigsq_p <- list(#
+			G$"p(nu|Sigma_nu)->sigsq_p"[l],#
+			G$"p(sigsq_p|a_p)->sigsq_p"[l]#
+		)#
+		sum_val <- entropy_igw(eta_sigsq_p, G_sigsq_p)#
+		ent_sigsq_p <- ent_sigsq_p + sum_val#
+		eta_a_p <- list(#
+			eta_vec$"p(sigsq_p|a_p)->a_p"[,l],#
+			eta_vec$"p(a_p)->a_p"[,l]#
+		)#
+		G_a_p <- c(#
+			G$"p(sigsq_p|a_p)->a_p"[l],#
+			G$"p(a_p)->a_p"[l]#
+		)#
+		sum_val <- entropy_igw(eta_a_p, G_a_p)#
+		ent_a_p <- ent_a_p + sum_val#
+	}#
+	ent <- ent + ent_sigsq_p + ent_a_p
+c_ent <- 0#
+	eta_in <- list(#
+		eta_vec$"nu->p(Y|nu,zeta,sigsq_eps)",#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->nu",#
+		eta_vec$"zeta->p(Y|nu,zeta,sigsq_eps)",#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->zeta",#
+		eta_vec$"sigsq_eps->p(Y|nu,zeta,sigsq_eps)",#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps"#
+	)#
+	G_in <- list(#
+		G$"sigsq_eps->p(Y|nu,zeta,sigsq_eps)",#
+		G$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps"#
+	)#
+	c_ent_p_Y <- cross_entropy_ml_fpc_lik_frag(eta_in, G_in, C, Y, T_vec, L_1, L_2)#
+	c_ent <- c_ent + c_ent_p_Y
+eta_in <- list(#
+		eta_vec$"nu->p(nu|Sigma_nu)", eta_vec$"p(nu|Sigma_nu)->nu",#
+		eta_vec$"sigsq_m->p(nu|Sigma_nu)", eta_vec$"p(nu|Sigma_nu)->sigsq_m",#
+		eta_vec$"sigsq_p->p(nu|Sigma_nu)", eta_vec$"p(nu|Sigma_nu)->sigsq_p"#
+	)#
+	G_in <- list(#
+		G$"sigsq_m->p(nu|Sigma_nu)", G$"p(nu|Sigma_nu)->sigsq_m",#
+		G$"sigsq_p->p(nu|Sigma_nu)", G$"p(nu|Sigma_nu)->sigsq_p"#
+	)#
+	c_ent_p_nu <- cross_entropy_fpc_gauss_pen(eta_in, G_in, L, mu_beta, Sigma_beta)#
+	c_ent <- c_ent + c_ent_p_nu
+eta_vec$"zeta->p(zeta)"
+l_zeta_1
+l_zeta_1 <- L_1 + 0.5*(L_1)*(L_1 + 1)
+l_zeta_1
+l_zeta_2
+l_zeta_2 <- L_2 + 0.5*L_2*(L+2 + 1) + L_1*L_2
+l_zeta_2
+L_1*L_2
+M*l_zeta_2
+1:(M*l_zeta_2) + l_zeta_1
+nrow(eta_vec$"zeta->p(zeta)")
+M*13
+M*9 + 5
+######### R script: mlfpca_vmp_6.R ###########
+#
+# For comparing a simple functional principal#
+# components analysis via MFVB and VMP.#
+#
+# Created: 20 FEB 2022#
+# Last changed: 25 MAR 2022#
+#
+# Updates:#
+# 1. Estimating eigenfunctions only.#
+# 2. Including scores and orthogonalization.#
+# 3. Streamlining the multilevel computations.#
+# 4. Including posterior for the residuals.#
+# 5. Functionalizing the multilevel likelihood fragment.#
+# 6. Including convergence.#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(lattice)#
+library(pracma)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+#
+setwd("..")#
+#
+# Establish simulation variables:#
+#
+N <- 100                                  # number of subjects#
+M <- 4                                    # number of observations on each subject#
+n_sample <- 4                             # number of curves for the plots#
+N_sample <- sort(sample(1:N, n_sample))   # specific curves for the plots#
+#
+T_vec <- vector("list", length = N)       # number of time observations for each curve#
+for(i in 1:N) {#
+	T_vec[[i]] <- round(runif(M, 50, 70))#
+}#
+n_int_knots <- 10                         # number of interior knots#
+K <- n_int_knots + 2                      # number of spline basis functions#
+L_1 <- 2                                  # number of first level eigenfunctions#
+L_2 <- 2                                  # number of second level eigenfunctions#
+L <- L_1 + L_2#
+data_col <- "grey51"                      # colour of the data in the plots#
+delta <- 1e-3#
+#
+n_vmp <- 200                              # number of VMP iterations#
+n_g <- 1000                               # length of the plotting grid#
+vmp_col <- "red"                          # colour of the VMP plots#
+d <- (K+2)*(L_1 + L_2 + 1)                # dimension of spline vector#
+#
+sigma_zeta_1 <- c(10, 5)                   # vector of st. dev.'s for the first level scores#
+sigma_zeta_2 <- c(1, 0.5)                 # vector of st. dev.'s for the second level scores#
+sigma_eps <- 3                            # sd of the residuals#
+sigsq_eps <- sigma_eps^2#
+#
+# Set up plot-grid dimensions:#
+#
+plot_dim <- c(M, n_sample)                # (ncol, nrow) for curve plots#
+plot_gbl_dim <- c(L + 1, 1)               # (ncol, nrow) for basis function plots#
+plot_score_1_dim <- c(2, 2)#
+plot_score_2_dim <- c(4, 4)#
+#
+plot_width <- 7#
+plot_height <- 14#
+#
+construct_pdf <- FALSE              # save the plots in a PDF?#
+#
+# Set the FPCA basis functions:#
+#
+mu <- function(t) return(10*sin(pi*t) - 5)#
+#
+psi_11 <- function(t) return(sqrt(2)*sin(2*pi*t))#
+psi_12 <- function(t) return(sqrt(2)*cos(2*pi*t))#
+#
+psi_21 <- function(t) return(sqrt(2)*sin(3*pi*t))#
+psi_22 <- function(t) return(sqrt(2)*cos(3*pi*t))#
+#
+# Set up fixed parameters:#
+#
+time_obs <- vector("list", length = N)#
+unique_time_obs <- vector("list", length = N)#
+for(i in 1:N) {#
+	time_obs[[i]] <- lapply(T_vec[[i]], runif)#
+	time_obs[[i]] <- lapply(time_obs[[i]], sort)#
+	unique_time_obs[[i]] <- sort(unique(Reduce(c, time_obs[[i]])))#
+}#
+unique_time_obs <- sort(Reduce(c, unique_time_obs))#
+int_knots <- quantile(unique_time_obs, seq(0,1,length=K)[-c(1,K)])#
+#
+X <- vector("list", length=N)#
+Z <- vector("list", length=N)#
+C <- vector("list", length=N)#
+for(i in 1:N) {#
+	X[[i]] <- vector("list", length = M)#
+	Z[[i]] <- vector("list", length = M)#
+	C[[i]] <- vector("list", length = M)#
+	for(j in 1:M) {#
+		X[[i]][[j]] <- X_design(time_obs[[i]][[j]])#
+		Z[[i]][[j]] <- ZOSull(time_obs[[i]][[j]], range.x=c(0, 1), intKnots=int_knots)#
+		C[[i]][[j]] <- cbind(X[[i]][[j]], Z[[i]][[j]])#
+#
+	}#
+}#
+#
+# Set up parameters for estimation:#
+#
+zeta_1 <- vector("list", length = N)#
+zeta_2 <- vector("list", length = N)#
+for(i in 1:N) {#
+	zeta_1[[i]] <- rep(NA, L_1)#
+	for(l in 1:L_1) {#
+		zeta_1[[i]][l] <- rnorm(1, 0, sigma_zeta_1[l])#
+	}#
+	zeta_2[[i]] <- vector("list", length = M)#
+	for(j in 1:M) {#
+		zeta_2[[i]][[j]] <- rep(NA, L_2)#
+		for(l in 1:L_2) {#
+			zeta_2[[i]][[j]][l] <- rnorm(1, 0, sigma_zeta_2[l])#
+		}#
+	}#
+}#
+#
+# Set up curve observations:#
+#
+Y <- vector("list", length=N)#
+for(i in 1:N) {#
+	Y[[i]] <- vector("list", length = M)#
+	for(j in 1:M) {#
+		mu_t <- mu(time_obs[[i]][[j]])#
+		Psi_1_t <- matrix(NA, nrow=T_vec[[i]][[j]], ncol=L_1)#
+		for(l in 1:L_1) {#
+			char_val <- paste("psi_1", l, "(time_obs[[i]][[j]])", sep="")#
+			Psi_1_t[,l] <- eval(parse(text=char_val))#
+		}#
+		Psi_2_t <- matrix(NA, nrow=T_vec[[i]][[j]], ncol=L_2)#
+		for(l in 1:L_2) {#
+			char_val <- paste("psi_2", l, "(time_obs[[i]][[j]])", sep="")#
+			Psi_2_t[,l] <- eval(parse(text=char_val))#
+		}#
+		epsilon <- rnorm(T_vec[[i]][[j]], 0, sigma_eps)#
+		Y_hat <- mu_t + as.vector(Psi_1_t %*% zeta_1[[i]] + Psi_2_t %*% zeta_2[[i]][[j]])#
+		Y[[i]][[j]] <- Y_hat + epsilon	#
+	}#
+}#
+#
+# Plot the data:#
+#
+Y_sample <- Y[N_sample]#
+time_obs_sample <- time_obs[N_sample]#
+T_sample <- vector("list", length = n_sample)#
+Y_vec <- vector("list", length = n_sample)#
+time_vec <- vector("list", length = n_sample)#
+for(i in 1:n_sample) {#
+	T_sample[[i]] <- sapply(Y_sample[[i]], length)#
+	Y_vec[[i]] <- Reduce(c, Y_sample[[i]])#
+	time_vec[[i]] <- Reduce(c, time_obs_sample[[i]])#
+}#
+Y_vec <- Reduce(c, Y_vec)#
+time_vec <- Reduce(c, time_vec)#
+#
+curve_labels_1 <- vector("list", length = n_sample)#
+for(i in 1:n_sample) {#
+	curve_labels_1[[i]] <- rep.int(1:M, times =  T_sample[[i]])#
+}#
+curve_labels_1 <- Reduce(c, curve_labels_1)#
+curve_id_1 <- rep(NA, M)#
+for(j in 1:M) {#
+	curve_id_1[j] <- parse(text = as.character(j))#
+}#
+curve_labels_1 <- factor(curve_labels_1, levels=curve_id_1)#
+#
+curve_labels_2 <- vector("list", length = n_sample)#
+curve_id_2 <- rep(NA, n_sample)#
+for(i in 1:n_sample) {#
+	N_i <- N_sample[i]#
+	curve_id_2[i] <- parse(text=paste("Y [", N_i, "] (t)", sep=""))#
+	curve_val <- eval(bquote(expression(Y[.(N_i)] (t))))#
+	curve_labels_2[[i]] <- rep(curve_val, sum(T_sample[[i]]))#
+}#
+curve_labels_2 <- do.call(c, curve_labels_2)#
+curve_labels_2 <- factor(curve_labels_2, levels=curve_id_2)#
+#
+strip.math <- function(#
+	which.given, which.panel, var.name, factor.levels, ...#
+) {#
+	if(which.given==1) {#
+		fl <- curve_id_1#
+		strip.default(which.given, which.panel, var.name, fl, ...)#
+	}#
+	if (which.given==2) {#
+		fl <- curve_id_2#
+		strip.default(which.given, which.panel, var.name, fl, ...)#
+	}#
+}#
+#
+raw_data_plots <- xyplot(#
+	Y_vec ~ time_vec | curve_labels_1*curve_labels_2, groups = curve_labels_1,#
+	data = data.frame(#
+		time_vec = time_vec, Y_vec = Y_vec,#
+		curve_labels_1 = curve_labels_1, curve_labels_2 = curve_labels_2#
+	), layout = plot_dim, main = "",#
+	strip=strip.math,#
+	par.strip.text=list(cex=0.8),#
+	par.settings = list(layout.heights = list(strip = 1)),#
+	xlab = "time", ylab = "functional responses", as.table = TRUE,#
+	panel=function(x,y,subscripts,groups) {#
+		panel.grid() #
+		panel.superpose(#
+			x[order(x)], y[order(x)], subscripts, groups,#
+			type="p", col = data_col, pch = 16, cex = 0.4#
+		)#
+	}#
+)#
+#
+print(raw_data_plots)
+# Set up plotting grid#
+#
+time_g <- seq(0,1, length.out=n_g)#
+#
+X_g <- X_design(time_g)#
+Z_g <- ZOSull(time_g, range.x=c(0, 1), intKnots=int_knots)#
+C_g <- cbind(X_g, Z_g)#
+#
+mu_g <- mu(time_g)#
+#
+Psi_1_g <- matrix(NA, n_g, L_1)#
+for(l in 1:L_1) {#
+	char_val <- paste("psi_1", l, "(time_g)", sep="")#
+	Psi_1_g[,l] <- eval(parse(text=char_val))#
+}#
+#
+Psi_2_g <- matrix(NA, n_g, L_2)#
+for(l in 1:L_2) {#
+	char_val <- paste("psi_2", l, "(time_g)", sep="")#
+	Psi_2_g[,l] <- eval(parse(text=char_val))#
+}#
+#
+# Establish hyperparameters:#
+#
+sigsq_beta <- 1e10#
+Sigma_beta <- sigsq_beta*diag(2)#
+sigma_zeta <- 1#
+sigsq_zeta <- sigma_zeta^2#
+mu_beta <- rep(0, 2)#
+A <- 1e5#
+#
+# Initialise the scores:#
+#
+E_q_zeta_1 <- vector("list", length = N)#
+Cov_q_zeta_1 <- vector("list", length = N)#
+E_q_zeta_2 <- vector("list", length = N)#
+Cov_q_zeta_2 <- vector("list", length = N)#
+Cov_q_zeta_12 <- vector("list", length = N)#
+for(i in 1:N) {#
+	E_q_zeta_1[[i]] <- rnorm(L_1, 0, 1)#
+	Cov_q_zeta_1[[i]] <- diag(L_1)#
+	E_q_zeta_2[[i]] <- vector("list", length = M)#
+	Cov_q_zeta_2[[i]] <- vector("list", length = M)#
+	Cov_q_zeta_12[[i]] <- vector("list", length = M)#
+	for(j in 1:M) {#
+		E_q_zeta_2[[i]][[j]] <- rnorm(L_2, 0, 1)#
+		Cov_q_zeta_2[[i]][[j]] <- diag(L_2)#
+		Cov_q_zeta_12[[i]][[j]] <- matrix(0, L_1, L_2)#
+	}#
+}#
+#
+# VMP algorithm:#
+#
+eta_vec <- vector("list", length=32)#
+names(eta_vec) <- c(#
+	"nu->p(Y|nu,zeta,sigsq_eps)", "p(Y|nu,zeta,sigsq_eps)->nu",#
+	"zeta->p(Y|nu,zeta,sigsq_eps)", "p(Y|nu,zeta,sigsq_eps)->zeta",#
+	"sigsq_eps->p(Y|nu,zeta,sigsq_eps)", "p(Y|nu,zeta,sigsq_eps)->sigsq_eps",#
+	"zeta->p(zeta)", "p(zeta)->zeta",#
+	"sigsq_eps->p(sigsq_eps|a_eps)", "p(sigsq_eps|a_eps)->sigsq_eps",#
+	"a_eps->p(sigsq_eps|a_eps)", "p(sigsq_eps|a_eps)->a_eps",#
+	"a_eps->p(a_eps)", "p(a_eps)->a_eps",#
+	"nu->p(nu|Sigma_nu)", "p(nu|Sigma_nu)->nu",#
+	"sigsq_m->p(nu|Sigma_nu)", "p(nu|Sigma_nu)->sigsq_m",#
+	"sigsq_p->p(nu|Sigma_nu)", "p(nu|Sigma_nu)->sigsq_p",#
+	"sigsq_m->p(sigsq_m|a_m)", "p(sigsq_m|a_m)->sigsq_m",#
+	"sigsq_p->p(sigsq_p|a_p)", "p(sigsq_p|a_p)->sigsq_p",#
+	"a_m->p(sigsq_m|a_m)", "p(sigsq_m|a_m)->a_m",#
+	"a_p->p(sigsq_p|a_p)", "p(sigsq_p|a_p)->a_p",#
+	"a_m->p(a_m)", "p(a_m)->a_m",#
+	"a_p->p(a_p)", "p(a_p)->a_p"#
+)#
+#
+G <- vector("list", length=24)#
+names(G) <- c(#
+	"sigsq_eps->p(Y|nu,zeta,sigsq_eps)", "p(Y|nu,zeta,sigsq_eps)->sigsq_eps",#
+	"sigsq_eps->p(sigsq_eps|a_eps)", "p(sigsq_eps|a_eps)->sigsq_eps",#
+	"a_eps->p(sigsq_eps|a_eps)", "p(sigsq_eps|a_eps)->a_eps",#
+	"a_eps->p(a_eps)", "p(a_eps)->a_eps",#
+	"sigsq_m->p(nu|Sigma_nu)", "p(nu|Sigma_nu)->sigsq_m",#
+	"sigsq_p->p(nu|Sigma_nu)", "p(nu|Sigma_nu)->sigsq_p",#
+	"sigsq_m->p(sigsq_m|a_m)", "p(sigsq_m|a_m)->sigsq_m",#
+	"sigsq_p->p(sigsq_p|a_p)", "p(sigsq_p|a_p)->sigsq_p",#
+	"a_m->p(sigsq_m|a_m)", "p(sigsq_m|a_m)->a_m",#
+	"a_p->p(sigsq_p|a_p)", "p(sigsq_p|a_p)->a_p",#
+	"a_m->p(a_m)", "p(a_m)->a_m",#
+	"a_p->p(a_p)", "p(a_p)->a_p"#
+)#
+#
+eta_1_sum <- 0#
+eta_2_sum <- 0#
+for(i in 1:N) {#
+	for(j in 1:M) {#
+		E_q_zeta <- c(E_q_zeta_1[[i]], E_q_zeta_2[[i]][[j]])#
+		E_q_zeta_tilde <- c(1, E_q_zeta)#
+		top_block <- cbind(Cov_q_zeta_1[[i]], Cov_q_zeta_12[[i]][[j]])#
+		bottom_block <- cbind(t(Cov_q_zeta_12[[i]][[j]]), Cov_q_zeta_2[[i]][[j]])#
+		Cov_q_zeta <- rbind(top_block, bottom_block)#
+		Cov_q_zeta_tilde <- adiag(0, Cov_q_zeta)#
+		E_q_tcross_zeta_tilde <- Cov_q_zeta_tilde + tcrossprod(E_q_zeta_tilde)#
+		sum_val <- cprod(kronecker(t(E_q_zeta_tilde), C[[i]][[j]]), Y[[i]][[j]])#
+		eta_1_sum <- eta_1_sum + sum_val#
+		sum_val <- as.vector(kronecker(E_q_tcross_zeta_tilde, crossprod(C[[i]][[j]])))#
+		eta_2_sum <- eta_2_sum + sum_val#
+	}#
+}#
+eta_1 <- eta_1_sum#
+eta_2 <- -1/2*eta_2_sum#
+eta_vec$"p(Y|nu,zeta,sigsq_eps)->nu" <- c(eta_1, eta_2)#
+#
+l_zeta_1 <- L_1 + 0.5*L_1*(L_1 + 1)#
+l_zeta_2 <- L_2 + 0.5*L_2*(L_2 + 1) + L_1*L_2#
+D_zeta_1 <- duplication.matrix(L_1)#
+D_zeta_2 <- duplication.matrix(L_2)#
+eta_1 <- matrix(NA, l_zeta_1, N)#
+eta_2 <- matrix(NA, M*l_zeta_2, N)#
+for(i in 1:N) {#
+	eta_11 <- E_q_zeta_1[[i]]#
+	eta_12 <- -0.5*cprod(D_zeta_1, as.vector(solve(Cov_q_zeta_1[[i]])))#
+	eta_1[, i] <- c(eta_11, eta_12)#
+	eta_2i <- matrix(NA, l_zeta_2, M)#
+	for(j in 1:M) {#
+		eta_21 <- E_q_zeta_2[[i]][[j]]#
+		eta_22 <- -0.5*cprod(D_zeta_2, as.vector(solve(Cov_q_zeta_2[[i]][[j]])))#
+		eta_23 <- -as.vector(Cov_q_zeta_12[[i]][[j]])#
+		eta_2i[, j] <- c(eta_21, eta_22, eta_23)#
+	}#
+	eta_2[, i] <- as.vector(eta_2i)#
+}#
+eta_vec$"p(Y|nu,zeta,sigsq_eps)->zeta" <- rbind(eta_1, eta_2)#
+#
+eta_1 <- -0.5*sum(Reduce(c, T_vec))#
+eta_2 <- -0.5*sum(Reduce(c, T_vec))#
+eta_vec$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps" <- c(eta_1, eta_2)#
+G$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps" <- "full"#
+#
+eta_1 <- matrix(NA, l_zeta_1, N)#
+eta_2 <- matrix(NA, M*l_zeta_2, N)#
+for(i in 1:N) {#
+	eta_11 <- rep(0, L_1)#
+	eta_12 <- -0.5*cprod(D_zeta_1, as.vector(solve(diag(L_1))))#
+	eta_1[, i] <- c(eta_11, eta_12)#
+	eta_21 <- matrix(NA, l_zeta_2, M)#
+	for(j in 1:M) {#
+		eta_21 <- rep(0, L_2)#
+		eta_22 <- -0.5*cprod(D_zeta_2, as.vector(solve(diag(L_2))))#
+		eta_23 <- -as.vector(matrix(0, L_1, L_2))#
+		eta_2i[, j] <- c(eta_21, eta_22, eta_23)#
+	}#
+	eta_2[, i] <- as.vector(eta_2i)#
+}#
+eta_vec$"p(zeta)->zeta" <- rbind(eta_1, eta_2)#
+#
+eta_vec$"p(sigsq_eps|a_eps)->sigsq_eps" <- c(-3/2, -1/2)#
+G$"p(sigsq_eps|a_eps)->sigsq_eps" <- "full"#
+#
+eta_vec$"p(sigsq_eps|a_eps)->a_eps" <- c(-1/2, -1/2)#
+G$"p(sigsq_eps|a_eps)->a_eps" <- "diag"#
+#
+eta_vec$"p(nu|Sigma_nu)->nu" <- gauss_prior_frag(rep(0, d), diag(d), use_vech = FALSE)#
+#
+eta_vec$"p(nu|Sigma_nu)->sigsq_m" <- c(-K/2, -K/2)#
+G$"p(nu|Sigma_nu)->sigsq_m" <- "full"#
+#
+eta_vec$"p(nu|Sigma_nu)->sigsq_p" <- replicate(L, c(-K/2, -K/2))#
+G$"p(nu|Sigma_nu)->sigsq_p" <- rep("full", L)#
+#
+eta_vec$"p(sigsq_m|a_m)->sigsq_m" <- c(-3/2, -1/2)#
+G$"p(sigsq_m|a_m)->sigsq_m" <- "full"#
+#
+eta_vec$"p(sigsq_p|a_p)->sigsq_p" <- replicate(L, c(-3/2, -1/2))#
+G$"p(sigsq_p|a_p)->sigsq_p" <- rep("full", L)#
+#
+eta_vec$"p(sigsq_m|a_m)->a_m" <- c(-1/2, -1/2)#
+G$"p(sigsq_m|a_m)->a_m" <- "diag"#
+#
+eta_vec$"p(sigsq_p|a_p)->a_p" <- replicate(L, c(-1/2, -1/2))#
+G$"p(sigsq_p|a_p)->a_p" <- rep("diag", L)#
+#
+igw_prior_updates <- igw_prior_frag(list("diag", 1, 1/A^2))#
+#
+eta_vec$"p(a_eps)->a_eps" <- igw_prior_updates[[2]]#
+G$"p(a_eps)->a_eps" <- igw_prior_updates[[1]]#
+#
+eta_vec$"p(a_m)->a_m" <- igw_prior_updates[[2]]#
+G$"p(a_m)->a_m" <- igw_prior_updates[[1]]#
+#
+eta_vec$"p(a_p)->a_p" <- replicate(L, igw_prior_updates[[2]])#
+G$"p(a_p)->a_p" <- rep(igw_prior_updates[[1]], L)
+l_zeta_1
+l_zeta_2
+L_2 + 0.5*L_2*(L_2 + 1) + L_1*L_2
+L_2
+eta_vec$"nu->p(Y|nu,zeta,sigsq_eps)" <- eta_vec$"p(nu|Sigma_nu)->nu"#
+	eta_vec$"nu->p(nu|Sigma_nu)" <- eta_vec$"p(Y|nu,zeta,sigsq_eps)->nu"#
+	eta_vec$"zeta->p(Y|nu,zeta,sigsq_eps)" <- eta_vec$"p(zeta)->zeta"#
+	eta_vec$"zeta->p(zeta)" <- eta_vec$"p(Y|nu,zeta,sigsq_eps)->zeta"#
+	eta_vec$"sigsq_eps->p(Y|nu,zeta,sigsq_eps)" <- eta_vec$"p(sigsq_eps|a_eps)->sigsq_eps"#
+	G$"sigsq_eps->p(Y|nu,zeta,sigsq_eps)" <- G$"p(sigsq_eps|a_eps)->sigsq_eps"#
+	eta_vec$"sigsq_eps->p(sigsq_eps|a_eps)" <- eta_vec$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps"#
+	G$"sigsq_eps->p(sigsq_eps|a_eps)" <- G$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps"#
+	eta_vec$"a_eps->p(sigsq_eps|a_eps)" <- eta_vec$"p(a_eps)->a_eps"#
+	G$"a_eps->p(sigsq_eps|a_eps)" <- G$"p(a_eps)->a_eps"#
+	eta_vec$"a_eps->p(a_eps)" <- eta_vec$"p(sigsq_eps|a_eps)->a_eps"#
+	G$"a_eps->p(a_eps)" <- G$"p(sigsq_eps|a_eps)->a_eps"#
+	eta_vec$"sigsq_m->p(nu|Sigma_nu)" <- eta_vec$"p(sigsq_m|a_m)->sigsq_m"#
+	G$"sigsq_m->p(nu|Sigma_nu)" <- G$"p(sigsq_m|a_m)->sigsq_m"#
+	eta_vec$"sigsq_m->p(sigsq_m|a_m)" <- eta_vec$"p(nu|Sigma_nu)->sigsq_m"#
+	G$"sigsq_m->p(sigsq_m|a_m)" <- G$"p(nu|Sigma_nu)->sigsq_m"#
+	eta_vec$"sigsq_p->p(nu|Sigma_nu)" <- eta_vec$"p(sigsq_p|a_p)->sigsq_p"#
+	G$"sigsq_p->p(nu|Sigma_nu)" <- G$"p(sigsq_p|a_p)->sigsq_p"#
+	eta_vec$"sigsq_p->p(sigsq_p|a_p)" <- eta_vec$"p(nu|Sigma_nu)->sigsq_p"#
+	G$"sigsq_p->p(sigsq_p|a_p)" <- G$"p(nu|Sigma_nu)->sigsq_p"#
+	eta_vec$"a_m->p(sigsq_m|a_m)" <- eta_vec$"p(a_m)->a_m"#
+	G$"a_m->p(sigsq_m|a_m)" <- G$"p(a_m)->a_m"#
+	eta_vec$"a_m->p(a_m)" <- eta_vec$"p(sigsq_m|a_m)->a_m"#
+	G$"a_m->p(a_m)" <- G$"p(sigsq_m|a_m)->a_m"#
+	eta_vec$"a_p->p(sigsq_p|a_p)" <- eta_vec$"p(a_p)->a_p"#
+	G$"a_p->p(sigsq_p|a_p)" <- G$"p(a_p)->a_p"#
+	eta_vec$"a_p->p(a_p)" <- eta_vec$"p(sigsq_p|a_p)->a_p"#
+	G$"a_p->p(a_p)" <- G$"p(sigsq_p|a_p)->a_p"#
+	# Update p(Y|nu,zeta,sigsq_eps) fragment:#
+	eta_in <- list(#
+		eta_vec$"nu->p(Y|nu,zeta,sigsq_eps)",#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->nu",#
+		eta_vec$"zeta->p(Y|nu,zeta,sigsq_eps)",#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->zeta",#
+		eta_vec$"sigsq_eps->p(Y|nu,zeta,sigsq_eps)",#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps"#
+	)#
+	G_in <- list(#
+		G$"sigsq_eps->p(Y|nu,zeta,sigsq_eps)",#
+		G$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps"#
+	)#
+	ml_fpc_lik_fragment <- ml_fpc_lik_frag(#
+		eta_in, G_in, C, Y, T_vec, L_1, L_2#
+	)#
+	eta_vec$"p(Y|nu,zeta,sigsq_eps)->nu" <- ml_fpc_lik_fragment$"eta"[[1]]#
+	eta_vec$"p(Y|nu,zeta,sigsq_eps)->zeta" <- ml_fpc_lik_fragment$"eta"[[2]]#
+	eta_vec$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps" <- ml_fpc_lik_fragment$"eta"[[3]]#
+	G$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps" <- ml_fpc_lik_fragment$"G"[[1]]#
+	# Update p(nu|Sigma_nu) fragment:#
+	eta_in <- list(#
+		eta_vec$"nu->p(nu|Sigma_nu)", eta_vec$"p(nu|Sigma_nu)->nu",#
+		eta_vec$"sigsq_m->p(nu|Sigma_nu)", eta_vec$"p(nu|Sigma_nu)->sigsq_m",#
+		eta_vec$"sigsq_p->p(nu|Sigma_nu)", eta_vec$"p(nu|Sigma_nu)->sigsq_p"#
+	)#
+	G_in <- list(#
+		G$"sigsq_m->p(nu|Sigma_nu)", G$"p(nu|Sigma_nu)->sigsq_m",#
+		G$"sigsq_p->p(nu|Sigma_nu)", G$"p(nu|Sigma_nu)->sigsq_p"#
+	)#
+	fpc_gauss_pen_fragment <- fpc_gauss_pen_frag(#
+		eta_in, G_in, L, mu_beta, Sigma_beta#
+	)#
+	eta_vec$"p(nu|Sigma_nu)->nu" <- fpc_gauss_pen_fragment$"eta"[[1]]#
+	eta_vec$"p(nu|Sigma_nu)->sigsq_m" <- fpc_gauss_pen_fragment$"eta"[[2]]#
+	eta_vec$"p(nu|Sigma_nu)->sigsq_p" <- fpc_gauss_pen_fragment$"eta"[[3]]#
+	G$"p(nu|Sigma_nu)->sigsq_m" <- fpc_gauss_pen_fragment$"G"[[1]]#
+	G$"p(nu|Sigma_nu)->sigsq_p" <- fpc_gauss_pen_fragment$"G"[[2]]#
+	# Update p(sigsq_m|a_m) fragment:#
+	eta_in <- list(#
+		eta_vec$"sigsq_m->p(sigsq_m|a_m)",#
+		eta_vec$"p(sigsq_m|a_m)->sigsq_m",#
+		eta_vec$"a_m->p(sigsq_m|a_m)",#
+		eta_vec$"p(sigsq_m|a_m)->a_m"#
+	)#
+	iter_igw_fragment <- iter_igw_frag(#
+		eta_in, G$"a_m->p(sigsq_m|a_m)",#
+		1, G$"sigsq_m->p(sigsq_m|a_m)"#
+	)#
+	eta_vec$"p(sigsq_m|a_m)->sigsq_m" <- iter_igw_fragment$"eta"[[1]]#
+	eta_vec$"p(sigsq_m|a_m)->a_m" <- iter_igw_fragment$"eta"[[2]]#
+	G$"p(sigsq_m|a_m)->sigsq_m" <- iter_igw_fragment$"G"[[1]]#
+	G$"p(sigsq_m|a_m)->a_m" <- iter_igw_fragment$"G"[[2]]#
+	# Update p(sigsq_p|a_p) fragment:#
+	for(l in 1:L) {#
+		eta_in <- list(#
+			eta_vec$"sigsq_p->p(sigsq_p|a_p)"[,l],#
+			eta_vec$"p(sigsq_p|a_p)->sigsq_p"[,l],#
+			eta_vec$"a_p->p(sigsq_p|a_p)"[,l],#
+			eta_vec$"p(sigsq_p|a_p)->a_p"[,l]#
+		)#
+		iter_igw_fragment <- iter_igw_frag(#
+			eta_in, G$"a_p->p(sigsq_p|a_p)"[l],#
+			1, G$"sigsq_p->p(sigsq_p|a_p)"[l]#
+		)#
+		eta_vec$"p(sigsq_p|a_p)->sigsq_p"[,l] <- iter_igw_fragment$"eta"[[1]]#
+		eta_vec$"p(sigsq_p|a_p)->a_p"[,l] <- iter_igw_fragment$"eta"[[2]]#
+		G$"p(sigsq_p|a_p)->sigsq_p"[l] <- iter_igw_fragment$"G"[[1]]#
+		G$"p(sigsq_p|a_p)->a_p"[l] <- iter_igw_fragment$"G"[[2]]#
+	}#
+	# Compute the entropy:#
+	ent <- 0#
+	eta_in <- list(#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->nu",#
+		eta_vec$"p(nu|Sigma_nu)->nu",#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->zeta",#
+		eta_vec$"p(zeta)->zeta"#
+	)#
+	ent_fpc_prod <- entropy_two_lev_fpc_prod(eta_in, C, L_1, L_2)#
+	ent <- ent + ent_fpc_prod#
+	eta_sigsq_eps <- list(#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps",#
+		eta_vec$"p(sigsq_eps|a_eps)->sigsq_eps"#
+	)#
+	G_sigsq_eps <- c(#
+		G$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps",#
+		G$"p(sigsq_eps|a_eps)->sigsq_eps"#
+	)#
+	ent_sigsq_eps <- entropy_igw(eta_sigsq_eps, G_sigsq_eps)#
+	ent <- ent + ent_sigsq_eps#
+	eta_a_eps <- list(#
+		eta_vec$"p(sigsq_eps|a_eps)->a_eps",#
+		eta_vec$"p(a_eps)->a_eps"#
+	)#
+	G_a_eps <- c(#
+		G$"p(sigsq_eps|a_eps)->a_eps",#
+		G$"p(a_eps)->a_eps"#
+	)#
+	ent_a_eps <- entropy_igw(eta_a_eps, G_a_eps)#
+	ent <- ent + ent_a_eps#
+	eta_sigsq_m <- list(#
+		eta_vec$"p(nu|Sigma_nu)->sigsq_m",#
+		eta_vec$"p(sigsq_m|a_m)->sigsq_m"#
+	)#
+	G_sigsq_m <- c(#
+		G$"p(nu|Sigma_nu)->sigsq_m",#
+		G$"p(sigsq_m|a_m)->sigsq_m"#
+	)#
+	ent_sigsq_m <- entropy_igw(eta_sigsq_m, G_sigsq_m)#
+	ent <- ent + ent_sigsq_m#
+	eta_a_m <- list(#
+		eta_vec$"p(sigsq_m|a_m)->a_m",#
+		eta_vec$"p(a_m)->a_m"#
+	)#
+	G_a_m <- c(#
+		G$"p(sigsq_m|a_m)->a_m",#
+		G$"p(a_m)->a_m"#
+	)#
+	ent_a_m <- entropy_igw(eta_a_m, G_a_m)#
+	ent <- ent + ent_a_m#
+	ent_sigsq_p <- 0#
+	ent_a_p <- 0#
+	for(l in 1:L) {#
+		eta_sigsq_p <- list(#
+			eta_vec$"p(nu|Sigma_nu)->sigsq_p"[,l],#
+			eta_vec$"p(sigsq_p|a_p)->sigsq_p"[,l]#
+		)#
+		G_sigsq_p <- list(#
+			G$"p(nu|Sigma_nu)->sigsq_p"[l],#
+			G$"p(sigsq_p|a_p)->sigsq_p"[l]#
+		)#
+		sum_val <- entropy_igw(eta_sigsq_p, G_sigsq_p)#
+		ent_sigsq_p <- ent_sigsq_p + sum_val#
+		eta_a_p <- list(#
+			eta_vec$"p(sigsq_p|a_p)->a_p"[,l],#
+			eta_vec$"p(a_p)->a_p"[,l]#
+		)#
+		G_a_p <- c(#
+			G$"p(sigsq_p|a_p)->a_p"[l],#
+			G$"p(a_p)->a_p"[l]#
+		)#
+		sum_val <- entropy_igw(eta_a_p, G_a_p)#
+		ent_a_p <- ent_a_p + sum_val#
+	}#
+	ent <- ent + ent_sigsq_p + ent_a_p#
+	# Compute the cross-entropy:#
+	c_ent <- 0#
+	eta_in <- list(#
+		eta_vec$"nu->p(Y|nu,zeta,sigsq_eps)",#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->nu",#
+		eta_vec$"zeta->p(Y|nu,zeta,sigsq_eps)",#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->zeta",#
+		eta_vec$"sigsq_eps->p(Y|nu,zeta,sigsq_eps)",#
+		eta_vec$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps"#
+	)#
+	G_in <- list(#
+		G$"sigsq_eps->p(Y|nu,zeta,sigsq_eps)",#
+		G$"p(Y|nu,zeta,sigsq_eps)->sigsq_eps"#
+	)#
+	c_ent_p_Y <- cross_entropy_ml_fpc_lik_frag(eta_in, G_in, C, Y, T_vec, L_1, L_2)#
+	c_ent <- c_ent + c_ent_p_Y#
+	eta_in <- list(#
+		eta_vec$"nu->p(nu|Sigma_nu)", eta_vec$"p(nu|Sigma_nu)->nu",#
+		eta_vec$"sigsq_m->p(nu|Sigma_nu)", eta_vec$"p(nu|Sigma_nu)->sigsq_m",#
+		eta_vec$"sigsq_p->p(nu|Sigma_nu)", eta_vec$"p(nu|Sigma_nu)->sigsq_p"#
+	)#
+	G_in <- list(#
+		G$"sigsq_m->p(nu|Sigma_nu)", G$"p(nu|Sigma_nu)->sigsq_m",#
+		G$"sigsq_p->p(nu|Sigma_nu)", G$"p(nu|Sigma_nu)->sigsq_p"#
+	)#
+	c_ent_p_nu <- cross_entropy_fpc_gauss_pen(eta_in, G_in, L, mu_beta, Sigma_beta)#
+	c_ent <- c_ent + c_ent_p_nu
+L_2 + 0.5*L_2*(L+2 + 1) + L_1*L_2
+l_zeta_2
+L_2 + 0.5*L_2*(L_2 + 1) + L_1*L_2
+1:(M*l_zeta_2) + l_zeta_1
+inds_2 <- matrix(1:(M*l_zeta_2) + l_zeta_1, l_zeta_2, M)
+c_ent_p_zeta <- 0#
+	l_zeta_1 <- L_1 + 0.5*L_1*(L_1 + 1)#
+	l_zeta_2 <- L_2 + 0.5*L_2*(L_2 + 1) + L_1*L_2#
+	inds_1 <- 1:l_zeta_1#
+	inds_2 <- matrix(1:(M*l_zeta_2) + l_zeta_1, l_zeta_2, M)
+inds_1
+inds_2
+Sigma_zeta
+inds_2
+inds_2 <- matrix(1:(M*l_zeta_2) + l_zeta_1, l_zeta_2, M)[1:(L_2 + 0.5*L_2*(L_2 + 1)), ]
+inds_2
+inds_2 <- matrix(1:(M*l_zeta_2) + l_zeta_1, l_zeta_2, M)
+1:L_1
+1:(L_1 + 0.5*L_1*(L_1 + 1))
+(1:(L_1 + 0.5*L_1*(L_1 + 1)))[-(1:L_1)]
+M*L_2
+1:(M*L_2)
+1:(M*(L_2 + 0.5*L_2*(L_2 + 1) + L_1*L_2))
+1:(M*(L_2 + 0.5*L_2*(L_2 + 1) + L_1*L_2)) + (L_1 + 0.5*L_1*(L_1 + 1))
+matrix(#
+		1:(M*(L_2 + 0.5*L_2*(L_2 + 1) + L_1*L_2)) + (L_1 + 0.5*L_1*(L_1 + 1)),#
+		L_2 + 0.5*L_2*(L_2 + 1) + L_1*L_2,#
+		M#
+	)
+matrix(#
+		1:(M*(L_2 + 0.5*L_2*(L_2 + 1) + L_1*L_2)) + (L_1 + 0.5*L_1*(L_1 + 1)),#
+		L_2 + 0.5*L_2*(L_2 + 1) + L_1*L_2,#
+		M#
+	)[L_2 + 0.5*L_2*(L_2 + 1), ]
+matrix(#
+		1:(M*(L_2 + 0.5*L_2*(L_2 + 1) + L_1*L_2)) + (L_1 + 0.5*L_1*(L_1 + 1)),#
+		L_2 + 0.5*L_2*(L_2 + 1) + L_1*L_2,#
+		M#
+	)[1:(L_2 + 0.5*L_2*(L_2 + 1)), ]
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+#
+setwd("..")
+c_ent_p_zeta <- 0#
+	for(i in 1:N) {#
+		eta_in <- list(#
+			eta_vec$"zeta->p(zeta)"[, i],#
+			eta_vec$"p(zeta)->zeta"[, i]#
+		)#
+		sum_val <- cross_entropy_two_lev_gauss_prior(eta_in, 1, L_1, L_2)#
+		c_ent_p_zeta <- c_ent_p_zeta + sum_val#
+	}
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+#
+setwd("..")
+i <- 1
+c_ent_p_zeta <- 0
+eta_in <- list(#
+			eta_vec$"zeta->p(zeta)"[, i],#
+			eta_vec$"p(zeta)->zeta"[, i]#
+		)
+sum_val <- cross_entropy_two_lev_gauss_prior(eta_in, 1, L_1, L_2)
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+#
+setwd("..")
+sum_val <- cross_entropy_two_lev_gauss_prior(eta_in, 1, L_1, L_2)
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+#
+setwd("..")
+sum_val <- cross_entropy_two_lev_gauss_prior(eta_in, 1, L_1, L_2)
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+#
+setwd("..")
+sum_val <- cross_entropy_two_lev_gauss_prior(eta_in, 1, L_1, L_2)
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+#
+setwd("..")
+sum_val <- cross_entropy_two_lev_gauss_prior(eta_in, 1, L_1, L_2)
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+#
+setwd("..")
+sum_val <- cross_entropy_two_lev_gauss_prior(eta_in, 1, L_1, L_2)
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+#
+setwd("..")
+sum_val <- cross_entropy_two_lev_gauss_prior(eta_in, 1, L_1, L_2)
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+#
+setwd("..")
+sum_val <- cross_entropy_two_lev_gauss_prior(eta_in, 1, L_1, L_2)
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+#
+setwd("..")
+sum_val <- cross_entropy_two_lev_gauss_prior(eta_in, 1, L_1, L_2)
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+#
+setwd("..")
+sum_val <- cross_entropy_two_lev_gauss_prior(eta_in, 1, L_1, L_2)
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+#
+setwd("..")
+sum_val <- cross_entropy_two_lev_gauss_prior(eta_in, 1, L_1, L_2)
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+#
+setwd("..")
+sum_val <- cross_entropy_two_lev_gauss_prior(eta_in, 1, L_1, L_2)
+c_ent_p_zeta <- 0#
+	for(i in 1:N) {#
+		eta_in <- list(#
+			eta_vec$"zeta->p(zeta)"[, i],#
+			eta_vec$"p(zeta)->zeta"[, i]#
+		)#
+		sum_val <- cross_entropy_two_lev_gauss_prior(eta_in, 1, L_1, L_2)#
+		c_ent_p_zeta <- c_ent_p_zeta + sum_val#
+	}#
+	c_ent <- c_ent + c_ent_p_zeta
+eta_in <- list(#
+		eta_vec$"sigsq_eps->p(sigsq_eps|a_eps)",#
+		eta_vec$"p(sigsq_eps|a_eps)->sigsq_eps",#
+		eta_vec$"a_eps->p(sigsq_eps|a_eps)",#
+		eta_vec$"p(sigsq_eps|a_eps)->a_eps"#
+	)#
+	G_mess <- G$"sigsq_eps->p(sigsq_eps|a_eps)"#
+	G_hyper <- G$"a_eps->p(sigsq_eps|a_eps)"#
+	c_ent_p_sigsq_eps <- cross_entropy_iter_igw(eta_in, G_mess, 1, G_hyper)#
+	c_ent <- c_ent + c_ent_p_sigsq_eps#
+	eta_in <- list(#
+		eta_vec$"a_eps->p(a_eps)",#
+		eta_vec$"p(a_eps)->a_eps"#
+	)#
+	G_in <- c(#
+		G$"a_eps->p(a_eps)",#
+		G$"p(a_eps)->a_eps"#
+	)#
+	c_ent_p_a_eps <- cross_entropy_igw_prior(eta_in, G_in, 1, 1/A^2)#
+	c_ent <- c_ent + c_ent_p_a_eps#
+	eta_in <- list(#
+		eta_vec$"sigsq_m->p(sigsq_m|a_m)",#
+		eta_vec$"p(sigsq_m|a_m)->sigsq_m",#
+		eta_vec$"a_m->p(sigsq_m|a_m)",#
+		eta_vec$"p(sigsq_m|a_m)->a_m"#
+	)#
+	G_mess <- G$"sigsq_m->p(sigsq_m|a_m)"#
+	G_hyper <- G$"a_m->p(sigsq_m|a_m)"#
+	c_ent_p_sigsq_m <- cross_entropy_iter_igw(eta_in, G_mess, 1, G_hyper)#
+	c_ent <- c_ent + c_ent_p_sigsq_m#
+	eta_in <- list(#
+		eta_vec$"a_m->p(a_m)",#
+		eta_vec$"p(a_m)->a_m"#
+	)#
+	G_in <- c(#
+		G$"a_m->p(a_m)",#
+		G$"p(a_m)->a_m"#
+	)#
+	c_ent_p_a_m <- cross_entropy_igw_prior(eta_in, G_in, 1, 1/A^2)#
+	c_ent <- c_ent + c_ent_p_a_m#
+	c_ent_p_sigsq_p <- 0#
+	c_ent_p_a_p <- 0#
+	for(l in 1:L) {#
+		eta_in <- list(#
+			eta_vec$"sigsq_p->p(sigsq_p|a_p)"[,l],#
+			eta_vec$"p(sigsq_p|a_p)->sigsq_p"[,l],#
+			eta_vec$"a_p->p(sigsq_p|a_p)"[,l],#
+			eta_vec$"p(sigsq_p|a_p)->a_p"[,l]#
+		)#
+		G_mess <- G$"sigsq_p->p(sigsq_p|a_p)"[l]#
+		G_hyper <- G$"a_p->p(sigsq_p|a_p)"[l]#
+		sum_val <- cross_entropy_iter_igw(eta_in, G_mess, 1, G_hyper)#
+		c_ent_p_sigsq_p <- c_ent_p_sigsq_p + sum_val#
+		eta_in <- list(#
+			eta_vec$"a_p->p(a_p)"[,l],#
+			eta_vec$"p(a_p)->a_p"[,l]#
+		)#
+		G_in <- c(#
+			G$"a_p->p(a_p)"[l],#
+			G$"p(a_p)->a_p"[l]#
+		)#
+		sum_val <- cross_entropy_igw_prior(eta_in, G_in, 1, 1/A^2)#
+		c_ent_p_a_p <- c_ent_p_a_p + sum_val#
+	}#
+	c_ent <- c_ent + c_ent_p_sigsq_p + c_ent_p_a_p
+source("mlfpca_vmp_6.R")
+######### R script: fpca_sim_st.R ###########
+#
+# For performing Bayesian FPCA simulation study for VMP and MCMC.#
+#
+# Created: 14 JUL 2022#
+# Last changed: 19 JUL 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(lattice)#
+library(pracma)#
+library(ellipse)
+set.seed(0)
+getwd()
+setwd("functions")
+getwd()
+source("fpca_algs.r")
+source("X_design.r")
+source("ZOSull.r")
+source("OmegaOSull.r")
+source("vec.r")
+source("vecInverse.r")
+source("tr.r")
+source("trapint.r")
+source("cprod.r")
+source("wait.r")
+source("fourier_basis.r")
+source("ise.r")
+source("stan_mods.r")
+source("vmp_functions.r")
+setwd("..")
+getwd()
+# Establish simulation variables:#
+#
+N_vec <- c(10, 50, 100)             # number of curves#
+n_int_knots <- 10                   # number of interior knots#
+K <- n_int_knots + 2                # number of spline basis functions#
+L <- 3                              # number of FPCA basis functions#
+data_col <- "red"                   # colour of the data in the plots#
+criterion <- 1e-6                   # convergence criterion#
+#
+n_vmp <- 500                        # number of VMP iterations#
+n_mc <- 100                         # number of MC samples for VMP CI#
+n_g <- 1000                         # length of the plotting grid#
+vmp_col <- "black"                  # colour of the VMP plots#
+d <- (K+2)*(L+1)                    # dimension of spline vector#
+#
+n_burnin <- 1000                   # Length of burn-in.#
+n_mcmc <- 1000                     # Size of the kept sample.#
+n_thin <- 1                        # Thinning factor. #
+tolerance <- 1e-10#
+mcmc_col <- "red"                  # colour of the MCMC lines in the plots#
+#
+sigma_zeta_vec <- 1/(1:L)         # sd for first and second scores#
+sigma_eps <- 1                      # sd of the residuals#
+sigsq_eps <- sigma_eps^2#
+#
+n_sims <- 10                       # number of simulations#
+#
+plot_width <- 7#
+plot_height <- 14#
+bw_plot_dim <- c(L + 1, 1)              # c(ncol, nrow)#
+hist_plot_dim <- c(length(N_vec), 1)    # c(ncol, nrow)
+# Establish hyperparameters:#
+#
+sigsq_beta <- 1e10#
+Sigma_beta <- sigsq_beta*diag(2)#
+mu_beta <- rep(0, 2)#
+A <- 1e5#
+sigsq_zeta <- 1#
+sigma_zeta <- sqrt(sigsq_zeta)#
+Sigma_zeta <- sigsq_zeta*diag(L)#
+#
+# Set the mean function and the FPCA basis functions:#
+#
+mu <- function(t) return(3*sin(pi*t))#
+Psi <- fourier_basis(L)
+getwd()
+# Begin the simulations:#
+#
+psi_names <- matrix(NA, 2, L)#
+for(l in 1:L) {#
+	psi_names[1, l] <- paste("psi_", l, "_vmp", sep="")#
+	psi_names[2, l] <- paste("psi_", l, "_mcmc", sep="")#
+}#
+psi_names <- as.vector(psi_names)#
+col_names <- c("N", "sim", "mu_vmp", "mu_mcmc", psi_names, "zeta_vmp", "zeta_mcmc")#
+n_col_acc <- length(col_names)#
+write(col_names, "res/fpca_acc.txt", ncol = n_col_acc, append = FALSE)
+col_names <- c("N", "sim", "iter", "vmp", "mcmc")#
+n_col_speed <- length(col_names)#
+write(col_names, "res/fpca_speed.txt", ncol = n_col_speed, append = FALSE)
+for(i_N in 1:length(N_vec)) {#
+	N <- N_vec[i_N]#
+	N_sample <- 1:N#
+	cat("Starting simulations with", N, "response curves \n")#
+	for(i_sim in 1:n_sims) {#
+		set.seed(i_sim)#
+		cat("starting simulation", i_sim, "of", n_sims, "\n")#
+		T_vec <- round(runif(N, 20, 30))#
+		# Gather the data:#
+		fpca_data <- gauss_fpca_data(#
+			T_vec, N, K, n_g, sigma_zeta_vec, sigma_eps,#
+			mu, Psi#
+		)#
+		time_obs <- fpca_data$"time_obs"#
+		time_g <- fpca_data$"time_g"#
+		int_knots <- fpca_data$"int_knots"#
+		X <- fpca_data$"X"#
+		Z <- fpca_data$"Z"#
+		C <- fpca_data$"C"#
+		X_g <- fpca_data$"X_g"#
+		Z_g <- fpca_data$"Z_g"#
+		C_g <- fpca_data$"C_g"#
+		zeta <- fpca_data$"zeta"#
+		mu_t <- fpca_data$"mu_t"#
+		Psi_t <- fpca_data$"Psi_t"#
+		mu_g <- fpca_data$"mu_g"#
+		Psi_g <- fpca_data$"Psi_g"#
+		Y <- fpca_data$"Y"#
+		Y_vec <- Reduce(c, Y)#
+		#####################################################
+		##
+		#  VMP  SIMULATIONS#
+		##
+		#####################################################
+		start_time <- Sys.time()#
+		vmp_res <- vmp_fpca(#
+			n_vmp, N, L, C, Y, sigma_zeta, mu_beta,#
+			Sigma_beta, A, time_g, C_g, Psi_g,#
+			criterion, plot_elbo=FALSE#
+		)#
+		eta_vec <- vmp_res$"eta_vec"#
+		iter <- vmp_res$"iter"#
+		# Get the posterior estimates#
+		eta_in <- list(#
+			eta_vec$"p(nu|Sigma_nu)->nu", eta_vec $"p(Y|nu,zeta,sigsq_eps)->nu",#
+			eta_vec $"p(zeta)->zeta", eta_vec $"p(Y|nu,zeta,sigsq_eps)->zeta"#
+		)#
+		fpc_rotns <- fpc_orthogonalization(eta_in, N_sample, time_g, C_g, Psi_g)#
+		end_time <- Sys.time()#
+		vmp_time <- difftime(end_time, start_time, units="secs")#
+		Zeta_hat_vmp <- fpc_rotns$"zeta"#
+		gbl_hat_vmp <- fpc_rotns$"gbl_curves"#
+		# Record accuracies:#
+		mu_hat_vmp <- gbl_hat_vmp[, 1]#
+		Psi_hat_vmp <- gbl_hat_vmp[, 2:(L + 1)]#
+		mu_vmp_acc <- ise(time_g, mu_g, mu_hat_vmp)#
+		psi_vmp_acc <- rep(NA, L)#
+		for(l in 1:L) {#
+			psi_vmp_acc[l] <- ise(time_g, Psi_g[, l], Psi_hat_vmp[,l])#
+		}#
+		norm_diff <- apply(Zeta_hat_vmp - Reduce(rbind, zeta), 1, function(x) sqrt(cprod(x)))#
+		rmse_vmp <- sqrt(mean(norm_diff))#
+		#####################################################
+		##
+		#  MCMC  SIMULATIONS#
+		##
+		#####################################################
+		start_time <- Sys.time()#
+		all_data <- list(#
+			N=N, n_time_obs=sum(T_vec), K=K, L=L,#
+			sigma_beta=sqrt(sigsq_beta), A=A,#
+			Sigma_zeta=Sigma_zeta,#
+			X=do.call(rbind, X),#
+			Z=do.call(rbind, Z),#
+			T_vec=T_vec, Y=Y_vec#
+		)#
+		# Compile Stan code:#
+		compile_obj <- stan(#
+			model_code=fpca_model, data=all_data,#
+			iter=1, chains=1#
+		)#
+		# Obtain MCMC samples for each parameter using Stan:#
+		stan_obj <- stan(#
+			model_code=fpca_model, data=all_data, warmup=n_burnin,#
+			iter=(n_burnin+n_mcmc), chains=1, thin=n_thin,#
+			refresh=100, fit=compile_obj#
+		)#
+		# Summarise the MCMC samples:#
+		mcmc_summary <- summarise_mcmc(stan_obj, N_sample, C_g, Psi_g)#
+		end_time <- Sys.time()#
+		mcmc_time <- difftime(end_time, start_time, units="secs")#
+		gbl_hat_mcmc <- mcmc_summary$"gbl_curves"#
+		Zeta_hat_mcmc <- mcmc_summary$"zeta"#
+		# Record accuracies:#
+		mu_hat_mcmc <- gbl_hat_mcmc[, 1]#
+		Psi_hat_mcmc <- gbl_hat_mcmc[, 2:(L + 1)]#
+		mu_mcmc_acc <- ise(time_g, mu_g, mu_hat_mcmc)#
+		psi_mcmc_acc <- rep(NA, L)#
+		for(l in 1:L) {#
+			psi_mcmc_acc[l] <- ise(time_g, Psi_g[, l], Psi_hat_mcmc[,l])#
+		}#
+		norm_diff <- apply(Zeta_hat_mcmc - Reduce(rbind, zeta), 1, function(x) sqrt(cprod(x)))#
+		rmse_mcmc <- sqrt(mean(norm_diff))#
+		#####################################################
+		##
+		#  RESULTS#
+		##
+		#####################################################
+		psi_acc <- as.vector(rbind(psi_vmp_acc, psi_mcmc_acc))#
+		acc_res <- c(N, i_sim, mu_vmp_acc, mu_mcmc_acc, psi_acc, rmse_vmp, rmse_mcmc)#
+		write(acc_res, "res/fpca_acc.txt", ncol = n_col_acc, append = TRUE)#
+		speed_results <- c(N, i_sim, iter, vmp_time, mcmc_time)#
+		write(speed_results, "res/fpca_speed.txt", ncol = n_col_speed, append=TRUE)#
+	}#
+}
+######### R script: fpca_sim_st.R ###########
+#
+# For performing Bayesian FPCA simulation study for VMP and MCMC.#
+#
+# Created: 14 JUL 2022#
+# Last changed: 19 JUL 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(lattice)#
+library(pracma)#
+library(ellipse)#
+#
+set.seed(0)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("fpca_algs.r")#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("fourier_basis.r")#
+source("ise.r")#
+source("stan_mods.r")#
+source("vmp_functions.r")#
+#
+setwd("..")#
+#
+# Establish simulation variables:#
+#
+N_vec <- c(10, 20, 30)             # number of curves#
+n_int_knots <- 10                   # number of interior knots#
+K <- n_int_knots + 2                # number of spline basis functions#
+L <- 3                              # number of FPCA basis functions#
+data_col <- "red"                   # colour of the data in the plots#
+criterion <- 1e-6                   # convergence criterion#
+#
+n_vmp <- 500                        # number of VMP iterations#
+n_mc <- 100                         # number of MC samples for VMP CI#
+n_g <- 1000                         # length of the plotting grid#
+vmp_col <- "black"                  # colour of the VMP plots#
+d <- (K+2)*(L+1)                    # dimension of spline vector#
+#
+n_burnin <- 1000                   # Length of burn-in.#
+n_mcmc <- 1000                     # Size of the kept sample.#
+n_thin <- 1                        # Thinning factor. #
+tolerance <- 1e-10#
+mcmc_col <- "red"                  # colour of the MCMC lines in the plots#
+#
+sigma_zeta_vec <- 1/(1:L)         # sd for first and second scores#
+sigma_eps <- 1                      # sd of the residuals#
+sigsq_eps <- sigma_eps^2#
+#
+n_sims <- 5                       # number of simulations#
+#
+plot_width <- 7#
+plot_height <- 14#
+bw_plot_dim <- c(L + 1, 1)              # c(ncol, nrow)#
+hist_plot_dim <- c(length(N_vec), 1)    # c(ncol, nrow)#
+#
+# Establish hyperparameters:#
+#
+sigsq_beta <- 1e10#
+Sigma_beta <- sigsq_beta*diag(2)#
+mu_beta <- rep(0, 2)#
+A <- 1e5#
+sigsq_zeta <- 1#
+sigma_zeta <- sqrt(sigsq_zeta)#
+Sigma_zeta <- sigsq_zeta*diag(L)#
+#
+# Set the mean function and the FPCA basis functions:#
+#
+mu <- function(t) return(3*sin(pi*t))#
+Psi <- fourier_basis(L)#
+#
+# Begin the simulations:#
+#
+psi_names <- matrix(NA, 2, L)#
+for(l in 1:L) {#
+	psi_names[1, l] <- paste("psi_", l, "_vmp", sep="")#
+	psi_names[2, l] <- paste("psi_", l, "_mcmc", sep="")#
+}#
+psi_names <- as.vector(psi_names)#
+col_names <- c("N", "sim", "mu_vmp", "mu_mcmc", psi_names, "zeta_vmp", "zeta_mcmc")#
+n_col_acc <- length(col_names)#
+write(col_names, "res/fpca_acc.txt", ncol = n_col_acc, append = FALSE)#
+#
+col_names <- c("N", "sim", "iter", "vmp", "mcmc")#
+n_col_speed <- length(col_names)#
+write(col_names, "res/fpca_speed.txt", ncol = n_col_speed, append = FALSE)
+for(i_N in 1:length(N_vec)) {#
+	N <- N_vec[i_N]#
+	N_sample <- 1:N#
+	cat("Starting simulations with", N, "response curves \n")#
+	for(i_sim in 1:n_sims) {#
+		set.seed(i_sim)#
+		cat("starting simulation", i_sim, "of", n_sims, "\n")#
+		T_vec <- round(runif(N, 20, 30))#
+		# Gather the data:#
+		fpca_data <- gauss_fpca_data(#
+			T_vec, N, K, n_g, sigma_zeta_vec, sigma_eps,#
+			mu, Psi#
+		)#
+		time_obs <- fpca_data$"time_obs"#
+		time_g <- fpca_data$"time_g"#
+		int_knots <- fpca_data$"int_knots"#
+		X <- fpca_data$"X"#
+		Z <- fpca_data$"Z"#
+		C <- fpca_data$"C"#
+		X_g <- fpca_data$"X_g"#
+		Z_g <- fpca_data$"Z_g"#
+		C_g <- fpca_data$"C_g"#
+		zeta <- fpca_data$"zeta"#
+		mu_t <- fpca_data$"mu_t"#
+		Psi_t <- fpca_data$"Psi_t"#
+		mu_g <- fpca_data$"mu_g"#
+		Psi_g <- fpca_data$"Psi_g"#
+		Y <- fpca_data$"Y"#
+		Y_vec <- Reduce(c, Y)#
+		#####################################################
+		##
+		#  VMP  SIMULATIONS#
+		##
+		#####################################################
+		start_time <- Sys.time()#
+		vmp_res <- vmp_fpca(#
+			n_vmp, N, L, C, Y, sigma_zeta, mu_beta,#
+			Sigma_beta, A, time_g, C_g, Psi_g,#
+			criterion, plot_elbo=FALSE#
+		)#
+		eta_vec <- vmp_res$"eta_vec"#
+		iter <- vmp_res$"iter"#
+		# Get the posterior estimates#
+		eta_in <- list(#
+			eta_vec$"p(nu|Sigma_nu)->nu", eta_vec $"p(Y|nu,zeta,sigsq_eps)->nu",#
+			eta_vec $"p(zeta)->zeta", eta_vec $"p(Y|nu,zeta,sigsq_eps)->zeta"#
+		)#
+		fpc_rotns <- fpc_orthogonalization(eta_in, N_sample, time_g, C_g, Psi_g)#
+		end_time <- Sys.time()#
+		vmp_time <- difftime(end_time, start_time, units="secs")#
+		Zeta_hat_vmp <- fpc_rotns$"zeta"#
+		gbl_hat_vmp <- fpc_rotns$"gbl_curves"#
+		# Record accuracies:#
+		mu_hat_vmp <- gbl_hat_vmp[, 1]#
+		Psi_hat_vmp <- gbl_hat_vmp[, 2:(L + 1)]#
+		mu_vmp_acc <- ise(time_g, mu_g, mu_hat_vmp)#
+		psi_vmp_acc <- rep(NA, L)#
+		for(l in 1:L) {#
+			psi_vmp_acc[l] <- ise(time_g, Psi_g[, l], Psi_hat_vmp[,l])#
+		}#
+		norm_diff <- apply(Zeta_hat_vmp - Reduce(rbind, zeta), 1, function(x) sqrt(cprod(x)))#
+		rmse_vmp <- sqrt(mean(norm_diff))#
+		#####################################################
+		##
+		#  MCMC  SIMULATIONS#
+		##
+		#####################################################
+		start_time <- Sys.time()#
+		all_data <- list(#
+			N=N, n_time_obs=sum(T_vec), K=K, L=L,#
+			sigma_beta=sqrt(sigsq_beta), A=A,#
+			Sigma_zeta=Sigma_zeta,#
+			X=do.call(rbind, X),#
+			Z=do.call(rbind, Z),#
+			T_vec=T_vec, Y=Y_vec#
+		)#
+		# Compile Stan code:#
+		compile_obj <- stan(#
+			model_code=fpca_model, data=all_data,#
+			iter=1, chains=1#
+		)#
+		# Obtain MCMC samples for each parameter using Stan:#
+		stan_obj <- stan(#
+			model_code=fpca_model, data=all_data, warmup=n_burnin,#
+			iter=(n_burnin+n_mcmc), chains=1, thin=n_thin,#
+			refresh=100, fit=compile_obj#
+		)#
+		# Summarise the MCMC samples:#
+		mcmc_summary <- summarise_mcmc(stan_obj, N_sample, C_g, Psi_g)#
+		end_time <- Sys.time()#
+		mcmc_time <- difftime(end_time, start_time, units="secs")#
+		gbl_hat_mcmc <- mcmc_summary$"gbl_curves"#
+		Zeta_hat_mcmc <- mcmc_summary$"zeta"#
+		# Record accuracies:#
+		mu_hat_mcmc <- gbl_hat_mcmc[, 1]#
+		Psi_hat_mcmc <- gbl_hat_mcmc[, 2:(L + 1)]#
+		mu_mcmc_acc <- ise(time_g, mu_g, mu_hat_mcmc)#
+		psi_mcmc_acc <- rep(NA, L)#
+		for(l in 1:L) {#
+			psi_mcmc_acc[l] <- ise(time_g, Psi_g[, l], Psi_hat_mcmc[,l])#
+		}#
+		norm_diff <- apply(Zeta_hat_mcmc - Reduce(rbind, zeta), 1, function(x) sqrt(cprod(x)))#
+		rmse_mcmc <- sqrt(mean(norm_diff))#
+		#####################################################
+		##
+		#  RESULTS#
+		##
+		#####################################################
+		psi_acc <- as.vector(rbind(psi_vmp_acc, psi_mcmc_acc))#
+		acc_res <- c(N, i_sim, mu_vmp_acc, mu_mcmc_acc, psi_acc, rmse_vmp, rmse_mcmc)#
+		write(acc_res, "res/fpca_acc.txt", ncol = n_col_acc, append = TRUE)#
+		speed_results <- c(N, i_sim, iter, vmp_time, mcmc_time)#
+		write(speed_results, "res/fpca_speed.txt", ncol = n_col_speed, append=TRUE)#
+	}#
+}
+######### R script: fpca_sim_st.R ###########
+#
+# For performing Bayesian FPCA simulation study for VMP and MCMC.#
+#
+# Created: 14 JUL 2022#
+# Last changed: 19 JUL 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(lattice)#
+library(pracma)#
+library(ellipse)#
+#
+set.seed(0)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("fpca_algs.r")#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("fourier_basis.r")#
+source("ise.r")#
+source("stan_mods.r")#
+source("vmp_functions.r")#
+#
+setwd("..")
+L <- 3                              # number of FPCA basis functions
+plot_width <- 7
+plot_height <- 14
+bw_plot_dim <- c(L + 1, 1)              # c(ncol, nrow)
+hist_plot_dim <- c(length(N_vec), 1)    # c(ncol, nrow)
+box_plot_fpca_sims("res/fpca_acc.txt", bw_plot_dim, plot_width, plot_height)
+box_plot_fpca_sims("res/fpca_acc.txt", bw_plot_dim, plot_width, plot_height, save_pdf = TRUE)
+######### R script: fpca_sim_st.R ###########
+#
+# For performing Bayesian FPCA simulation study for VMP and MCMC.#
+#
+# Created: 14 JUL 2022#
+# Last changed: 23 JUL 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(lattice)#
+library(pracma)#
+library(ellipse)#
+#
+set.seed(0)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("fpca_algs.r")#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("fourier_basis.r")#
+source("ise.r")#
+source("stan_mods.r")#
+source("vmp_functions.r")#
+#
+setwd("..")
+plot_width <- 5#
+plot_height <- 5#
+bw_plot_dim <- c(L + 1, 1)              # c(ncol, nrow)
+L <- 3                              # number of FPCA basis functions
+plot_width <- 5#
+plot_height <- 5#
+bw_plot_dim <- c(L + 1, 1)              # c(ncol, nrow)
+box_plot_fpca_sims("res/fpca_acc.txt", bw_plot_dim, plot_width, plot_height, save_pdf = TRUE)
+######### R script: fpca_sim_st.R ###########
+#
+# For performing Bayesian FPCA simulation study for VMP and MCMC.#
+#
+# Created: 14 JUL 2022#
+# Last changed: 23 JUL 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(lattice)#
+library(pracma)#
+library(ellipse)#
+#
+set.seed(0)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("fpca_algs.r")#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("fourier_basis.r")#
+source("ise.r")#
+source("stan_mods.r")#
+source("vmp_functions.r")#
+#
+setwd("..")
+L <- 3                              # number of FPCA basis functions
+plot_width <- 5#
+plot_height <- 5#
+bw_plot_dim <- c(L + 1, 1)              # c(ncol, nrow)
+plot_width <- 3
+plot_height <- 5
+bw_plot_dim <- c(L + 1, 1)              # c(ncol, nrow)
+box_plot_fpca_sims("res/fpca_acc.txt", bw_plot_dim, plot_width, plot_height, save_pdf = TRUE)
+######### R script: fpca_sim_st.R ###########
+#
+# For performing Bayesian FPCA simulation study for VMP and MCMC.#
+#
+# Created: 14 JUL 2022#
+# Last changed: 23 JUL 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(lattice)#
+library(pracma)#
+library(ellipse)#
+#
+set.seed(0)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("fpca_algs.r")#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("fourier_basis.r")#
+source("ise.r")#
+source("stan_mods.r")#
+source("vmp_functions.r")#
+#
+setwd("..")
+L <- 3                              # number of FPCA basis functions
+plot_width <- 5
+plot_height <- 3
+bw_plot_dim <- c(L + 1, 1)              # c(ncol, nrow)
+box_plot_fpca_sims("res/fpca_acc.txt", bw_plot_dim, plot_width, plot_height, save_pdf = TRUE)
+######### R script: fpca_sim_st.R ###########
+#
+# For performing Bayesian FPCA simulation study for VMP and MCMC.#
+#
+# Created: 14 JUL 2022#
+# Last changed: 23 JUL 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(lattice)#
+library(pracma)#
+library(ellipse)#
+#
+set.seed(0)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("fpca_algs.r")#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("fourier_basis.r")#
+source("ise.r")#
+source("stan_mods.r")#
+source("vmp_functions.r")#
+#
+setwd("..")
+L <- 3                              # number of FPCA basis functions
+plot_width <- 6
+plot_height <- 3
+bw_plot_dim <- c(L + 1, 1)              # c(ncol, nrow)
+box_plot_fpca_sims("res/fpca_acc.txt", bw_plot_dim, plot_width, plot_height, save_pdf = TRUE)
+######### R script: fpca_sim_st.R ###########
+#
+# For performing Bayesian FPCA simulation study for VMP and MCMC.#
+#
+# Created: 14 JUL 2022#
+# Last changed: 23 JUL 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(lattice)#
+library(pracma)#
+library(ellipse)#
+#
+set.seed(0)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("fpca_algs.r")#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("fourier_basis.r")#
+source("ise.r")#
+source("stan_mods.r")#
+source("vmp_functions.r")#
+#
+setwd("..")#
+#
+# Establish simulation variables:#
+#
+N_vec <- c(10, 20, 30)             # number of curves#
+n_int_knots <- 10                   # number of interior knots#
+K <- n_int_knots + 2                # number of spline basis functions#
+L <- 3                              # number of FPCA basis functions#
+data_col <- "red"                   # colour of the data in the plots#
+criterion <- 1e-6                   # convergence criterion#
+#
+n_vmp <- 500                        # number of VMP iterations#
+n_mc <- 100                         # number of MC samples for VMP CI#
+n_g <- 1000                         # length of the plotting grid#
+vmp_col <- "black"                  # colour of the VMP plots#
+d <- (K+2)*(L+1)                    # dimension of spline vector#
+#
+n_burnin <- 1000                   # Length of burn-in.#
+n_mcmc <- 1000                     # Size of the kept sample.#
+n_thin <- 1                        # Thinning factor. #
+tolerance <- 1e-10#
+mcmc_col <- "red"                  # colour of the MCMC lines in the plots#
+#
+sigma_zeta_vec <- 1/(1:L)         # sd for first and second scores#
+sigma_eps <- 1                      # sd of the residuals#
+sigsq_eps <- sigma_eps^2#
+#
+n_sims <- 5                       # number of simulations#
+#
+plot_width <- 6#
+plot_height <- 3#
+bw_plot_dim <- c(L + 1, 1)              # c(ncol, nrow)#
+hist_plot_dim <- c(length(N_vec), 1)    # c(ncol, nrow)
+hist_plot_fpca_sims("res/fpca_speed.txt", hist_plot_dim, plot_width, plot_height)
+hist_plot_fpca_sims("res/fpca_speed.txt", hist_plot_dim, plot_width, plot_height, save_pdf = TRUE)
+######### R script: mlfpca_sim_st.R ###########
+#
+# For comparing a MlFPCA via MFVB and MCMC#
+#
+# Created: 19 JUL 2022#
+# Last changed: 23 JUL 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(rstan)#
+rstan_options(auto_write = TRUE)#
+library(lattice)#
+library(pracma)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("fpca_algs.r")#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+source("stan_mods.r")#
+source("ise.r")#
+source("fourier_basis.r")#
+#
+setwd("..")
+# Establish simulation variables:#
+#
+N_vec <- c(10, 50, 100)                    # number of subjects#
+M_min <- 10                                # minimum second level observations#
+M_max <- 15                                # maximum second level observations#
+#
+n_sims <- 10                               # number of simulations#
+#
+criterion  <- 1e-5                        # convergence criterion#
+n_int_knots <- 10                         # number of interior knots#
+K <- n_int_knots + 2                      # number of spline basis functions#
+L_1 <- 2                                  # number of first level eigenfunctions#
+L_2 <- 2                                  # number of second level eigenfunctions#
+L <- L_1 + L_2#
+data_col <- "grey51"                      # colour of the data in the plots#
+#
+n_burnin <- 500                   # Length of burn-in.#
+n_mcmc <- 500                     # Size of the kept sample.#
+n_thin <- 1                        # Thinning factor. #
+tolerance <- 1e-10#
+mcmc_col <- "red"                  # colour of the MCMC lines in the plots#
+n_g <- 1000                               # length of the plotting grid#
+#
+n_vmp <- 500                              # number of VMP iterations#
+n_g <- 1000                               # length of the plotting grid#
+vmp_col <- "deepskyblue2"                 # colour of the VMP plots#
+d <- (K+2)*(L_1 + L_2 + 1)                # dimension of spline vector#
+#
+sigma_zeta_1 <- 1/(1:L_1)                   # vector of st. dev.'s for the first level scores#
+sigma_zeta_2 <- 1/(1:L_2)                 # vector of st. dev.'s for the second level scores#
+#
+sigma_eps <- 1                            # sd of the residuals#
+sigsq_eps <- sigma_eps^2#
+#
+plot_width <- 3#
+plot_height <- 6#
+bw_plot_dim <- c(L + 1, 1)              # c(ncol, nrow)#
+hist_plot_dim <- c(length(N_vec), 1)    # c(ncol, nrow)
+# Establish simulation variables:#
+#
+N_vec <- c(10, 50, 100)                    # number of subjects#
+M_min <- 3                                # minimum second level observations#
+M_max <- 5                                # maximum second level observations
+######### R script: mlfpca_sim_st.R ###########
+#
+# For comparing a MlFPCA via MFVB and MCMC#
+#
+# Created: 19 JUL 2022#
+# Last changed: 23 JUL 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(rstan)#
+rstan_options(auto_write = TRUE)#
+library(lattice)#
+library(pracma)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("fpca_algs.r")#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+source("stan_mods.r")#
+source("ise.r")#
+source("fourier_basis.r")#
+#
+setwd("..")#
+#
+# Establish simulation variables:#
+#
+N_vec <- c(10, 50, 100)                    # number of subjects#
+M_min <- 3                                # minimum second level observations#
+M_max <- 5                                # maximum second level observations#
+#
+n_sims <- 10                               # number of simulations#
+#
+criterion  <- 1e-5                        # convergence criterion#
+n_int_knots <- 10                         # number of interior knots#
+K <- n_int_knots + 2                      # number of spline basis functions#
+L_1 <- 2                                  # number of first level eigenfunctions#
+L_2 <- 2                                  # number of second level eigenfunctions#
+L <- L_1 + L_2#
+data_col <- "grey51"                      # colour of the data in the plots#
+#
+n_burnin <- 500                   # Length of burn-in.#
+n_mcmc <- 500                     # Size of the kept sample.#
+n_thin <- 1                        # Thinning factor. #
+tolerance <- 1e-10#
+mcmc_col <- "red"                  # colour of the MCMC lines in the plots#
+n_g <- 1000                               # length of the plotting grid#
+#
+n_vmp <- 500                              # number of VMP iterations#
+n_g <- 1000                               # length of the plotting grid#
+vmp_col <- "deepskyblue2"                 # colour of the VMP plots#
+d <- (K+2)*(L_1 + L_2 + 1)                # dimension of spline vector#
+#
+sigma_zeta_1 <- 1/(1:L_1)                   # vector of st. dev.'s for the first level scores#
+sigma_zeta_2 <- 1/(1:L_2)                 # vector of st. dev.'s for the second level scores#
+#
+sigma_eps <- 1                            # sd of the residuals#
+sigsq_eps <- sigma_eps^2#
+#
+plot_width <- 3#
+plot_height <- 6#
+bw_plot_dim <- c(L + 1, 1)              # c(ncol, nrow)#
+hist_plot_dim <- c(length(N_vec), 1)    # c(ncol, nrow)#
+#
+# Establish hyperparameters:#
+#
+sigsq_beta <- 1e10#
+Sigma_beta <- sigsq_beta*diag(2)#
+mu_beta <- rep(0, 2)#
+A <- 1e5#
+sigsq_zeta <- 1#
+sigma_zeta <- sqrt(sigsq_zeta)#
+Sigma_zeta <- sigsq_zeta*diag(L)#
+#
+# Set the mean function and the FPCA basis functions:#
+#
+mu <- function(t) return(3*sin(pi*t))#
+Psi_1 <- fourier_basis(L_1)#
+Psi_2 <- fourier_basis(L_2)#
+#
+# Begin the VMP simulations:#
+#
+psi_1_names <- matrix(NA, 2, L_1)#
+for(l in 1:L_1) {#
+	psi_1_names[1, l] <- paste("psi_1", l, "_vmp", sep="")#
+	psi_1_names[2, l] <- paste("psi_1", l, "_mcmc", sep="")#
+}#
+psi_1_names <- as.vector(psi_1_names)#
+#
+psi_2_names <- matrix(NA, 2, L_2)#
+for(l in 1:L_2) {#
+	psi_2_names[1, l] <- paste("psi_2", l, "_vmp", sep="")#
+	psi_2_names[2, l] <- paste("psi_2", l, "_mcmc", sep="")#
+}#
+psi_2_names <- as.vector(psi_2_names)#
+#
+col_names <- c(#
+	"N", "sim", "mu_vmp", "mu_mcmc",#
+	psi_1_names, psi_2_names,#
+	"zeta_1_vmp", "zeta_1_mcmc",#
+	"zeta_2_vmp", "zeta_2_mcmc"#
+)#
+n_col_acc <- length(col_names)#
+write(col_names, "res/mlfpca_acc.txt", ncol = n_col_acc, append = FALSE)#
+#
+col_names <- c("N", "sim", "iter", "vmp", "mcmc")#
+n_col_speed <- length(col_names)#
+write(col_names, "res/mlfpca_speed.txt", ncol = n_col_speed, append = FALSE)#
+#
+for(i_N in 1:length(N_vec)) {#
+	N <- N_vec[i_N]#
+	N_sample <- 1:N#
+	cat("Starting simulations with", N, "response curves \n")#
+	for(i_sim in 1:n_sims) {#
+		set.seed(i_sim)#
+		M <- sample(M_min:M_max, N, replace = TRUE)#
+		M_sample <- 1:M_min#
+		T_vec <- vector("list", length = N)       # number of time observations for each curve#
+		for(i in 1:N) {#
+			T_vec[[i]] <- round(runif(M[i], 20, 30))#
+		}#
+		ml_fpca_data <- gauss_mlfpca_data(#
+			T_vec, K, n_g, sigma_zeta_1, sigma_zeta_2,#
+			sigma_eps, mu, Psi_1, Psi_2#
+		)#
+		time_obs <- ml_fpca_data$time_obs#
+		time_g <- ml_fpca_data$time_g#
+		int_knots <- ml_fpca_data$int_knots#
+		X <- ml_fpca_data$X#
+		Z <- ml_fpca_data$Z#
+		C <- ml_fpca_data$C#
+		X_g <- ml_fpca_data$X_g#
+		Z_g <- ml_fpca_data$Z_g#
+		C_g <- ml_fpca_data$C_g#
+		zeta_1 <- ml_fpca_data$zeta_1#
+		zeta_2 <- ml_fpca_data$zeta_2#
+		mu_g <- ml_fpca_data$mu_g#
+		Psi_1_g <- ml_fpca_data$Psi_1_g#
+		Psi_2_g <- ml_fpca_data$Psi_2_g#
+		Y <- ml_fpca_data$Y#
+		#####################################################
+		##
+		#  VMP  SIMULATIONS#
+		##
+		#####################################################
+		start_time <- Sys.time()#
+		vmp_res <- vmp_mlfpca(#
+			n_vmp, N, M, L_1, L_2, C, Y,#
+			sigsq_beta, A, criterion, plot_elbo = FALSE#
+		)#
+		eta_vec <- vmp_res$"eta_vec"#
+		iter <- vmp_res$"iter"#
+		# Get the posterior estimates#
+		eta_in <- list(#
+			eta_vec$"p(nu|Sigma_nu)->nu",#
+			eta_vec$"p(Y|nu,zeta,sigsq_eps)->nu",#
+			eta_vec$"p(zeta)->zeta",#
+			eta_vec$"p(Y|nu,zeta,sigsq_eps)->zeta"#
+		)#
+		mlfpc_rotns <- mlfpc_rotation(#
+			eta_in, time_g, C_g, L_1, L_2,#
+			N_sample, M_sample, Psi_g = list(Psi_1_g, Psi_2_g)#
+		)#
+		end_time <- Sys.time()#
+		vmp_time <- difftime(end_time, start_time, units="secs")#
+		Zeta_1_hat_vmp <- mlfpc_rotns$"zeta_1"#
+		Zeta_2_hat_vmp <- mlfpc_rotns$"zeta_2"#
+		gbl_hat_vmp <- mlfpc_rotns$"gbl_curves"#
+		# Record accuracies:#
+		mu_hat_vmp <- gbl_hat_vmp[, 1]#
+		Psi_1_hat_vmp <- gbl_hat_vmp[, 1:L_1 + 1]#
+		Psi_2_hat_vmp <- gbl_hat_vmp[, 1:L_2 + L_1 + 1]#
+		mu_vmp_acc <- ise(time_g, mu_g, mu_hat_vmp)#
+		psi_1_vmp_acc <- rep(NA, L_1)#
+		for(l in 1:L_1) {#
+			psi_1_vmp_acc[l] <- ise(time_g, Psi_1_g[, l], Psi_1_hat_vmp[, l])#
+		}#
+		psi_2_vmp_acc <- rep(NA, L_2)#
+		for(l in 1:L_2) {#
+			psi_2_vmp_acc[l] <- ise(time_g, Psi_2_g[, l], Psi_2_hat_vmp[, l])#
+		}#
+		norm_diff <- apply(Zeta_1_hat_vmp - Reduce(rbind, zeta_1), 1, function(x) sqrt(cprod(x)))#
+		rmse_1_vmp <- sqrt(mean(norm_diff))#
+		norm_diff <- apply(#
+			Reduce(rbind, Zeta_2_hat_vmp) - Reduce(rbind, lapply(zeta_2, Reduce, f = rbind)),#
+			1, function(x) sqrt(cprod(x))#
+		)#
+		rmse_2_vmp <- sqrt(mean(norm_diff))#
+		#####################################################
+		##
+		#  MCMC  SIMULATIONS#
+		##
+		#####################################################
+		start_time <- Sys.time()#
+		n_time_obs <- sum(sapply(T_vec, sum))#
+		X_in <- Reduce(rbind, lapply(X, function(X) Reduce(rbind, X)))#
+		Z_in <- Reduce(rbind, lapply(Z, function(X) Reduce(rbind, X)))#
+		T_vec <- Reduce(c, T_vec)#
+		Y_in <- Reduce(c, lapply(Y, function(X) Reduce(c, X)))#
+		all_data <- list(#
+			N = N, M = M, n_time_obs = n_time_obs, K = K, L_1 = L_1, L_2 = L_2,#
+			sigma_beta = sqrt(sigsq_beta), A = A,#
+			X = X_in, Z = Z_in, T_vec = T_vec, Y = Y_in#
+		)#
+		# Compile Stan code:#
+		compile_obj <- stan(model_code = mlfpca_model, data = all_data, iter = 1, chains = 1)#
+		# Obtain MCMC samples for each parameter using Stan:#
+		stan_obj <- stan(#
+			model_code = mlfpca_model, data = all_data, warmup = n_burnin,#
+			iter = (n_burnin + n_mcmc), chains = 1, thin = n_thin,#
+			refresh = 100, fit = compile_obj#
+		)#
+		# Summarise the MCMC samples:#
+		mcmc_res <- summarise_ml_mcmc(stan_obj, N, M, C_g, Psi_1_g, Psi_2_g, N_sample, M_sample)#
+		end_time <- Sys.time()#
+		mcmc_time <- difftime(end_time, start_time, units="secs")#
+		gbl_hat_mcmc <- mcmc_res$"gbl_curves"#
+		Zeta_1_hat_mcmc <- mcmc_res$"zeta_1"#
+		Zeta_2_hat_mcmc <- mcmc_res$"zeta_2"#
+		# Record accuracies:#
+		mu_hat_mcmc <- gbl_hat_mcmc[, 1]#
+		Psi_1_hat_mcmc <- gbl_hat_mcmc[, 1:L_1 + 1]#
+		Psi_2_hat_mcmc <- gbl_hat_mcmc[, 1:L_2 + L_1 + 1]#
+		mu_mcmc_acc <- ise(time_g, mu_g, mu_hat_mcmc)#
+		psi_1_mcmc_acc <- rep(NA, L_1)#
+		for(l in 1:L_1) {#
+			psi_1_mcmc_acc[l] <- ise(time_g, Psi_1_g[, l], Psi_1_hat_mcmc[, l])#
+		}#
+		psi_2_mcmc_acc <- rep(NA, L_2)#
+		for(l in 1:L_2) {#
+			psi_2_mcmc_acc[l] <- ise(time_g, Psi_2_g[, l], Psi_2_hat_mcmc[, l])#
+		}#
+		norm_diff <- apply(Zeta_1_hat_mcmc - Reduce(rbind, zeta_1), 1, function(x) sqrt(cprod(x)))#
+		rmse_1_mcmc <- sqrt(mean(norm_diff))#
+		norm_diff <- apply(#
+			Reduce(rbind, Zeta_2_hat_mcmc) - Reduce(rbind, lapply(zeta_2, Reduce, f = rbind)),#
+			1, function(x) sqrt(cprod(x))#
+		)#
+		rmse_2_mcmc <- sqrt(mean(norm_diff))#
+		#####################################################
+		##
+		#  RESULTS#
+		##
+		#####################################################
+		psi_1_acc <- as.vector(rbind(psi_1_vmp_acc, psi_1_mcmc_acc))#
+		psi_2_acc <- as.vector(rbind(psi_2_vmp_acc, psi_2_mcmc_acc))#
+		acc_res <- c(#
+			N, i_sim, mu_vmp_acc, mu_mcmc_acc,#
+			psi_1_acc, psi_2_acc,#
+			rmse_1_vmp, rmse_1_mcmc,#
+			rmse_2_vmp, rmse_2_mcmc#
+		)#
+		write(acc_res, "res/mlfpca_acc.txt", ncol = n_col_acc, append = TRUE)#
+		speed_results <- c(N, i_sim, iter, vmp_time, mcmc_time)#
+		write(speed_results, "res/mlfpca_speed.txt", ncol = n_col_speed, append=TRUE)#
+	}#
+}
+######### R script: mlfpca_sim_st.R ###########
+#
+# For comparing a MlFPCA via MFVB and MCMC#
+#
+# Created: 19 JUL 2022#
+# Last changed: 23 JUL 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(rstan)#
+rstan_options(auto_write = TRUE)#
+library(lattice)#
+library(pracma)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("fpca_algs.r")#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+source("stan_mods.r")#
+source("ise.r")#
+source("fourier_basis.r")#
+#
+setwd("..")
+######### R script: mlfpca_sim_st.R ###########
+#
+# For comparing a MlFPCA via MFVB and MCMC#
+#
+# Created: 19 JUL 2022#
+# Last changed: 23 JUL 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(rstan)#
+rstan_options(auto_write = TRUE)#
+library(lattice)#
+library(pracma)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("fpca_algs.r")#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+source("stan_mods.r")#
+source("ise.r")#
+source("fourier_basis.r")#
+#
+setwd("..")#
+#
+# Establish simulation variables:#
+#
+N_vec <- c(10, 50, 100)                    # number of subjects#
+M_min <- 3                                # minimum second level observations#
+M_max <- 5                                # maximum second level observations#
+#
+n_sims <- 10                               # number of simulations#
+#
+criterion  <- 1e-5                        # convergence criterion#
+n_int_knots <- 10                         # number of interior knots#
+K <- n_int_knots + 2                      # number of spline basis functions#
+L_1 <- 2                                  # number of first level eigenfunctions#
+L_2 <- 2                                  # number of second level eigenfunctions#
+L <- L_1 + L_2#
+data_col <- "grey51"                      # colour of the data in the plots#
+#
+n_burnin <- 500                   # Length of burn-in.#
+n_mcmc <- 500                     # Size of the kept sample.#
+n_thin <- 1                        # Thinning factor. #
+tolerance <- 1e-10#
+mcmc_col <- "red"                  # colour of the MCMC lines in the plots#
+n_g <- 1000                               # length of the plotting grid#
+#
+n_vmp <- 500                              # number of VMP iterations#
+n_g <- 1000                               # length of the plotting grid#
+vmp_col <- "deepskyblue2"                 # colour of the VMP plots#
+d <- (K+2)*(L_1 + L_2 + 1)                # dimension of spline vector#
+#
+sigma_zeta_1 <- 1/(1:L_1)                   # vector of st. dev.'s for the first level scores#
+sigma_zeta_2 <- 1/(1:L_2)                 # vector of st. dev.'s for the second level scores#
+#
+sigma_eps <- 1                            # sd of the residuals#
+sigsq_eps <- sigma_eps^2#
+#
+plot_width <- 3#
+plot_height <- 6#
+bw_plot_dim <- c(L + 1, 1)              # c(ncol, nrow)#
+hist_plot_dim <- c(length(N_vec), 1)    # c(ncol, nrow)
+box_plot_mlfpca_sims("res/mlfpca_acc.txt", bw_plot_dim, plot_width, plot_height)
+box_plot_mlfpca_sims("res/mlfpca_acc.txt", bw_plot_dim, plot_width, plot_height, save_pdf = TRUE)
+######### R script: mlfpca_sim_st.R ###########
+#
+# For comparing a MlFPCA via MFVB and MCMC#
+#
+# Created: 19 JUL 2022#
+# Last changed: 23 JUL 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(rstan)#
+rstan_options(auto_write = TRUE)#
+library(lattice)#
+library(pracma)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("fpca_algs.r")#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+source("stan_mods.r")#
+source("ise.r")#
+source("fourier_basis.r")#
+#
+setwd("..")#
+#
+# Establish simulation variables:#
+#
+N_vec <- c(10, 50, 100)                    # number of subjects#
+M_min <- 3                                # minimum second level observations#
+M_max <- 5                                # maximum second level observations#
+#
+n_sims <- 10                               # number of simulations#
+#
+criterion  <- 1e-5                        # convergence criterion#
+n_int_knots <- 10                         # number of interior knots#
+K <- n_int_knots + 2                      # number of spline basis functions#
+L_1 <- 2                                  # number of first level eigenfunctions#
+L_2 <- 2                                  # number of second level eigenfunctions#
+L <- L_1 + L_2#
+data_col <- "grey51"                      # colour of the data in the plots#
+#
+n_burnin <- 500                   # Length of burn-in.#
+n_mcmc <- 500                     # Size of the kept sample.#
+n_thin <- 1                        # Thinning factor. #
+tolerance <- 1e-10#
+mcmc_col <- "red"                  # colour of the MCMC lines in the plots#
+n_g <- 1000                               # length of the plotting grid#
+#
+n_vmp <- 500                              # number of VMP iterations#
+n_g <- 1000                               # length of the plotting grid#
+vmp_col <- "deepskyblue2"                 # colour of the VMP plots#
+d <- (K+2)*(L_1 + L_2 + 1)                # dimension of spline vector#
+#
+sigma_zeta_1 <- 1/(1:L_1)                   # vector of st. dev.'s for the first level scores#
+sigma_zeta_2 <- 1/(1:L_2)                 # vector of st. dev.'s for the second level scores#
+#
+sigma_eps <- 1                            # sd of the residuals#
+sigsq_eps <- sigma_eps^2#
+#
+plot_width <- 6#
+plot_height <- 3#
+bw_plot_dim <- c(L + 1, 1)              # c(ncol, nrow)#
+hist_plot_dim <- c(length(N_vec), 1)    # c(ncol, nrow)
+box_plot_mlfpca_sims("res/mlfpca_acc.txt", bw_plot_dim, plot_width, plot_height, save_pdf = TRUE)
+######### R script: mlfpca_sim_st.R ###########
+#
+# For comparing a MlFPCA via MFVB and MCMC#
+#
+# Created: 19 JUL 2022#
+# Last changed: 23 JUL 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(rstan)#
+rstan_options(auto_write = TRUE)#
+library(lattice)#
+library(pracma)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("fpca_algs.r")#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("vmp_functions.r")#
+source("stan_mods.r")#
+source("ise.r")#
+source("fourier_basis.r")#
+#
+setwd("..")#
+#
+# Establish simulation variables:#
+#
+N_vec <- c(10, 50, 100)                    # number of subjects#
+M_min <- 3                                # minimum second level observations#
+M_max <- 5                                # maximum second level observations#
+#
+n_sims <- 10                               # number of simulations#
+#
+criterion  <- 1e-5                        # convergence criterion#
+n_int_knots <- 10                         # number of interior knots#
+K <- n_int_knots + 2                      # number of spline basis functions#
+L_1 <- 2                                  # number of first level eigenfunctions#
+L_2 <- 2                                  # number of second level eigenfunctions#
+L <- L_1 + L_2#
+data_col <- "grey51"                      # colour of the data in the plots#
+#
+n_burnin <- 500                   # Length of burn-in.#
+n_mcmc <- 500                     # Size of the kept sample.#
+n_thin <- 1                        # Thinning factor. #
+tolerance <- 1e-10#
+mcmc_col <- "red"                  # colour of the MCMC lines in the plots#
+n_g <- 1000                               # length of the plotting grid#
+#
+n_vmp <- 500                              # number of VMP iterations#
+n_g <- 1000                               # length of the plotting grid#
+vmp_col <- "deepskyblue2"                 # colour of the VMP plots#
+d <- (K+2)*(L_1 + L_2 + 1)                # dimension of spline vector#
+#
+sigma_zeta_1 <- 1/(1:L_1)                   # vector of st. dev.'s for the first level scores#
+sigma_zeta_2 <- 1/(1:L_2)                 # vector of st. dev.'s for the second level scores#
+#
+sigma_eps <- 1                            # sd of the residuals#
+sigsq_eps <- sigma_eps^2#
+#
+plot_width <- 6#
+plot_height <- 3#
+bw_plot_dim <- c(L + 1, 1)              # c(ncol, nrow)#
+hist_plot_dim <- c(length(N_vec), 1)    # c(ncol, nrow)
+hist_plot_fpca_sims(#
+	"res/mlfpca_speed.txt", hist_plot_dim, plot_width,#
+	plot_height, fpca_mod = "multilevel", save_pdf = FALSE#
+)
+hist_plot_fpca_sims(#
+	"res/mlfpca_speed.txt", hist_plot_dim, plot_width,#
+	plot_height, fpca_mod = "multilevel", save_pdf = TRUE#
+)
+source("fpca_L_sims.R")
+######### R script: fpca_L_sims.R ###########
+#
+# For performing Bayesian FPCA simulation study for#
+# determining the number of eigenfunctions (L)#
+#
+# Created: 20 JUL 2022#
+# Last changed: 21 JUL 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(lattice)#
+library(pracma)#
+library(ellipse)#
+#
+set.seed(0)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("fpca_algs.r")#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("fourier_basis.r")#
+source("ise.r")#
+source("stan_mods.r")#
+source("vmp_functions.r")#
+#
+setwd("..")#
+#
+# Establish simulation variables:#
+#
+N_vec <- c(10, 50, 100)             # number of curves#
+n_int_knots <- 10                   # number of interior knots#
+K <- n_int_knots + 2                # number of spline basis functions#
+L <- 4                              # number of FPCA basis functions#
+L_vec <- c(2, 4, 6)              # vector of guesses at L#
+data_col <- "red"                   # colour of the data in the plots#
+criterion <- 1e-6                   # convergence criterion#
+#
+n_vmp <- 500                        # number of VMP iterations#
+n_g <- 1000                         # length of the plotting grid#
+vmp_col <- "black"                  # colour of the VMP plots#
+d <- (K+2)*(L+1)                    # dimension of spline vector#
+#
+n_burnin <- 500                    # Length of burn-in.#
+n_mcmc <- 500                      # Size of the kept sample.#
+n_thin <- 1                        # Thinning factor. #
+tolerance <- 1e-10#
+mcmc_col <- "red"                  # colour of the MCMC lines in the plots#
+#
+sigma_zeta_vec <- 1/(1:L)         # sd for first and second scores#
+sigma_eps <- 1                      # sd of the residuals#
+sigsq_eps <- sigma_eps^2#
+#
+n_sims <- 10                       # number of simulations
+exp_var <- fpca_exp_var_summary("res/fpca_L.txt")
+exp_var
+source("fpca_vmp_vs_mcmc.R")
+n_sample
+source("fpca_vmp_vs_mcmc.R")
+######### R script: fpca_vmp_vs_mcmc.R ###########
+#
+# For performing a simple functional principal#
+# components analysis via MCMC to determine#
+# the FPCA basis functions. The FPCA basis functions#
+# are determined via semiparametric regression.#
+#
+# Created: 29 SEP 2020#
+# Last changed: 29 JUL 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(rstan)#
+rstan_options(auto_write = TRUE)#
+library(lattice)#
+library(ellipse)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("stan_mods.r")#
+source("fourier_basis.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")#
+#
+# Establish simulation variables:#
+#
+N <- 50                             # number of curves#
+n_sample <- 4                       # number of curves for the plots#
+N_sample <- sort(sample(1:N, n_sample))   # specific curves for the plots#
+T_vec <- sample(20:30, N, replace = TRUE)    # number of time observations for each curve#
+n_int_knots <- 10                   # number of interior knots#
+K <- n_int_knots + 2                # number of spline basis functions#
+L <- 3                              # guess of the number of FPCA basis functions#
+data_col <- "black"                 # colour of the data in the plots#
+criterion <- 1e-5                   # convergence criterion#
+d <- (K+2)*(L+1)              # dimension of spline vector#
+#
+n_vmp <- 500                        # number of VMP iterations#
+n_g <- 1000                         # length of the plotting grid#
+vmp_col <- "red"                    # colour of the VMP plots#
+vmp_lwd <- 1                        # line width for vmp plots#
+#
+n_burnin <- 1000                    # Length of burn-in.#
+n_mcmc <- 1000                      # Size of the kept sample.#
+n_thin <- 1                         # Thinning factor. #
+tolerance <- 1e-10#
+mcmc_col <- "deepskyblue2"          # colour of the MCMC lines in the plots#
+mcmc_lwd <- 2                       # line width for mcmc plots#
+#
+sigma_zeta_vec <- 1/(1:L)      # sd for the scores#
+sigma_eps <- 1                      # sd of the residuals#
+sigsq_eps <- sigma_eps^2
+plot_dim <- c(n_sample, 1)                 # (ncol, nrow) for curve plots
+n_g <- 1000                         # length of plotting grid#
+#
+plot_width <- 6.5#
+plot_height <- 2.5#
+#
+print_pdf <- FALSE#
+#
+# Establish hyperparameters:#
+#
+sigsq_beta <- 1e10#
+Sigma_beta <- sigsq_beta*diag(2)#
+mu_beta <- rep(0, 2)#
+A <- 1e5#
+sigsq_zeta <- 1#
+sigma_zeta <- sqrt(sigsq_zeta)#
+Sigma_zeta <- sigsq_zeta*diag(L)#
+#
+# Set the mean function and the FPCA basis functions:#
+#
+mu <- function(t) return(3*sin(pi*t))#
+Psi <- fourier_basis(L)#
+#
+# Generate FPCA data:#
+#
+fpca_data <- gauss_fpca_data(#
+	T_vec, N, K, n_g, sigma_zeta_vec, sigma_eps,#
+	mu, Psi#
+)#
+#
+time_obs <- fpca_data$"time_obs"#
+time_g <- fpca_data$"time_g"#
+int_knots <- fpca_data$"int_knots"#
+X <- fpca_data$"X"#
+Z <- fpca_data$"Z"#
+C <- fpca_data$"C"#
+X_g <- fpca_data$"X_g"#
+Z_g <- fpca_data$"Z_g"#
+C_g <- fpca_data$"C_g"#
+zeta <- fpca_data$"zeta"#
+mu_t <- fpca_data$"mu_t"#
+Psi_t <- fpca_data$"Psi_t"#
+mu_g <- fpca_data$"mu_g"#
+Psi_g <- fpca_data$"Psi_g"#
+Y <- fpca_data$"Y"#
+#
+Y_vec <- Reduce(c, Y)#
+#
+# Plot the data:#
+#
+plot_fpca_data(N_sample, time_obs, Y, plot_dim, data_col)
+#####################################################
+##
+#  MCMC  SIMULATIONS#
+##
+#####################################################
+#
+# Set up Stan inputs:#
+#
+all_data <- list(#
+	N=N, n_time_obs=sum(T_vec), K=K, L=L,#
+	sigma_beta=sqrt(sigsq_beta), A=A,#
+	Sigma_zeta=Sigma_zeta,#
+	X=do.call(rbind, X),#
+	Z=do.call(rbind, Z),#
+	T_vec=T_vec, Y=Y_vec#
+)#
+#
+# Compile Stan code:#
+#
+compile_obj <- stan(#
+	model_code=fpca_model, data=all_data,#
+	iter=1, chains=1#
+)#
+#
+# Obtain MCMC samples for each parameter using Stan:#
+#
+stan_obj <- stan(#
+	model_code=fpca_model, data=all_data, warmup=n_burnin,#
+	iter=(n_burnin+n_mcmc), chains=1, thin=n_thin,#
+	refresh=100, fit=compile_obj#
+)#
+#
+# Summarise the MCMC samples:#
+#
+mcmc_summary <- summarise_mcmc(stan_obj, N_sample, C_g, Psi_g)#
+#
+Y_mcmc_summary <- mcmc_summary$"Y_summary"#
+gbl_mcmc_hat <- mcmc_summary$"gbl_curves"#
+Zeta_mcmc_hat <- mcmc_summary$"zeta"
+#####################################################
+##
+#  VMP  SIMULATIONS#
+##
+#####################################################
+#
+# VMP simulations:#
+#
+eta_vec <- vmp_gauss_fpca(#
+	n_vmp, N, L, C, Y, sigma_zeta, mu_beta,#
+	Sigma_beta, A, time_g, C_g, Psi_g,#
+	criterion, plot_elbo = TRUE#
+)#
+#
+# Get the posterior estimates#
+#
+eta_in <- list(#
+	eta_vec$"p(nu|Sigma_nu)->nu", eta_vec $"p(Y|nu,zeta,sigsq_eps)->nu",#
+	eta_vec $"p(zeta)->zeta", eta_vec $"p(Y|nu,zeta,sigsq_eps)->zeta"#
+)#
+fpc_rotns <- fpc_orthogonalization(eta_in, N_sample, time_g, C_g, Psi_g)#
+#
+# Summarise the VMP results:#
+#
+Y_vmp_summary <- fpc_rotns$"Y_summary"#
+gbl_vmp_hat <- fpc_rotns$"gbl_curves"#
+Zeta_vmp_hat <- fpc_rotns$"zeta"
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)
+print_pdf
+print_pdf <- TRUE
+if(print_pdf) {#
+	pdf("./res/fpca_fits.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+######### R script: fpca_vmp_vs_mcmc.R ###########
+#
+# For performing a simple functional principal#
+# components analysis via MCMC to determine#
+# the FPCA basis functions. The FPCA basis functions#
+# are determined via semiparametric regression.#
+#
+# Created: 29 SEP 2020#
+# Last changed: 29 JUL 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(rstan)#
+rstan_options(auto_write = TRUE)#
+library(lattice)#
+library(ellipse)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("stan_mods.r")#
+source("fourier_basis.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")
+getwd()
+######### R script: mlfpca_vmp_vs_mcmc_final.R ###########
+#
+# For performing a comparison of MlFPCA via MCMC#
+# and VMP#
+#
+# Created: 12 MAY 2022#
+# Last changed: 12 MAY 2022#
+#
+# Updates:#
+# 1. Constructing comparisons between VMP and MCMC.#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(lattice)#
+library(pracma)#
+library(rstan)#
+rstan_options(auto_write = TRUE)#
+library(ellipse)#
+library(matrixcalc)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("cprod.r")#
+source("hdi.r")#
+source("wait.r")#
+source("trapint.r")#
+source("stan_mods.r")#
+source("vmp_functions.r")#
+source("fourier_basis.r")#
+source("fpca_algs.r")#
+#
+setwd("..")#
+#
+set.seed(36)
+# Establish simulation variables:#
+#
+M_min <- 10#
+M_max <- 15#
+N <- 50                                   # number of subjects#
+#
+m_sample <- 3                                   # number of second level curves for the plots#
+n_sample <- 4                             # number of curves for the plots#
+#
+M_sample <- round(seq(1, M_max, length.out = m_sample))   # specific second level curves for the plots#
+M <- sample(M_min:M_max, N, replace = TRUE)     # number of observations on each subject#
+while(sum(M == M_max) < n_sample) {#
+	M <- sample(M_min:M_max, N, replace = TRUE)#
+}#
+#
+N_sample <- sort(sample(which(M == M_max), n_sample))   # specific curves for the plots#
+#
+T_vec <- vector("list", length = N)       # number of time observations for each curve#
+for(i in 1:N) {#
+	T_vec[[i]] <- round(runif(M[i], 20, 30))#
+}
+criterion  <- 1e-5                        # convergence criterion#
+n_int_knots <- 10                         # number of interior knots#
+K <- n_int_knots + 2                      # number of spline basis functions#
+L_1 <- 2                                  # number of first level eigenfunctions#
+L_2 <- 2                                  # number of second level eigenfunctions#
+L <- L_1 + L_2#
+data_col <- "grey51"                      # colour of the data in the plots#
+#
+n_vmp <- 200                              # number of VMP iterations#
+n_g <- 1000                               # length of the plotting grid#
+vmp_col <- "red"                 # colour of the VMP plots#
+d <- (K+2)*(L_1 + L_2 + 1)                # dimension of spline vector#
+#
+n_burnin <- 200                   # Length of burn-in.#
+n_mcmc <- 200                     # Size of the kept sample.#
+n_thin <- 1                        # Thinning factor. #
+tolerance <- 1e-10#
+mcmc_col <- "deepskyblue2"                  # colour of the MCMC lines in the plots#
+mcmc_lwd <- 2                       # line width for mcmc plots#
+#
+sigma_zeta_1 <- 1/(1:L_1)                   # vector of st. dev.'s for the first level scores#
+sigma_zeta_2 <- 1/(1:L_2)                 # vector of st. dev.'s for the second level scores#
+l_zeta <- L_1 + M*L_2                     # length of score vector#
+#
+sigma_eps <- 1                            # sd of the residuals#
+sigsq_eps <- sigma_eps^2
+# Set up plot-grid dimensions:#
+#
+plot_dim <- c(m_sample, n_sample)         # (ncol, nrow) for curve plots#
+#
+plot_width <- 5#
+plot_height <- 7#
+#
+print_pdf <- FALSE              # save the plots in a PDF?
+# Set the FPCA basis functions:#
+#
+mu <- function(t) return(10*sin(pi*t) - 10/2)#
+Psi_1 <- fourier_basis(L_1)#
+Psi_2 <- fourier_basis(L_1 + L_2)[(L_1 + 1):(L_1 + L_2)]
+# Generate the data:#
+#
+mlfpca_data <- gauss_mlfpca_data(#
+	T_vec, K, n_g, sigma_zeta_1, sigma_zeta_2,#
+	sigma_eps, mu_func, Psi_1, Psi_2#
+)#
+#
+time_obs <- mlfpca_data$time_obs#
+time_g <- mlfpca_data$time_g#
+int_knots <- mlfpca_data$int_knots#
+X <- mlfpca_data$X#
+Z <- mlfpca_data$Z#
+C <- mlfpca_data$C#
+C_g <- mlfpca_data$C_g#
+zeta_1 <- mlfpca_data$zeta_1#
+zeta_2 <- mlfpca_data$zeta_2#
+mu_g <- mlfpca_data$mu_g#
+Psi_1_g <- mlfpca_data$Psi_1_g#
+Psi_2_g <- mlfpca_data$Psi_2_g#
+Y <- mlfpca_data$Y
+# Plot the data:#
+#
+plot_mlfpca_data(N_sample, M_sample, time_obs, Y, plot_dim, data_col)
+wait()
+######### R script: fpca_vmp_vs_mcmc.R ###########
+#
+# For performing a simple functional principal#
+# components analysis via MCMC to determine#
+# the FPCA basis functions. The FPCA basis functions#
+# are determined via semiparametric regression.#
+#
+# Created: 29 SEP 2020#
+# Last changed: 29 JUL 2022#
+#
+# Load libraries:#
+#
+library(MASS)#
+library(magic)#
+library(rstan)#
+rstan_options(auto_write = TRUE)#
+library(lattice)#
+library(ellipse)#
+#
+# Required functions:#
+#
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("stan_mods.r")#
+source("fourier_basis.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")
+# Establish simulation variables:#
+#
+N <- 50                             # number of curves#
+n_sample <- 4                       # number of curves for the plots#
+N_sample <- sort(sample(1:N, n_sample))   # specific curves for the plots#
+T_vec <- sample(20:30, N, replace = TRUE)    # number of time observations for each curve#
+n_int_knots <- 10                   # number of interior knots#
+K <- n_int_knots + 2                # number of spline basis functions#
+L <- 3                              # guess of the number of FPCA basis functions#
+data_col <- "black"                 # colour of the data in the plots#
+criterion <- 1e-5                   # convergence criterion#
+d <- (K+2)*(L+1)              # dimension of spline vector#
+#
+n_vmp <- 500                        # number of VMP iterations#
+n_g <- 1000                         # length of the plotting grid#
+vmp_col <- "red"                    # colour of the VMP plots#
+vmp_lwd <- 1                        # line width for vmp plots#
+#
+n_burnin <- 1000                    # Length of burn-in.#
+n_mcmc <- 1000                      # Size of the kept sample.#
+n_thin <- 1                         # Thinning factor. #
+tolerance <- 1e-10#
+mcmc_col <- "deepskyblue2"          # colour of the MCMC lines in the plots#
+mcmc_lwd <- 2                       # line width for mcmc plots#
+#
+sigma_zeta_vec <- 1/(1:L)      # sd for the scores#
+sigma_eps <- 1                      # sd of the residuals#
+sigsq_eps <- sigma_eps^2
+# Set up plotting variables:#
+#
+plot_dim <- c(n_sample, 1)                 # (ncol, nrow) for curve plots#
+#
+n_g <- 1000                         # length of plotting grid#
+#
+plot_width <- 6.5#
+plot_height <- 2.5#
+#
+print_pdf <- FALSE
+# Establish hyperparameters:#
+#
+sigsq_beta <- 1e10#
+Sigma_beta <- sigsq_beta*diag(2)#
+mu_beta <- rep(0, 2)#
+A <- 1e5#
+sigsq_zeta <- 1#
+sigma_zeta <- sqrt(sigsq_zeta)#
+Sigma_zeta <- sigsq_zeta*diag(L)#
+#
+# Set the mean function and the FPCA basis functions:#
+#
+mu <- function(t) return(3*sin(pi*t))#
+Psi <- fourier_basis(L)
+# Generate FPCA data:#
+#
+fpca_data <- gauss_fpca_data(#
+	T_vec, N, K, n_g, sigma_zeta_vec, sigma_eps,#
+	mu, Psi#
+)
+time_obs <- fpca_data$"time_obs"#
+time_g <- fpca_data$"time_g"#
+int_knots <- fpca_data$"int_knots"#
+X <- fpca_data$"X"#
+Z <- fpca_data$"Z"#
+C <- fpca_data$"C"#
+X_g <- fpca_data$"X_g"#
+Z_g <- fpca_data$"Z_g"#
+C_g <- fpca_data$"C_g"#
+zeta <- fpca_data$"zeta"#
+mu_t <- fpca_data$"mu_t"#
+Psi_t <- fpca_data$"Psi_t"#
+mu_g <- fpca_data$"mu_g"#
+Psi_g <- fpca_data$"Psi_g"#
+Y <- fpca_data$"Y"#
+#
+Y_vec <- Reduce(c, Y)#
+#
+# Plot the data:#
+#
+plot_fpca_data(N_sample, time_obs, Y, plot_dim, data_col)
+source("fpca_vmp_vs_mcmc.R")
+print_pdf <- TRUE
+if(print_pdf) {#
+	pdf("./res/fpca_fits.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+plot_dim
+plot_dim <- rev(plot_dim)
+plot_dim
+if(print_pdf) {#
+	pdf("./res/fpca_fits.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+source("fpca_vmp_vs_mcmc.R")
+print_pdf <- TRUE
+if(print_pdf) {#
+	pdf("./res/fpca_fits.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+source("fpca_vmp_vs_mcmc.R")
+print_pdf <- TRUE
+if(print_pdf) {#
+	pdf("./res/fpca_fits.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+source("fpca_vmp_vs_mcmc.R")
+print_pdf <- T
+if(print_pdf) {#
+	pdf("./res/fpca_fits.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+print_pdf
+source("fpca_vmp_vs_mcmc.R")
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("stan_mods.r")#
+source("fourier_basis.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("stan_mods.r")#
+source("fourier_basis.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("stan_mods.r")#
+source("fourier_basis.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("stan_mods.r")#
+source("fourier_basis.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("stan_mods.r")#
+source("fourier_basis.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("stan_mods.r")#
+source("fourier_basis.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)
+setwd("functions")#
+#
+source("X_design.r")#
+source("ZOSull.r")#
+source("OmegaOSull.r")#
+source("vec.r")#
+source("vecInverse.r")#
+source("tr.r")#
+source("trapint.r")#
+source("cprod.r")#
+source("wait.r")#
+source("stan_mods.r")#
+source("fourier_basis.r")#
+source("vmp_functions.r")#
+source("fpca_algs.r")#
+#
+setwd("..")
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)
+print_pdf <- T
+if(print_pdf) {#
+	pdf("./res/fpca_fits.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+source("fpca_vmp_vs_mcmc.R")
+print_pdf <- T
+if(print_pdf) {#
+	pdf("./res/fpca_fits.pdf",width=plot_width, height=plot_height)#
+}#
+#
+plot_fpca_fit_comparisons(#
+	N_sample, time_obs, time_g,#
+	Y, Y_vmp_summary, Y_mcmc_summary,#
+	plot_dim, vmp_col, mcmc_col, data_col#
+)#
+#
+if(print_pdf) {#
+	dev.off()#
+}
+source("fpca_vmp_vs_mcmc.R")
+getwd()
+source("mlfpca_vmp_vs_mcmc.R")
+source("mlfpca_vmp.R")
+getwd()
+library(lattice)#
+#
+source("../../functions/fpca_algs.r")#
+source("../../functions/construct_txt.r")#
+#
+file_name <- "../../res/mlfpca_acc.txt"#
+construct_txt(file_name = file_name, header = TRUE)
