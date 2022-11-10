@@ -85,14 +85,6 @@ Goldsmith, J., Greven, S., and Crainiceanu, C. (2013).
 \newblock {\em Biometrics\/}, 69: 41--51.
 \endbibitem
 
-\bibitem[{Goldsmith and Kitago(2016)}]{goldsmith16}
-Goldsmith, J. and Kitago, T. (2016).
-\newblock \enquote{Assessing systematic effects of stroke on motorcontrol by
-  using hierarchical function-on-scalar regression.}
-\newblock {\em Journal of the Royal Statistical Society. Series C, Applied
-  statistics\/}, 65: 215--236.
-\endbibitem
-
 \bibitem[{Goldsmith et~al.(2015)Goldsmith, Zippunnikov, and
   Schrack}]{Goldsmith15}
 Goldsmith, J., Zippunnikov, V., and Schrack, J. (2015).
@@ -101,18 +93,17 @@ Goldsmith, J., Zippunnikov, V., and Schrack, J. (2015).
 \newblock {\em Biometrics\/}, 71: 344--353.
 \endbibitem
 
-\bibitem[{Greven et~al.(2011)Greven, Crainiceanu, Caffo, and
-  Reich}]{greven2011}
+\bibitem[{Greven et~al.(2011)Greven, Crainiceanu, Caffo, and Reich}]{greven11}
 Greven, S., Crainiceanu, C., Caffo, B., and Reich, D. (2011).
 \newblock \enquote{Longitudinal functional principal component analysis.}
-\newblock In {\em Recent Advances in Functional Data Analysis and Related
-  Topics\/}, 149--154. Springer.
+\newblock {\em Recent Advances in Functional Data Analysis and Related
+  Topics\/}, 149--154.
 \endbibitem
 
-\bibitem[{James et~al.(2000)James, Hastie, and Sugar}]{james2000}
+\bibitem[{James et~al.(2000)James, Hastie, and Sugar}]{james00}
 James, G.~M., Hastie, T.~J., and Sugar, C.~A. (2000).
 \newblock \enquote{Principal component models for sparse functional data.}
-\newblock {\em Biometrika\/}, 87(3): 587--602.
+\newblock {\em Biometrika\/}, 87: 587--602.
 \endbibitem
 
 \bibitem[{Lee and Wand(2016)}]{lee16}
@@ -161,6 +152,12 @@ Nolan, T.~H., Menictas, M., and Wand, M.~P. (2020).
 \newblock \enquote{Streamlined computing for variational inference with higher
   level random effects.}
 \newblock {\em Journal of Machine Learning Research\/}, 21: 1--62.
+\endbibitem
+
+\bibitem[{Nolan and Wand(2020)}]{nolan20}
+Nolan, T.~H. and Wand, M.~P. (2020).
+\newblock \enquote{Streamlined Solutions to Multilevel Sparse Matrix Problems.}
+\newblock {\em ANZIAM Journal\/}, 62: 18--41.
 \endbibitem
 
 \bibitem[{Ormerod and Wand(2010)}]{ormerod10}

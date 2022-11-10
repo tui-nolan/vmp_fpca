@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2021.6.12)  15 JUL 2021 16:50
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2021.6.12)  20 OCT 2022 09:29
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -302,6 +302,7 @@ File: pdftex.def 2020/10/05 v1.2a Graphics/color driver for pdftex
 \c@thm=\count284
 \c@prop=\count285
 \c@lem=\count286
+\c@cor=\count287
 
 (/usr/local/texlive/2021/texmf-dist/tex/latex/caption/caption.sty
 Package: caption 2020/10/26 v3.5g Customizing captions (AR)
@@ -328,13 +329,13 @@ Package caption Warning: Unknown document class (or package),
 (caption)                standard defaults will be used.
 See the caption package documentation for explanation.
 
-\c@caption@flags=\count287
-\c@continuedfloat=\count288
+\c@caption@flags=\count288
+\c@continuedfloat=\count289
 Package caption Info: hyperref package is loaded.
 ) (/usr/local/texlive/2021/texmf-dist/tex/latex/caption/subcaption.sty
 Package: subcaption 2020/10/07 v1.3j Sub-captions (AR)
-\c@subfigure=\count289
-\c@subtable=\count290
+\c@subfigure=\count290
+\c@subtable=\count291
 )
 (/usr/local/texlive/2021/texmf-dist/tex/latex/cleveref/cleveref.sty
 Package: cleveref 2018/03/27 v0.21.4 Intelligent cross-referencing
@@ -394,14 +395,14 @@ ode.tex
 \pgf@yd=\dimen177
 \w@pgf@writea=\write3
 \r@pgf@reada=\read2
-\c@pgf@counta=\count291
-\c@pgf@countb=\count292
-\c@pgf@countc=\count293
-\c@pgf@countd=\count294
+\c@pgf@counta=\count292
+\c@pgf@countb=\count293
+\c@pgf@countc=\count294
+\c@pgf@countd=\count295
 \t@pgf@toka=\toks33
 \t@pgf@tokb=\toks34
 \t@pgf@tokc=\toks35
-\pgf@sys@id@count=\count295
+\pgf@sys@id@count=\count296
 
 (/usr/local/texlive/2021/texmf-dist/tex/generic/pgf/systemlayer/pgf.cfg
 File: pgf.cfg 2020/12/27 v3.1.8b (3.1.8b)
@@ -419,8 +420,8 @@ File: pgfsys-common-pdf.def 2020/12/27 v3.1.8b (3.1.8b)
 (/usr/local/texlive/2021/texmf-dist/tex/generic/pgf/systemlayer/pgfsyssoftpath.
 code.tex
 File: pgfsyssoftpath.code.tex 2020/12/27 v3.1.8b (3.1.8b)
-\pgfsyssoftpath@smallbuffer@items=\count296
-\pgfsyssoftpath@bigbuffer@items=\count297
+\pgfsyssoftpath@smallbuffer@items=\count297
+\pgfsyssoftpath@bigbuffer@items=\count298
 )
 (/usr/local/texlive/2021/texmf-dist/tex/generic/pgf/systemlayer/pgfsysprotocol.
 code.tex
@@ -449,7 +450,7 @@ Package: pgfcore 2020/12/27 v3.1.8b (3.1.8b)
 (/usr/local/texlive/2021/texmf-dist/tex/generic/pgf/math/pgfmathutil.code.tex)
 (/usr/local/texlive/2021/texmf-dist/tex/generic/pgf/math/pgfmathparser.code.tex
 \pgfmath@dimen=\dimen178
-\pgfmath@count=\count298
+\pgfmath@count=\count299
 \pgfmath@box=\box53
 \pgfmath@toks=\toks36
 \pgfmath@stack@operand=\toks37
@@ -474,7 +475,7 @@ code.tex)
 (/usr/local/texlive/2021/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.integ
 erarithmetics.code.tex)))
 (/usr/local/texlive/2021/texmf-dist/tex/generic/pgf/math/pgfmathfloat.code.tex
-\c@pgfmathroundto@lastzeros=\count299
+\c@pgfmathroundto@lastzeros=\count300
 )) (/usr/local/texlive/2021/texmf-dist/tex/generic/pgf/math/pgfint.code.tex)
 (/usr/local/texlive/2021/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepoints.co
 de.tex
@@ -512,7 +513,7 @@ File: pgfcorescopes.code.tex 2020/12/27 v3.1.8b (3.1.8b)
 \pgfpic=\box54
 \pgf@hbox=\box55
 \pgf@layerbox@main=\box56
-\pgf@picture@serial@count=\count300
+\pgf@picture@serial@count=\count301
 )
 (/usr/local/texlive/2021/texmf-dist/tex/generic/pgf/basiclayer/pgfcoregraphicst
 ate.code.tex
@@ -547,8 +548,8 @@ File: pgfcorearrows.code.tex 2020/12/27 v3.1.8b (3.1.8b)
 e.tex
 File: pgfcoreshade.code.tex 2020/12/27 v3.1.8b (3.1.8b)
 \pgf@max=\dimen258
-\pgf@sys@shading@range@num=\count301
-\pgf@shadingcount=\count302
+\pgf@sys@shading@range@num=\count302
+\pgf@shadingcount=\count303
 )
 (/usr/local/texlive/2021/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreimage.cod
 e.tex
@@ -615,7 +616,7 @@ Package: tikz 2020/12/27 v3.1.8b (3.1.8b)
 (/usr/local/texlive/2021/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothan
 dlers.code.tex
 File: pgflibraryplothandlers.code.tex 2020/12/27 v3.1.8b (3.1.8b)
-\pgf@plot@mark@count=\count303
+\pgf@plot@mark@count=\count304
 \pgfplotmarksize=\dimen263
 )
 \tikz@lastx=\dimen264
@@ -630,19 +631,19 @@ File: pgflibraryplothandlers.code.tex 2020/12/27 v3.1.8b (3.1.8b)
 \tikz@figbox@bg=\box60
 \tikz@tempbox=\box61
 \tikz@tempbox@bg=\box62
-\tikztreelevel=\count304
-\tikznumberofchildren=\count305
-\tikznumberofcurrentchild=\count306
-\tikz@fig@count=\count307
+\tikztreelevel=\count305
+\tikznumberofchildren=\count306
+\tikznumberofcurrentchild=\count307
+\tikz@fig@count=\count308
 
 (/usr/local/texlive/2021/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.cod
 e.tex
 File: pgfmodulematrix.code.tex 2020/12/27 v3.1.8b (3.1.8b)
-\pgfmatrixcurrentrow=\count308
-\pgfmatrixcurrentcolumn=\count309
-\pgf@matrix@numberofcolumns=\count310
+\pgfmatrixcurrentrow=\count309
+\pgfmatrixcurrentcolumn=\count310
+\pgf@matrix@numberofcolumns=\count311
 )
-\tikz@expandcount=\count311
+\tikz@expandcount=\count312
 
 (/usr/local/texlive/2021/texmf-dist/tex/generic/pgf/frontendlayer/tikz/librarie
 s/tikzlibrarytopaths.code.tex
@@ -741,7 +742,7 @@ s.code.tex
 \pgfdecoratedinputsegmentcompleteddistance=\dimen279
 \pgfdecoratedinputsegmentremainingdistance=\dimen280
 \pgf@decorate@distancetomove=\dimen281
-\pgf@decorate@repeatstate=\count312
+\pgf@decorate@repeatstate=\count313
 \pgfdecorationsegmentamplitude=\dimen282
 \pgfdecorationsegmentlength=\dimen283
 )
@@ -777,7 +778,7 @@ s/tikzlibraryintersections.code.tex
 ctions.code.tex
 (/usr/local/texlive/2021/texmf-dist/tex/generic/pgf/libraries/pgflibraryfpu.cod
 e.tex)
-\pgf@intersect@solutions=\count313
+\pgf@intersect@solutions=\count314
 ))
 (/usr/local/texlive/2021/texmf-dist/tex/generic/pgf/frontendlayer/tikz/librarie
 s/tikzlibrarypatterns.code.tex
@@ -836,10 +837,10 @@ Package: array 2020/10/01 v2.5c Tabular extension package (FMi)
 \backup@length=\skip59
 \ar@cellbox=\box87
 )
-\c@nprt@mantissa@digitsbefore=\count314
-\c@nprt@mantissa@digitsafter=\count315
-\c@nprt@exponent@digitsbefore=\count316
-\c@nprt@exponent@digitsafter=\count317
+\c@nprt@mantissa@digitsbefore=\count315
+\c@nprt@mantissa@digitsafter=\count316
+\c@nprt@exponent@digitsbefore=\count317
+\c@nprt@exponent@digitsafter=\count318
 \nprt@digitwidth=\skip60
 \nprt@sepwidth=\skip61
 \nprt@decimalwidth=\skip62
@@ -847,12 +848,12 @@ Package: array 2020/10/01 v2.5c Tabular extension package (FMi)
 \nprt@digittoks=\toks42
 \nprt@pretoks=\toks43
 \nprt@posttoks=\toks44
-\nprt@thisdigit=\count318
-\nprt@curpos=\count319
-\nprt@rndpos=\count320
-\c@nprt@digitsfirstblock=\count321
-\c@nprt@blockcnt=\count322
-\c@nprt@cntprint=\count323
+\nprt@thisdigit=\count319
+\nprt@curpos=\count320
+\nprt@rndpos=\count321
+\c@nprt@digitsfirstblock=\count322
+\c@nprt@blockcnt=\count323
+\c@nprt@cntprint=\count324
 
 No configuration file `numprint.cfg' found.)
 (/usr/local/texlive/2021/texmf-dist/tex/latex/l3packages/xfp/xfp.sty
@@ -861,7 +862,7 @@ Package: expl3 2021-02-18 L3 programming layer (loader)
 
 (/usr/local/texlive/2021/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2021-03-18 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count324
+\l__color_backend_stack_int=\count325
 \l__pdf_internal_box=\box88
 ))
 Package: xfp 2021-03-12 L3 Floating point unit
@@ -877,19 +878,19 @@ Package: fp 1995/04/02
 `Fixed Point Package', Version 0.8, April 2, 1995 (C) Michael Mehlich
 (/usr/local/texlive/2021/texmf-dist/tex/latex/fp/defpattern.sty
 Package: defpattern 1994/10/12
-\actioncount=\count325
+\actioncount=\count326
 )
 (/usr/local/texlive/2021/texmf-dist/tex/latex/fp/fp-basic.sty
 Package: fp-basic 1996/05/13
-\FP@xs=\count326
-\FP@xia=\count327
-\FP@xib=\count328
-\FP@xfa=\count329
-\FP@xfb=\count330
-\FP@rega=\count331
-\FP@regb=\count332
-\FP@regs=\count333
-\FP@times=\count334
+\FP@xs=\count327
+\FP@xia=\count328
+\FP@xib=\count329
+\FP@xfa=\count330
+\FP@xfb=\count331
+\FP@rega=\count332
+\FP@regb=\count333
+\FP@regs=\count334
+\FP@times=\count335
 )
 (/usr/local/texlive/2021/texmf-dist/tex/latex/fp/fp-addons.sty
 Package: fp-addons 1995/03/15
@@ -908,7 +909,7 @@ Package: fp-pas 1994/08/29
 )
 (/usr/local/texlive/2021/texmf-dist/tex/latex/fp/fp-random.sty
 Package: fp-random 1995/02/23
-\FPseed=\count335
+\FPseed=\count336
 )
 (/usr/local/texlive/2021/texmf-dist/tex/latex/fp/fp-eqn.sty
 Package: fp-eqn 1995/04/03
@@ -938,7 +939,7 @@ Package: fp-eval 1995/04/03
 \tkz@tcy=\dimen302
 \tkz@tdx=\dimen303
 \tkz@tdy=\dimen304
-\tkz@cntmk=\count336
+\tkz@cntmk=\count337
 
 Local configuration file tkz-base.cfg found and used
 (/usr/local/texlive/2021/texmf-dist/tex/latex/tkz-base/tkz-base.cfg
@@ -1051,7 +1052,7 @@ tex
 Package: footmisc 2011/06/06 v5.5b a miscellany of footnote facilities
 \FN@temptoken=\toks45
 \footnotemargin=\dimen307
-\c@pp@next@reset=\count337
+\c@pp@next@reset=\count338
 Package footmisc Info: Declaring symbol style bringhurst on input line 855.
 Package footmisc Info: Declaring symbol style chicago on input line 863.
 Package footmisc Info: Declaring symbol style wiley on input line 872.
@@ -1073,12 +1074,12 @@ Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
 \cmidrulesep=\dimen315
 \cmidrulekern=\dimen316
 \defaultaddspace=\dimen317
-\@cmidla=\count338
-\@cmidlb=\count339
+\@cmidla=\count339
+\@cmidlb=\count340
 \@aboverulesep=\dimen318
 \@belowrulesep=\dimen319
-\@thisruleclass=\count340
-\@lastruleclass=\count341
+\@thisruleclass=\count341
+\@lastruleclass=\count342
 \@thisrulewidth=\dimen320
 )
 (/usr/local/texlive/2021/texmf-dist/tex/latex/siunitx/siunitx.sty
@@ -1094,27 +1095,27 @@ Package: l3keys2e 2021-03-12 LaTeX2e option processing using LaTeX3 keys
 )
 \l__siunitx_tmp_box=\box89
 \l__siunitx_tmp_dim=\dimen321
-\l__siunitx_tmp_int=\count342
-\l__siunitx_number_mantissa_length_int=\count343
-\l__siunitx_number_uncert_length_int=\count344
-\l__siunitx_round_int=\count345
-\l__siunitx_process_decimal_int=\count346
-\l__siunitx_process_uncertainty_int=\count347
-\l__siunitx_process_fixed_int=\count348
-\l__siunitx_process_integer_min_int=\count349
-\l__siunitx_process_precision_int=\count350
-\l__siunitx_group_min_int=\count351
+\l__siunitx_tmp_int=\count343
+\l__siunitx_number_mantissa_length_int=\count344
+\l__siunitx_number_uncert_length_int=\count345
+\l__siunitx_round_int=\count346
+\l__siunitx_process_decimal_int=\count347
+\l__siunitx_process_uncertainty_int=\count348
+\l__siunitx_process_fixed_int=\count349
+\l__siunitx_process_integer_min_int=\count350
+\l__siunitx_process_precision_int=\count351
+\l__siunitx_group_min_int=\count352
 \l__siunitx_angle_marker_box=\box90
 \l__siunitx_angle_unit_box=\box91
 \l__siunitx_angle_marker_dim=\dimen322
 \l__siunitx_angle_unit_dim=\dimen323
-\l__siunitx_unit_int=\count352
-\l__siunitx_unit_denominator_int=\count353
-\l__siunitx_unit_numerator_int=\count354
-\l__siunitx_unit_prefix_int=\count355
-\l__siunitx_unit_prefix_base_int=\count356
-\l__siunitx_unit_prefix_gram_int=\count357
-\l__siunitx_number_product_int=\count358
+\l__siunitx_unit_int=\count353
+\l__siunitx_unit_denominator_int=\count354
+\l__siunitx_unit_numerator_int=\count355
+\l__siunitx_unit_prefix_int=\count356
+\l__siunitx_unit_prefix_base_int=\count357
+\l__siunitx_unit_prefix_gram_int=\count358
+\l__siunitx_number_product_int=\count359
 \c__siunitx_one_fill_skip=\skip64
 \l__siunitx_table_unit_align_skip=\skip65
 \l__siunitx_table_exponent_dim=\dimen324
@@ -1142,7 +1143,7 @@ Package: tabularx 2020/01/15 v2.11c `tabularx' package (DPC)
 \TX@old@col=\dimen335
 \TX@target=\dimen336
 \TX@delta=\dimen337
-\TX@cols=\count359
+\TX@cols=\count360
 \TX@ftn=\toks46
 )
 (/usr/local/texlive/2021/texmf-dist/tex/latex/colortbl/colortbl.sty
@@ -1156,7 +1157,7 @@ Package: rotating 2016/08/11 v2.16d rotated objects in LaTeX
 (/usr/local/texlive/2021/texmf-dist/tex/latex/base/ifthen.sty
 Package: ifthen 2014/09/29 v1.1c Standard LaTeX ifthen package (DPC)
 )
-\c@r@tfl@t=\count360
+\c@r@tfl@t=\count361
 \rotFPtop=\skip69
 \rotFPbot=\skip70
 \rot@float@box=\box96
@@ -1181,9 +1182,9 @@ Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
 \tcb@upperbox=\box98
 \tcb@lowerbox=\box99
 \tcb@phantombox=\box100
-\c@tcbbreakpart=\count361
-\c@tcblayer=\count362
-\c@tcolorbox@number=\count363
+\c@tcbbreakpart=\count362
+\c@tcblayer=\count363
+\c@tcolorbox@number=\count364
 \tcb@temp=\box101
 \tcb@temp=\box102
 \tcb@temp=\box103
@@ -1194,7 +1195,13 @@ Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
 (/usr/local/texlive/2021/texmf-dist/tex/latex/tools/xr.sty
 Package: xr 2020-05-10 v5.06 eXternal References (DPC)
 )
-Package xr Info: IMPORTING LABELS FROM app.aux on input line 84.
+Package xr Info: IMPORTING LABELS FROM app.aux on input line 108.
+
+
+LaTeX Warning: Label `E_q_outer_zeta' multiply defined.
+
+
+LaTeX Warning: Label `E_q_outer_zeta@cref' multiply defined.
 
 (/usr/local/texlive/2021/texmf-dist/tex/latex/import/import.sty
 Package: import 2020/04/01  v 6.2
@@ -1224,28 +1231,28 @@ nment
 
 (/usr/local/texlive/2021/texmf-dist/tex/latex/float/float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count364
+\c@float@type=\count365
 \float@exts=\toks51
 \float@box=\box105
 \@float@everytoks=\toks52
 \@floatcapt=\box106
 )
 \@float@every@algorithm=\toks53
-\c@algorithm=\count365
+\c@algorithm=\count366
 )
 (/usr/local/texlive/2021/texmf-dist/tex/latex/algorithmicx/algorithmicx.sty
 Package: algorithmicx 2005/04/27 v1.2 Algorithmicx
 
 Document Style algorithmicx 1.2 - a greatly improved `algorithmic' style
-\c@ALG@line=\count366
-\c@ALG@rem=\count367
-\c@ALG@nested=\count368
+\c@ALG@line=\count367
+\c@ALG@rem=\count368
+\c@ALG@nested=\count369
 \ALG@tlm=\skip71
 \ALG@thistlm=\skip72
-\c@ALG@Lnr=\count369
-\c@ALG@blocknr=\count370
-\c@ALG@storecount=\count371
-\c@ALG@tmpcounter=\count372
+\c@ALG@Lnr=\count370
+\c@ALG@blocknr=\count371
+\c@ALG@storecount=\count372
+\c@ALG@tmpcounter=\count373
 \ALG@tmplength=\skip73
 ) (/usr/local/texlive/2021/texmf-dist/tex/latex/algorithmicx/algpseudocode.sty
 Package: algpseudocode 
@@ -1254,7 +1261,7 @@ Document Style - pseudocode environments for use with the `algorithmicx' style
 ) (/usr/local/texlive/2021/texmf-dist/tex/latex/varwidth/varwidth.sty
 Package: varwidth 2009/03/30 ver 0.92;  Variable-width minipages
 \@vwid@box=\box107
-\sift@deathcycles=\count373
+\sift@deathcycles=\count374
 \@vwid@loff=\dimen338
 \@vwid@roff=\dimen339
 )
@@ -1265,29 +1272,38 @@ Package: xspace 2014/10/28 v1.13 Space after command names (DPC,MH)
 Package natbib Warning: Citation `maestrini20' multiply defined.
 
 
+Package natbib Warning: Citation `nolanmw20' multiply defined.
+
+
+Package natbib Warning: Citation `nolan20' multiply defined.
+
+
+Package natbib Warning: Citation `ormerod10' multiply defined.
+
+
 Package natbib Warning: Citation `wand17' multiply defined.
 
 )
 \openout1 = `main_ba.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 114.
+LaTeX Font Info:    ... okay on input line 114.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 114.
+LaTeX Font Info:    ... okay on input line 114.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 114.
+LaTeX Font Info:    ... okay on input line 114.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 114.
+LaTeX Font Info:    ... okay on input line 114.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 114.
+LaTeX Font Info:    ... okay on input line 114.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 114.
+LaTeX Font Info:    ... okay on input line 114.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 114.
+LaTeX Font Info:    ... okay on input line 114.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 114.
+LaTeX Font Info:    ... okay on input line 114.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 114.
+LaTeX Font Info:    ... okay on input line 114.
  (/usr/local/texlive/2021/texmf-dist/tex/latex/base/fixltx2e.sty
 Package: fixltx2e 2016/12/29 v2.1a fixes to LaTeX (obsolete)
 Applying: [2015/01/01] Old fixltx2e package on input line 46.
@@ -1299,7 +1315,7 @@ Package fixltx2e Warning: fixltx2e is not required with releases after 2015
 
 Already applied: [0000/00/00] Old fixltx2e package on input line 53.
 )
-Package hyperref Info: Link coloring ON on input line 90.
+Package hyperref Info: Link coloring ON on input line 114.
  (/usr/local/texlive/2021/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2021-04-02 v2.47 Cross-referencing by name of section
 
@@ -1310,29 +1326,29 @@ Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
 ty
 Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
-\c@section@level=\count374
+\c@section@level=\count375
 )
-LaTeX Info: Redefining \ref on input line 90.
-LaTeX Info: Redefining \pageref on input line 90.
-LaTeX Info: Redefining \nameref on input line 90.
+LaTeX Info: Redefining \ref on input line 114.
+LaTeX Info: Redefining \pageref on input line 114.
+LaTeX Info: Redefining \nameref on input line 114.
  (./main_ba.out) (./main_ba.out)
 \@outlinefile=\write6
 \openout6 = `main_ba.out'.
 
-Package backref Info: ** backref set up for natbib ** on input line 90.
+Package backref Info: ** backref set up for natbib ** on input line 114.
 
 (/usr/local/texlive/2021/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count375
+\scratchcounter=\count376
 \scratchdimen=\dimen340
 \scratchbox=\box108
-\nofMPsegments=\count376
-\nofMParguments=\count377
+\nofMPsegments=\count377
+\nofMParguments=\count378
 \everyMPshowfont=\toks54
-\MPscratchCnt=\count378
+\MPscratchCnt=\count379
 \MPscratchDim=\dimen341
-\MPnumerator=\count379
-\makeMPintoPDFobject=\count380
+\MPnumerator=\count380
+\makeMPintoPDFobject=\count381
 \everyMPtoPDFconversion=\toks55
 ) (/usr/local/texlive/2021/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
@@ -1355,25 +1371,21 @@ File: siunitx-abbreviations.cfg 2017/11/26 v2.7k siunitx: Abbreviated units
 onary-English.dict
 Dictionary: translator-basic-dictionary, Language: English 
 )
-LaTeX Font Info:    Trying to load font information for U+msa on input line 90.
-
+LaTeX Font Info:    Trying to load font information for U+msa on input line 114
+.
 
 (/usr/local/texlive/2021/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 90.
-
+LaTeX Font Info:    Trying to load font information for U+msb on input line 114
+.
 
 (/usr/local/texlive/2021/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [1{/usr/local/texlive/2021/texmf-var/fonts/map/pdftex/updmap/pdftex.map}
 
-] [2]
-Underfull \vbox (badness 2478) has occurred while \output is active []
-
- [3]
-[4] [5]
-Overfull \hbox (5.20845pt too wide) in paragraph at lines 385--387
+] [2] [3] [4] [5]
+Overfull \hbox (5.20845pt too wide) in paragraph at lines 451--453
 \OT1/cmr/m/n/10 In ad-di-tion, we de-fine $\OML/cmm/b/it/10 y \OMS/cmsy/m/n/10 
 ^^Q \OT1/cmr/m/n/10 (\OML/cmm/b/it/10 y[]\OML/cmm/m/it/10 ; [] ; \OML/cmm/b/it/
 10 y[]\OT1/cmr/m/n/10 )[]$, $\OML/cmm/b/it/10 ^^W \OMS/cmsy/m/n/10 ^^Q \OT1/cmr
@@ -1384,7 +1396,13 @@ m/m/it/10 ; [] ; \OML/cmm/b/it/10 ^^W[]\OT1/cmr/m/n/10 )[]$ and $\OML/cmm/b/it/
  []
 
 [6]
-Overfull \hbox (2.76036pt too wide) in paragraph at lines 463--477
+Overfull \hbox (16.75082pt too wide) in paragraph at lines 504--511
+\OT1/cmr/m/n/10 This aux-il-iary variable-based hi-er-ar-chi-cal con-struc-tion
+ fa-cil-i-tates ar-bi-trar-ily non-informative
+ []
+
+
+Overfull \hbox (2.76036pt too wide) in paragraph at lines 522--531
 []\OT1/cmr/m/n/10 Full Bayesian in-fer-ence for the pa-ram-e-ter set $\OML/cmm/
 b/it/10 ^^W$\OT1/cmr/m/n/10 , $\OML/cmm/b/it/10 ^^P[]\OML/cmm/m/it/10 ; [] ; \O
 ML/cmm/b/it/10 ^^P[]$\OT1/cmr/m/n/10 , $\OML/cmm/m/it/10 ^^[[]$\OT1/cmr/m/n/10 
@@ -1393,179 +1411,146 @@ ML/cmm/b/it/10 ^^P[]$\OT1/cmr/m/n/10 , $\OML/cmm/m/it/10 ^^[[]$\OT1/cmr/m/n/10
 ]$
  []
 
-
-Overfull \hbox (2.81375pt too wide) in paragraph at lines 463--477
-\OML/cmm/b/it/10 ^^P[]\OML/cmm/m/it/10 ; ^^[[]; a[]; ^^[[]; a[]; ^^[[]; [] ; ^^
-[[]; a[]; [] ; a[]\OMS/cmsy/m/n/10 j\OML/cmm/b/it/10 y\OT1/cmr/m/n/10 )$, but i
-t is typ-i-cally an-a-lyt-i-cally in-tractable.
- []
-
 [7] [8] [9]
-Overfull \hbox (15.37573pt too wide) in paragraph at lines 820--827
-\OT1/cmr/m/n/10 partition func-tion are, $\OML/cmm/b/it/10 T[]\OT1/cmr/m/n/10 (
-\OML/cmm/b/it/10 x\OT1/cmr/m/n/10 ) \OMS/cmsy/m/n/10 ^^Q f\OML/cmm/b/it/10 x[]\
-OML/cmm/m/it/10 ; []\OT1/cmr/m/n/10 (\OML/cmm/b/it/10 xx[]\OT1/cmr/m/n/10 )[]\O
-MS/cmsy/m/n/10 g[]$\OT1/cmr/m/n/10 , $\OML/cmm/b/it/10 ^^Q[] \OMS/cmsy/m/n/10 ^
-^Q \OT1/cmr/m/n/10 (\OML/cmm/b/it/10 ^^Q[]\OML/cmm/m/it/10 ; \OML/cmm/b/it/10 ^
-^Q[]\OT1/cmr/m/n/10 )[] \OMS/cmsy/m/n/10 ^^Q \OT1/cmr/m/n/10 [(\OT1/cmr/bx/n/10
- ^^F[]\OML/cmm/b/it/10 ^^V\OT1/cmr/m/n/10 )[]\OML/cmm/m/it/10 ;
- []
-
-
-Overfull \hbox (13.81717pt too wide) in paragraph at lines 820--827
-\OMS/cmsy/m/n/10 ^^@[]\OML/cmm/b/it/10 D[]\OMS/cmsy/m/n/10 f[]\OT1/cmr/m/n/10 (
-\OT1/cmr/bx/n/10 ^^F[]\OT1/cmr/m/n/10 )\OMS/cmsy/m/n/10 g[]\OT1/cmr/m/n/10 ][]$
- and $\OML/cmm/m/it/10 A[]\OT1/cmr/m/n/10 (\OML/cmm/b/it/10 ^^Q[]\OT1/cmr/m/n/1
-0 ) = \OMS/cmsy/m/n/10 ^^@[]\OML/cmm/b/it/10 ^^Q[]\OMS/cmsy/m/n/10 f[][]\OT1/cm
-r/m/n/10 (\OML/cmm/b/it/10 D[]^^Q[]\OT1/cmr/m/n/10 )\OMS/cmsy/m/n/10 g[]\OML/cm
-m/b/it/10 ^^Q[] \OMS/cmsy/m/n/10 ^^@ [] [] j ^^@
- []
-
-
-Overfull \hbox (20.1767pt too wide) in paragraph at lines 853--861
-\OML/cmm/m/it/10 p\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 a[]\OT1/cmr/m/n/10 )\OML/cm
-m/m/it/10 ; [] ; p\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 a[]\OT1/cmr/m/n/10 )$ are u
-ni-vari-ate ver-sions of the \OT1/cmr/m/it/10 in-verse G-Wishart prior frag-men
-t \OT1/cmr/m/n/10 ([][][]Maestrini
- []
-
-[10] [11]
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
-put line 958.
+put line 917.
+ [10] [11]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
  [12]
-Overfull \hbox (2.88727pt too wide) detected at line 1063
-[]\OML/cmm/m/it/10 G[] \OMS/cmsy/m/n/10  [][] \OML/cmm/m/it/10 G[] [] G[] \OMS/
-cmsy/m/n/10  [][] \OML/cmm/m/it/10 G[];  l \OT1/cmr/m/n/10 = 1\OML/cmm/m/it/10 
-; [] ; L:
- []
-
 [13] [14]
-Overfull \hbox (35.6838pt too wide) in paragraph at lines 1242--1249
-\OT1/cmr/m/it/10 to the post-processing steps out-lined above. That is, $[]\OT1
-/cmr/m/n/10 (\OML/cmm/b/it/10 t[]\OT1/cmr/m/n/10 ) = \OML/cmm/b/it/10 C[] [][]\
-OT1/cmr/m/n/10 (\OML/cmm/b/it/10 ^^W[]\OT1/cmr/m/n/10 ) + [][] [][](\OML/cmm/m/
-it/10 ^^P[]\OT1/cmr/m/n/10 )\OML/cmm/b/it/10 C[] [][]\OT1/cmr/m/n/10 (\OML/cmm/
-b/it/10 ^^W[]\OT1/cmr/m/n/10 )\OML/cmm/m/it/10 ;$
+Overfull \hbox (5.11632pt too wide) detected at line 1576
+[]\OML/cmm/b/it/10 ^^Q[] \OMS/cmsy/m/n/10  [][] [] \OML/cmm/m/it/10 :
+ []
+
+[15] [16] [17] [18]
+<images/fpca_fits.pdf, id=536, 289.08pt x 289.08pt>
+File: images/fpca_fits.pdf Graphic file (type pdf)
+<use images/fpca_fits.pdf>
+Package pdftex.def Info: images/fpca_fits.pdf  used on input line 1835.
+(pdftex.def)             Requested size: 166.2212pt x 166.2197pt.
+<images/mlfpca_fits.pdf, id=537, 361.35pt x 289.08pt>
+File: images/mlfpca_fits.pdf Graphic file (type pdf)
+<use images/mlfpca_fits.pdf>
+Package pdftex.def Info: images/mlfpca_fits.pdf  used on input line 1836.
+(pdftex.def)             Requested size: 209.58255pt x 167.6665pt.
+ [19 <./images/fpca_fits.pdf> <./images/mlfpca_fits.pdf>]
+Overfull \hbox (9.82262pt too wide) in paragraph at lines 1909--1932
+\OML/cmm/m/it/10  []\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 t\OT1/cmr/m/n/10 ) = [] [
+](4\OML/cmm/m/it/10 ^^Yt\OT1/cmr/m/n/10 )$, $\OML/cmm/m/it/10  []\OT1/cmr/m/n/1
+0 (\OML/cmm/m/it/10 t\OT1/cmr/m/n/10 ) = [] [](6\OML/cmm/m/it/10 ^^Yt\OT1/cmr/m
+/n/10 )$, $\OML/cmm/m/it/10  []\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 t\OT1/cmr/m/n/
+10 ) = [] [](6\OML/cmm/m/it/10 ^^Yt\OT1/cmr/m/n/10 )$ and $\OML/cmm/m/it/10 ^^P
+[] [] []\OT1/cmr/m/n/10 (0\OML/cmm/m/it/10 ; \OT1/cmr/m/n/10 1\OML/cmm/m/it/10 
+=l[]\OT1/cmr/m/n/10 )$,
+ []
+
+<images/box_plot_fpca_sims.pdf, id=584, 650.43pt x 289.08pt>
+File: images/box_plot_fpca_sims.pdf Graphic file (type pdf)
+<use images/box_plot_fpca_sims.pdf>
+Package pdftex.def Info: images/box_plot_fpca_sims.pdf  used on input line 1951
+.
+(pdftex.def)             Requested size: 379.0pt x 168.44725pt.
+<images/box_plot_mlfpca_sims.pdf, id=585, 578.16pt x 404.51125pt>
+File: images/box_plot_mlfpca_sims.pdf Graphic file (type pdf)
+<use images/box_plot_mlfpca_sims.pdf>
+Package pdftex.def Info: images/box_plot_mlfpca_sims.pdf  used on input line 19
+56.
+(pdftex.def)             Requested size: 371.86493pt x 260.17244pt.
+[20] [21 <./images/box_plot_fpca_sims.pdf> <./images/box_plot_mlfpca_sims.pdf>]
+[22]
+Overfull \hbox (1.8536pt too wide) in paragraph at lines 2140--2140
+ []|\OT1/cmr/m/n/10 MCMC/VMP| 
  []
 
 
-Overfull \hbox (12.46066pt too wide) in paragraph at lines 1254--1259
-\OT1/cmr/m/it/10 and $[] [][] [][] \OT1/cmr/m/n/10 = [](\OMS/cmsy/m/n/10 jj[]jj
-[]\OML/cmm/m/it/10 ; [] ; \OMS/cmsy/m/n/10 jj[]jj[]\OT1/cmr/m/n/10 )$\OT1/cmr/m
-/it/10 . Fur-ther-more, the vec-tors $[]\OT1/cmr/m/n/10 (\OML/cmm/b/it/10 t[]\O
-T1/cmr/m/n/10 )\OML/cmm/m/it/10 ; [] ; []\OT1/cmr/m/n/10 (\OML/cmm/b/it/10 t[]\
-OT1/cmr/m/n/10 )$
+Overfull \hbox (1.8536pt too wide) in paragraph at lines 2140--2140
+ []|\OT1/cmr/m/n/10 MCMC/VMP| 
  []
 
-[15]
-<images/response_curves.pdf, id=498, 208.78pt x 252.945pt>
-File: images/response_curves.pdf Graphic file (type pdf)
-<use images/response_curves.pdf>
-Package pdftex.def Info: images/response_curves.pdf  used on input line 1334.
-(pdftex.def)             Requested size: 195.12877pt x 236.42133pt.
-
-Overfull \hbox (9.41669pt too wide) in paragraph at lines 1334--1335
- [][] 
- []
-
-<images/scores.pdf, id=499, 208.78pt x 252.945pt>
-File: images/scores.pdf Graphic file (type pdf)
-<use images/scores.pdf>
-Package pdftex.def Info: images/scores.pdf  used on input line 1341.
-(pdftex.def)             Requested size: 195.12877pt x 236.42133pt.
-
-Overfull \hbox (9.41669pt too wide) in paragraph at lines 1341--1342
- [][] 
- []
-
-[16] [17 <./images/response_curves.pdf> <./images/scores.pdf>]
-Overfull \hbox (1.61386pt too wide) in paragraph at lines 1390--1396
-[]\OT1/cmr/m/n/10 We then in-cor-po-rated five set-tings for the num-ber of re-
-sponse curves: $\OML/cmm/m/it/10 n \OMS/cmsy/m/n/10 2 f\OT1/cmr/m/n/10 10\OML/c
-mm/m/it/10 ; \OT1/cmr/m/n/10 50\OML/cmm/m/it/10 ; \OT1/cmr/m/n/10 100\OML/cmm/m
-/it/10 ;
- []
-
-<images/box_plot_sims.pdf, id=541, 201.75375pt x 252.945pt>
-File: images/box_plot_sims.pdf Graphic file (type pdf)
-<use images/box_plot_sims.pdf>
-Package pdftex.def Info: images/box_plot_sims.pdf  used on input line 1409.
-(pdftex.def)             Requested size: 187.90244pt x 235.57993pt.
-
-Overfull \hbox (2.19035pt too wide) in paragraph at lines 1409--1410
- [][] 
- []
-
-<images/panel_plot.pdf, id=542, 216.81pt x 252.945pt>
-File: images/panel_plot.pdf Graphic file (type pdf)
-<use images/panel_plot.pdf>
-Package pdftex.def Info: images/panel_plot.pdf  used on input line 1416.
-(pdftex.def)             Requested size: 209.58255pt x 244.52654pt.
-
-Overfull \hbox (23.87047pt too wide) in paragraph at lines 1416--1417
- [][] 
- []
-
-[18] [19 <./images/box_plot_sims.pdf> <./images/panel_plot.pdf>] [20]
-<images/us_fits.pdf, id=611, 208.78pt x 252.945pt>
-File: images/us_fits.pdf Graphic file (type pdf)
-<use images/us_fits.pdf>
-Package pdftex.def Info: images/us_fits.pdf  used on input line 1541.
-(pdftex.def)             Requested size: 187.90244pt x 227.66383pt.
-
-Overfull \hbox (2.19035pt too wide) in paragraph at lines 1541--1542
- [][] 
- []
-
-<images/us_bf.pdf, id=612, 208.78pt x 252.945pt>
-File: images/us_bf.pdf Graphic file (type pdf)
-<use images/us_bf.pdf>
-Package pdftex.def Info: images/us_bf.pdf  used on input line 1548.
-(pdftex.def)             Requested size: 187.90244pt x 227.66383pt.
-
-Overfull \hbox (2.19035pt too wide) in paragraph at lines 1548--1549
- [][] 
- []
-
-[21 <./images/us_fits.pdf> <./images/us_bf.pdf>] [22] (./main_ba.bbl
-(./main_ba.brf)
+[23]
+<images/us_ml_bf_1.pdf, id=652, 216.81pt x 289.08pt>
+File: images/us_ml_bf_1.pdf Graphic file (type pdf)
+<use images/us_ml_bf_1.pdf>
+Package pdftex.def Info: images/us_ml_bf_1.pdf  used on input line 2302.
+(pdftex.def)             Requested size: 166.2212pt x 221.6395pt.
+<images/us_scores_1.pdf, id=653, 289.08pt x 289.08pt>
+File: images/us_scores_1.pdf Graphic file (type pdf)
+<use images/us_scores_1.pdf>
+Package pdftex.def Info: images/us_scores_1.pdf  used on input line 2303.
+(pdftex.def)             Requested size: 209.58255pt x 209.57983pt.
+<images/us_ml_bf_2.pdf, id=654, 433.62pt x 289.08pt>
+File: images/us_ml_bf_2.pdf Graphic file (type pdf)
+<use images/us_ml_bf_2.pdf>
+Package pdftex.def Info: images/us_ml_bf_2.pdf  used on input line 2304.
+(pdftex.def)             Requested size: 361.34999pt x 240.91116pt.
+ [24] [25 <./images/us_ml_bf_1.pdf> <./images/us_scores_1.pdf> <./images/us_ml_
+bf_2.pdf>] (./main_ba.bbl (./main_ba.brf)
 \tf@brf=\write7
 \openout7 = `main_ba.brf'.
 
- [23] [24]
+ [26] [27]
 
 LaTeX Font Warning: Font shape `OT1/cmss/m/it' in size <10> not available
-(Font)              Font shape `OT1/cmss/m/sl' tried instead on input line 185.
+(Font)              Font shape `OT1/cmss/m/sl' tried instead on input line 182.
 
 
-[25])
+[28])
 
 Package natbib Warning: There were multiply defined citations.
 
-[26] (./main_ba.aux)
+
+Package caption Warning: Unused \captionsetup[sub] on input line 90.
+See the caption package documentation for explanation.
+
+[29] (./main_ba.aux)
 Package rerunfilecheck Info: File `main_ba.out' has not changed.
-(rerunfilecheck)             Checksum: C85AA0016C035E981CB914B491FA5BD8;3819.
+(rerunfilecheck)             Checksum: 423D11B57BFDFA1D5000D666C73725D4;4971.
 Package rerunfilecheck Info: File `main_ba.brf' has not changed.
-(rerunfilecheck)             Checksum: B439DB26C3ACEC60C35CB42FF9E1C467;3030.
+(rerunfilecheck)             Checksum: D130E970E24BAC2BC2C17CDF68B1A605;2754.
  ) 
 Here is how much of TeX's memory you used:
- 38509 strings out of 478994
- 780006 string characters out of 5858184
- 1110956 words of memory out of 5000000
- 55063 multiletter control sequences out of 15000+600000
- 426205 words of font info for 110 fonts, out of 8000000 for 9000
+ 38788 strings out of 478994
+ 785007 string characters out of 5858184
+ 1127738 words of memory out of 5000000
+ 55320 multiletter control sequences out of 15000+600000
+ 428031 words of font info for 115 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 98i,16n,111p,1328b,957s stack positions out of 5000i,500n,10000p,200000b,80000s
-pdfTeX warning (dest): name{appendix.C} has been referenced but does not exis
+ 98i,17n,111p,1049b,962s stack positions out of 5000i,500n,10000p,200000b,80000s
+pdfTeX warning (dest): name{appendix.I} has been referenced but does not exis
 t, replaced by a fixed one
 
-pdfTeX warning (dest): name{appendix.B} has been referenced but does not exist,
+pdfTeX warning (dest): name{subsection.I.1} has been referenced but does not ex
+ist, replaced by a fixed one
+
+pdfTeX warning (dest): name{subsection.I.2} has been referenced but does not ex
+ist, replaced by a fixed one
+
+pdfTeX warning (dest): name{appendix.D} has been referenced but does not exist,
+ replaced by a fixed one
+
+pdfTeX warning (dest): name{appendix.C} has been referenced but does not exist,
+ replaced by a fixed one
+
+pdfTeX warning (dest): name{equation.B.3} has been referenced but does not exis
+t, replaced by a fixed one
+
+pdfTeX warning (dest): name{equation.B.2} has been referenced but does not exis
+t, replaced by a fixed one
+
+pdfTeX warning (dest): name{appendix.H} has been referenced but does not exist,
+ replaced by a fixed one
+
+pdfTeX warning (dest): name{appendix.G} has been referenced but does not exist,
+ replaced by a fixed one
+
+pdfTeX warning (dest): name{appendix.F} has been referenced but does not exist,
  replaced by a fixed one
 
 pdfTeX warning (dest): name{appendix.E} has been referenced but does not exist,
  replaced by a fixed one
 
-pdfTeX warning (dest): name{appendix.D} has been referenced but does not exist,
+pdfTeX warning (dest): name{appendix.B} has been referenced but does not exist,
  replaced by a fixed one
 
 pdfTeX warning (dest): name{appendix.A} has been referenced but does not exist,
@@ -1573,42 +1558,44 @@ pdfTeX warning (dest): name{appendix.A} has been referenced but does not exist,
 
 {/usr/local/texlive/2021/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}<
 /usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></
-usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></us
-r/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmbxsl10.pfb></u
-sr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></us
-r/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex9.pfb><
-/usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></
-usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></u
-sr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr
-/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/l
-ocal/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/loc
-al/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local
-/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/local
-/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib7.pfb></usr/l
-ocal/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/loc
-al/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/
-texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/tex
-live/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texliv
-e/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2
-021/texmf-dist/fonts/type1/public/amsfonts/cm/cmsl10.pfb></usr/local/texlive/20
-21/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/texlive/202
-1/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/local/texlive/20
-21/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb></usr/local/texlive/20
-21/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/202
-1/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2021/
-texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2021/te
-xmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/local/texlive/2021/texm
-f-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2021/texmf
--dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2021/texmf-
-dist/fonts/type1/public/amsfonts/symbols/msam7.pfb></usr/local/texlive/2021/tex
-mf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2021
-/texmf-dist/fonts/type1/public/cm-super/sfrm0600.pfb></usr/local/texlive/2021/t
-exmf-dist/fonts/type1/public/cm-super/sfrm0700.pfb></usr/local/texlive/2021/tex
-mf-dist/fonts/type1/public/cm-super/sfrm0900.pfb>
-Output written on main_ba.pdf (26 pages, 3355971 bytes).
+usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></us
+r/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/
+local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmbxsl10.pfb></usr
+/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmbxti10.pfb></us
+r/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr
+/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/
+local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/l
+ocal/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/loc
+al/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local
+/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/t
+exlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/tex
+live/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/local/tex
+live/2021/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib7.pfb></usr/local
+/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/t
+exlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/texl
+ive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive
+/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/20
+21/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2021/
+texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2021/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmsl10.pfb></usr/local/texlive/2021/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/texlive/2021/texmf
+-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/local/texlive/2021/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb></usr/local/texlive/2021/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2021/texmf
+-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2021/texmf-d
+ist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/local/texlive/2021/texmf-dis
+t/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2021/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmti9.pfb></usr/local/texlive/2021/texmf-dist/f
+onts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2021/texmf-dist/fo
+nts/type1/public/amsfonts/symbols/msam7.pfb></usr/local/texlive/2021/texmf-dist
+/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2021/texmf-
+dist/fonts/type1/public/cm-super/sfrm0600.pfb></usr/local/texlive/2021/texmf-di
+st/fonts/type1/public/cm-super/sfrm0700.pfb></usr/local/texlive/2021/texmf-dist
+/fonts/type1/public/cm-super/sfrm0900.pfb>
+Output written on main_ba.pdf (29 pages, 890290 bytes).
 PDF statistics:
- 882 PDF objects out of 1000 (max. 8388607)
- 771 compressed objects within 8 object streams
- 140 named destinations out of 1000 (max. 500000)
- 291 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 936 PDF objects out of 1000 (max. 8388607)
+ 824 compressed objects within 9 object streams
+ 158 named destinations out of 1000 (max. 500000)
+ 336 words of extra memory for PDF output out of 10000 (max. 10000000)
 

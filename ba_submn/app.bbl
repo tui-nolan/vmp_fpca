@@ -1,4 +1,4 @@
-\begin{thebibliography}{2}
+\begin{thebibliography}{7}
 \newcommand{\enquote}[1]{``#1''}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname url\endcsname\relax
@@ -11,6 +11,38 @@ Maestrini, L. and Wand, M.~P. (2020).
 \newblock \enquote{The {Inverse G-Wishart} distribution and variational message
   passing.}
 \newblock {\em arXiv e-prints\/}, arXiv:2005.09876.
+\endbibitem
+
+\bibitem[{Nolan et~al.(2020)Nolan, Menictas, and Wand}]{nolanmw20}
+Nolan, T.~H., Menictas, M., and Wand, M.~P. (2020).
+\newblock \enquote{Streamlined computing for variational inference with higher
+  level random effects.}
+\newblock {\em Journal of Machine Learning Research\/}, 21: 1--62.
+\endbibitem
+
+\bibitem[{Nolan and Wand(2020)}]{nolan20}
+Nolan, T.~H. and Wand, M.~P. (2020).
+\newblock \enquote{Streamlined Solutions to Multilevel Sparse Matrix Problems.}
+\newblock {\em ANZIAM Journal\/}, 62: 18--41.
+\endbibitem
+
+\bibitem[{Ormerod and Wand(2010)}]{ormerod10}
+Ormerod, J.~T. and Wand, M.~P. (2010).
+\newblock \enquote{Explaining variational approximations.}
+\newblock {\em The {American} Statistician\/}, 64: 140--153.
+\endbibitem
+
+\bibitem[{Pinheiro and Bates(2000)}]{pinheiro00}
+Pinheiro, J. and Bates, D.~M. (2000).
+\newblock {\em {Mixed-Effects Models in S and S-PLUS}\/}.
+\newblock New York: Springer.
+\endbibitem
+
+\bibitem[{Rohde and Wand(2016)}]{rohde16}
+Rohde, D. and Wand, M.~P. (2016).
+\newblock \enquote{Semiparametric mean field variational {B}ayes: {G}eneral
+  principles and numerical issues.}
+\newblock {\em Journal of Machine Learning Research\/}, 17: 1--47.
 \endbibitem
 
 \bibitem[{Wand(2017)}]{wand17}
